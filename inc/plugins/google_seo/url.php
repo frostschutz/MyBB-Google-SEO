@@ -322,7 +322,7 @@ function google_seo_url_create($type, $ids)
             $uniqueurl = google_seo_url_uniquify($url, $id);
 
             // Special case: for empty URLs we must use the unique variant
-            if($url == "")
+            if($url == "" || $settings['google_seo_url_uniquifier_force'])
             {
                 $url = $uniqueurl;
             }

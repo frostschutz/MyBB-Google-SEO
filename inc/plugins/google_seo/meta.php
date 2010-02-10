@@ -27,12 +27,23 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
+global $settings;
+
 $plugins->add_hook("forumdisplay_end", "google_seo_meta_forum");
 $plugins->add_hook("postbit", "google_seo_meta_thread");
 $plugins->add_hook("member_profile_end", "google_seo_meta_user");
 $plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
 $plugins->add_hook("calendar_event_end", "google_seo_meta_event");
 $plugins->add_hook("calendar_end", "google_seo_meta_calendar");
+
+if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
+{
+    $plugins->add_hook("archive_start", "google_seo_meta_archive_start");
+    $plugins->add_hook("archive_end", "google_seo_meta_archive_end");
+    $plugins->add_hook("archive_announcement_end", "google_seo_meta_archive");
+    $plugins->add_hook("archive_thread_post", "google_seo_meta_archive");
+    $plugins->add_hook("archive_forum_end", "google_seo_meta_archive");
+}
 
 /* --- Functions: --- */
 
@@ -217,6 +228,64 @@ function google_seo_meta_calendar()
 
     // Description:
     // not implemented yet
+}
+
+/* --- Lite (Archive) Mode --- */
+
+/**
+ * Build description and canonical for the archive pages.
+ *
+ */
+function google_seo_meta_archive()
+{
+    global $plugins, $action;
+
+    switch($action)
+    {
+        case "announcement":
+            global $announcement, $aid;
+            $aid = $announcement['aid'];
+            google_seo_meta_announcement($announcement);
+            break;
+
+        case "thread":
+            global $post, $tid;
+            $plugins->remove_hook("archive_thread_post",
+                                  "google_seo_meta_archive");
+            $tid = $post['tid'];
+            google_seo_meta_thread($post);
+            break;
+
+        case "forum":
+            global $forum, $foruminfo, $fid;
+            $fid = $forum['fid'];
+            $foruminfo = $forum;
+            google_seo_meta_forum();
+            break;
+    }
+}
+
+/**
+ * Catch the hard coded output using PHP output buffer control.
+ * This hack is necessary because MyBB's Lite (Archive) Mode is hard coded.
+ * Thanks to Michael S. for this idea.
+ */
+function google_seo_meta_archive_start()
+{
+    ob_start(NULL, 0);
+}
+
+/**
+ * Add the tags to the output we caught and output it.
+ */
+function google_seo_meta_archive_end()
+{
+    global $headerinclude;
+
+    $output = ob_get_contents();
+    ob_end_clean();
+    $output = str_replace("</head>", "{$headerinclude}</head>", $output);
+    echo $output;
 }
 
 /* --- End of file. --- */

@@ -47,7 +47,7 @@ function google_seo_plugin_info()
         "description"   => $lang->googleseo_plugin_description,
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.1.2",
+        "version"       => "1.1.3",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -556,6 +556,10 @@ function google_seo_plugin_activate()
                 'description' => "Specify a canonical page. This helps avoid Google indexing the same page under several different names. Please see <a href=\"http://www.google.com/support/webmasters/bin/answer.py?hl=en&amp;answer=139394\">About rel=\"canonical\"</a> for details.",
                 'value' => 1,
                 ),
+            'google_seo_meta_archive' => array(
+                'title' => "Add tags to Archive",
+                'description' => "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages by using unconventional methods.",
+                ),
             )
         );
 
@@ -670,6 +674,10 @@ function google_seo_plugin_activate()
                 'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
                 'value' => '{$url}{$separator}{$separator}{$id}',
+                ),
+            'google_seo_url_uniquifier_force' => array(
+                'title' => "URL uniquifier enforcer",
+                'description' => "This option is NOT recommended. If you set this to yes, Google SEO will be forced to use the uniquifier for all URLs without exception, even if it's not necessary. Use this only if you absolutely want every URL to contain the ID. If you enable this, a single separator will be sufficient for the uniquifier.",
                 ),
             'google_seo_url_translate' => array(
                 'title' => "Character Translation",

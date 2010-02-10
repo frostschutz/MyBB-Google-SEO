@@ -1,2 +1,3 @@
 Special thanks to:
-- User "dared" at community.mybboard.net for translate.php.turkish
+- "dared" at community.mybboard.net for translate.php.turkish
+- "Michael S" for his idea to use PHP output buffer to modify Archive mode
