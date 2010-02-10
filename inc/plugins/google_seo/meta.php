@@ -67,9 +67,12 @@ function google_seo_meta_forum($fid)
 {
     global $db;
 
-    $query = $db->simple_select("forums", "description", "fid=$fid");
-    $description = $db->fetch_field($query, "description");
-    google_seo_meta($description);
+    if($fid > 0)
+    {
+        $query = $db->simple_select("forums", "description", "fid=$fid");
+        $description = $db->fetch_field($query, "description");
+        google_seo_meta($description);
+    }
 }
 
 /**
@@ -81,9 +84,12 @@ function google_seo_meta_post($pid)
 {
     global $db;
 
-    $query = $db->simple_select("posts", "message", "pid=$pid");
-    $message = $db->fetch_field($query, "message");
-    google_seo_meta($message);
+    if($pid > 0)
+    {
+        $query = $db->simple_select("posts", "message", "pid=$pid");
+        $message = $db->fetch_field($query, "message");
+        google_seo_meta($message);
+    }
 }
 
 /**
@@ -95,9 +101,12 @@ function google_seo_meta_thread($tid)
 {
     global $db;
 
-    $query = $db->simple_select("threads", "firstpost", "tid=$tid");
-    $firstpost = $db->fetch_field($query, "firstpost");
-    google_seo_meta_post($firstpost);
+    if($tid > 0)
+    {
+        $query = $db->simple_select("threads", "firstpost", "tid=$tid");
+        $firstpost = $db->fetch_field($query, "firstpost");
+        google_seo_meta_post($firstpost);
+    }
 }
 
 /**
@@ -107,7 +116,10 @@ function google_seo_meta_thread($tid)
  */
 function google_seo_meta_user($uid)
 {
-    /* not implemented */
+    if($uid > 0)
+    {
+        /* not implemented */
+    }
 }
 
 /**
@@ -119,9 +131,12 @@ function google_seo_meta_announcement($aid)
 {
     global $db;
 
-    $query = $db->simple_select("announcements", "message", "aid=$aid");
-    $message = $db->fetch_field($query, "message");
-    google_seo_meta($message);
+    if($aid > 0)
+    {
+        $query = $db->simple_select("announcements", "message", "aid=$aid");
+        $message = $db->fetch_field($query, "message");
+        google_seo_meta($message);
+    }
 }
 
 /**
@@ -133,9 +148,12 @@ function google_seo_meta_event($eid)
 {
     global $db;
 
-    $query = $db->simple_select("events", "description", "eid=$eid");
-    $description = $db->fetch_field($query, "description");
-    google_seo_meta($description);
+    if($eid > 0)
+    {
+        $query = $db->simple_select("events", "description", "eid=$eid");
+        $description = $db->fetch_field($query, "description");
+        google_seo_meta($description);
+    }
 }
 
 /**
@@ -145,7 +163,10 @@ function google_seo_meta_event($eid)
  */
 function google_seo_meta_calendar($cid)
 {
-    /* not implemented */
+    if($cid > 0)
+    {
+        /* not implemented */
+    }
 }
 
 /**

@@ -30,9 +30,6 @@ if(!defined("IN_MYBB"))
 // URL -> ID conversion:
 $plugins->add_hook("global_start", "google_seo_url_hook", 1);
 
-// WOL extension for showing specific forums / threads:
-$plugins->add_hook("fetch_wol_activity_end", "google_seo_url_wol");
-
 /* --- Global Variables: --- */
 
 // Required for database queries to the google_seo table.
@@ -293,7 +290,7 @@ function google_seo_url_create($type, $ids)
 
             $url = google_seo_url_separate($url);
             $url = google_seo_url_truncate($url);
-            $unique_url = google_seo_url_uniquify($url, $id);
+            $uniqueurl = google_seo_url_uniquify($url, $id);
 
             $idtype = $google_seo_url_idtype[$type];
 
@@ -305,23 +302,21 @@ function google_seo_url_create($type, $ids)
                                 .$db->escape_string($unique_url)."')
                                  AND active=1
                                  AND id<=$id
+                                 AND EXISTS(SELECT * FROM ".TABLE_PREFIX."$type
+                                            WHERE $idname=id)
                                  ORDER BY id ASC");
 
             $urlrow = $db->fetch_array($query);
             $uniquerow = $db->fetch_array($query);
 
             // Check if the entry was not up to date anyway.
-            if($uniquerow)
-            {
-                $url = $unique_url;
-            }
-
-            else if(!($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url))
+            if(!($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url) &&
+               !($uniquerow && $uniquerow['id'] == $id && $uniquerow['url'] == $url))
             {
                 // Use unique URL if there was a row with a different URL.
-                if($urlrow)
+                if($urlrow && $urlrow['id'] != $id)
                 {
-                    $url = $unique_url;
+                    $url = $uniqueurl;
                 }
 
                 // Set old entries for us to not active.
@@ -512,9 +507,16 @@ function google_seo_url_optimize($type, $id)
 
     // Extract and return IDs for this type.
     $ids = $google_seo_url_optimize[$type];
-    unset($google_seo_url_optimize[$type]);
-    unset($ids[0]);
 
+    // kill optimize cache for this type because they're getting queried now
+    unset($google_seo_url_optimize[$type]);
+
+    // kill bad entries (guests, empty strings)
+    unset($ids[0]);
+    unset($ids['0']);
+    unset($ids['']);
+
+    // return ids
     return $ids;
 }
 
@@ -638,7 +640,7 @@ function google_seo_url_id($type, $url)
  */
 function google_seo_url_hook()
 {
-    global $db, $settings, $mybb;
+    global $db, $settings, $mybb, $session;
 
     // Translate URL name to ID and verify.
     switch(THIS_SCRIPT)
@@ -651,6 +653,15 @@ function google_seo_url_hook()
             {
                 $fid = google_seo_url_id("forums", $url);
                 $mybb->input['fid'] = $fid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_forum={$url}",
+                                        "fid={$fid}", $location);
+                $speciallocs = $session->get_special_locations();
+                $updatesession = array(
+                    'location' => $location,
+                    'location1' => intval($speciallocs['1']),
+                    'location2' => intval($speciallocs['2']),
+                    );
             }
 
             // Verification.
@@ -671,6 +682,15 @@ function google_seo_url_hook()
             {
                 $tid = google_seo_url_id("threads", $url);
                 $mybb->input['tid'] = $tid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_thread={$url}",
+                                        "tid={$tid}", $location);
+                $speciallocs = $session->get_special_locations();
+                $updatesession = array(
+                    'location' => $location,
+                    'location1' => intval($speciallocs['1']),
+                    'location2' => intval($speciallocs['2'])
+                    );
             }
 
             // Verification.
@@ -693,6 +713,9 @@ function google_seo_url_hook()
             {
                 $aid = google_seo_url_id("announcements", $url);
                 $mybb->input['aid'] = $aid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_announcement={$url}", "aid={$aid}", $location);
+                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -713,6 +736,9 @@ function google_seo_url_hook()
             {
                 $uid = google_seo_url_id("users", $url);
                 $mybb->input['uid'] = $uid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_user={$url}", "uid={$uid}", $location);
+                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -733,6 +759,9 @@ function google_seo_url_hook()
             {
                 $eid = google_seo_url_id("events", $url);
                 $mybb->input['eid'] = $eid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_event={$url}", "eid={$eid}", $location);
+                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -751,6 +780,9 @@ function google_seo_url_hook()
                 {
                     $cid = google_seo_url_id("calendars", $url);
                     $mybb->input['calendar'] = $cid;
+                    $location = get_current_location();
+                    $location = str_replace("google_seo_calendar={$cid}", "calendar={$cid}", $location);
+                    $updatesession = array('location' => $location);
                 }
 
                 // Verification.
@@ -764,64 +796,12 @@ function google_seo_url_hook()
 
             break;
     }
-}
 
-/* --- WOL: --- */
-
-/**
- * Add information the WOL needs for specific forum / thread / etc display.
- *
- */
-function google_seo_url_wol($user_activity)
-{
-    global $settings;
-
-    if($settings['google_seo_url_wol'])
+    // Update translated location in the sessions table.
+    if($updatesession)
     {
-        $google_seo_location = strstr($user_activity['location'], "google_seo_");
-
-        if($google_seo_location)
-        {
-            $google_seo_location = split("[=&]", $google_seo_location);
-
-            switch($google_seo_location[0])
-            {
-                case "google_seo_forum":
-                    global $fid_list;
-                    $fid = google_seo_url_id("forums", $google_seo_location[1]);
-                    $fid_list[] = $fid;
-                    $user_activity['fid'] = $fid;
-                    break;
-
-                case "google_seo_thread":
-                    global $tid_list;
-                    $tid = google_seo_url_id("threads", $google_seo_location[1]);
-                    $tid_list[] = $tid;
-                    $user_activity['tid'] = $tid;
-                    break;
-
-                case "google_seo_announcement":
-                    global $aid_list;
-                    $aid = google_seo_url_id("announcements", $google_seo_location[1]);
-                    $aid_list[] = $aid;
-                    $user_activity['aid'] = $aid;
-                    break;
-
-                case "google_seo_event":
-                    global $eid_list;
-                    $eid = google_seo_url_id("events", $google_seo_location[1]);
-                    $eid_list[] = $eid;
-                    $user_activity['eid'] = $eid;
-                    break;
-
-                case "google_seo_user":
-                    global $uid_list;
-                    $uid = google_seo_url_id("users", $google_seo_location[1]);
-                    $uid_list[] = $uid;
-                    $user_activity['uid'] = $uid;
-                    break;
-            }
-        }
+        $db->update_query("sessions", $updatesession,
+                          "sid='".$db->escape_string($session->sid)."'");
     }
 }
 
@@ -837,7 +817,7 @@ function google_seo_url_profile($uid=0)
 {
     global $settings;
 
-    if($settings['google_seo_url_users'])
+    if($settings['google_seo_url_users'] && $uid > 0)
     {
         return google_seo_url_cache("users", $uid);
     }
@@ -853,7 +833,7 @@ function google_seo_url_announcement($aid=0)
 {
     global $settings;
 
-    if($settings['google_seo_url_announcements'])
+    if($settings['google_seo_url_announcements'] && $aid > 0)
     {
         return google_seo_url_cache("announcements", $aid);
     }
@@ -871,7 +851,7 @@ function google_seo_url_forum($fid, $page=0)
 {
     global $settings;
 
-    if($settings['google_seo_url_forums'])
+    if($settings['google_seo_url_forums'] && $fid > 0)
     {
         $url = google_seo_url_cache("forums", $fid);
 
@@ -896,7 +876,7 @@ function google_seo_url_thread($tid, $page=0, $action='')
 {
     global $settings;
 
-    if($settings['google_seo_url_threads'])
+    if($settings['google_seo_url_threads'] && $tid > 0)
     {
         $url = google_seo_url_cache("threads", $tid);
 
@@ -933,9 +913,9 @@ function google_seo_url_post($pid, $tid=0)
 {
     global $settings, $db;
 
-    if($settings['google_seo_url_threads'])
+    if($settings['google_seo_url_threads'] && $pid > 0)
     {
-        if(!$tid)
+        if($tid <= 0)
         {
             // We didn't get a tid so we have to fetch it. Ugly.
             // Code based on showthread.php:
@@ -957,7 +937,7 @@ function google_seo_url_post($pid, $tid=0)
             }
 
             // If we still don't have a tid, we were given an invalid pid.
-            if(!$tid)
+            if($tid <= 0)
             {
                 return 0;
             }
@@ -984,7 +964,7 @@ function google_seo_url_event($eid)
 {
     global $settings;
 
-    if($settings['google_seo_url_events'])
+    if($settings['google_seo_url_events'] && $eid > 0)
     {
         return google_seo_url_cache("events", $eid);
     }
@@ -1003,7 +983,7 @@ function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
 {
     global $settings;
 
-    if($settings['google_seo_url_calendars'])
+    if($settings['google_seo_url_calendars'] && $cid > 0)
     {
         $url = google_seo_url_cache("calendars", $cid);
 
@@ -1037,7 +1017,7 @@ function google_seo_url_calendar_week($cid, $week)
 {
     global $settings;
 
-    if($settings['google_seo_url_calendars'])
+    if($settings['google_seo_url_calendars'] && $cid > 0)
     {
         $url = google_seo_url_cache("calendars", $cid);
 

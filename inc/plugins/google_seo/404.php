@@ -90,7 +90,7 @@ function google_seo_404_page()
         if($mybb->user['uid'] == 0 && $mybb->settings['google_seo_404_wol_hide'])
         {
             // Hide this guest by removing his session.
-            $db->delete_query("sessions", "sid='".$session->sid."'");
+            $db->delete_query("sessions", "sid='".$db->escape_string($session->sid)."'");
         }
 
         error("404 Not Found");

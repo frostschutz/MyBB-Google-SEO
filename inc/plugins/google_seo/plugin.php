@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.1",
+        "version"       => "1.0.2",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -268,7 +268,7 @@ function google_seo_plugin_status()
         }
 
         // Special case: search.php workaround must be the first rewrite rule.
-        $workaround = 'RewriteRule ^([^&]*)&(.*)$ '.$mybb->settings['bburl'].'/$1?$2 [R=301,QSA]';
+        $workaround = 'RewriteRule ^([^&]*)&(.*)$ '.$mybb->settings['bburl'].'/$1?$2 [L,QSA,R=301]';
         $pos = strstr($file, $workaround);
 
         if($rewrite && ($pos === false || $pos != strstr($file, "RewriteRule")))
@@ -708,10 +708,6 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
                 'value' => 'Event-{$url}',
-                ),
-            'google_seo_url_wol' => array(
-                'title' => "Who's Online Google SEO URL",
-                'description' => "If you want a link to the specific forum or thread a user is reading on the Who's Online list while using Google SEO URLs, say yes here. This will cause several additional SQL queries on the Who's Online page.",
                 ),
             )
         );
