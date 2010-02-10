@@ -89,4 +89,4 @@ Options -MultiViews +FollowSymlinks -Indexes
 </IfModule>
 
 # Google SEO 404:
-ErrorDocument 404 /MyBB/mybb_1408/misc.php?google_seo_error=404
+ErrorDocument 404 /MyBB/misc.php?google_seo_error=404

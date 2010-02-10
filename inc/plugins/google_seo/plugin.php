@@ -47,7 +47,7 @@ function google_seo_plugin_info()
         "description"   => $lang->googleseo_plugin_description,
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.1.5",
+        "version"       => "1.1.6",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -465,7 +465,7 @@ function google_seo_plugin_install()
     // Create the Google SEO table.
     $collation = $db->build_create_table_collation();
 
-    if(!$db->table_exists("google_seo_id"))
+    if(!$db->table_exists("google_seo"))
     {
         $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo(
                               active TINYINT UNSIGNED,
@@ -576,6 +576,10 @@ function google_seo_plugin_activate()
             'google_seo_redirect_permission' => array(
                 'title' => "Permission Checks",
                 'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
+                ),
+            'google_seo_redirect_litespeed' => array(
+                'title' => "LiteSpeed Bug workaround",
+                'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",
                 ),
             'google_seo_redirect_debug' => array(
                 'title' => "Debug Redirect",

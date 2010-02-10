@@ -7,7 +7,7 @@ Disallow: /MyBB/misc.php
 Disallow: /MyBB/modcp.php
 Disallow: /MyBB/moderation.php
 Disallow: /MyBB/newreply.php
-Disallow: /MyBB/newthrad.php
+Disallow: /MyBB/newthread.php
 Disallow: /MyBB/online.php
 Disallow: /MyBB/printthread.php
 Disallow: /MyBB/private.php

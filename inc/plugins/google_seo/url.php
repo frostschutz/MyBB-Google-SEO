@@ -29,6 +29,7 @@ if(!defined("IN_MYBB"))
 
 // URL -> ID conversion:
 $plugins->add_hook("global_start", "google_seo_url_hook", 1);
+$plugins->add_hook("moderation_do_merge", "google_seo_url_merge_hook", 1);
 
 /* --- Global Variables: --- */
 
@@ -965,8 +966,51 @@ function google_seo_url_hook()
     // Update translated location in the sessions table.
     if($updatesession)
     {
-        $db->update_query("sessions", $updatesession,
+        $db->update_query('sessions', $updatesession,
                           "sid='".$db->escape_string($session->sid)."'");
+    }
+}
+
+/**
+ * Google SEO Merge hook.
+ *
+ * Unfortunately MyBB asks for a thread URL when merging threads.
+ * We have to translate Google SEO URLs back to showthread.php?tid=x URLs.
+ */
+function google_seo_url_merge_hook()
+{
+    global $mybb;
+
+    // Build regexp to match URL.
+    $regexp = "{$mybb->settings['bburl']}/{$mybb->settings['google_seo_url_threads']}";
+
+    if($regexp)
+    {
+        $regexp = explode('{$url}', $regexp);
+        $regexp = array_map('preg_quote', $regexp, array("/"));
+        $regexp = implode('(.*)', $regexp);
+        $regexp = "/^{$regexp}$/u";
+    }
+
+    // Fetch the (presumably) Google SEO URL:
+    $url = $mybb->input['threadurl'];
+
+    // Kill anchors and parameters.
+    $url = preg_replace('/^([^#?]*)[#?].*$/u', '\\1', $url);
+
+    // Extract the name part of the URL.
+    $url = preg_replace($regexp, '\\1', $url);
+
+    // Unquote the URL.
+    $url = urldecode($url);
+
+    // Look up the ID for this item.
+    $tid = google_seo_url_id('threads', $url);
+
+    // If we have an ID, produce an URL suitable for merge.
+    if($tid)
+    {
+        $mybb->input['threadurl'] = "{$mybb->settings['bburl']}/showthread.php?tid={$tid}";
     }
 }
 

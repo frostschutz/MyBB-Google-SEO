@@ -121,6 +121,13 @@ function google_seo_redirect_hook()
         case 'member.php':
             if($mybb->input['uid'])
             {
+                if($settings['google_seo_redirect_litespeed']
+                   && $mybb->input['action'] != 'profile')
+                {
+                    // Work around rewrite bug in LiteSpeed (double action conflict).
+                    break;
+                }
+
                 $target = get_profile_link($mybb->input['uid']);
                 $kill['uid'] = '';
                 $kill['google_seo_user'] = '';
@@ -136,13 +143,20 @@ function google_seo_redirect_hook()
         case 'calendar.php':
             if($mybb->input['eid'])
             {
+                if($settings['google_seo_redirect_litespeed']
+                   && $mybb->input['action'] != 'profile')
+                {
+                    // Work around rewrite bug in LiteSpeed (double action conflict).
+                    break;
+                }
+
                 $target = get_event_link($mybb->input['eid']);
                 $kill['eid'] = '';
+                $kill['google_seo_event'] = '';
 
                 if($mybb->input['action'] == 'event')
                 {
                     $kill['action'] = '';
-                    $kill['google_seo_event'] = '';
                 }
             }
 

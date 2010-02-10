@@ -25,6 +25,88 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+/* --- Admin CP: --- */
+
+/**
+ * The code in this section is only loaded in the Admin CP.
+ */
+
+if(defined("IN_ADMINCP"))
+{
+    global $plugins, $db, $mybb;
+
+    /**
+     * Plugin API
+     *
+     * Please see google_seo/plugin.php for the real Plugin API.
+     *
+     * Plugin API is huge (>25k) and it's only required on the Admin CP plugin page.
+     * Therefore it is loaded only on demand.
+     */
+
+    function google_seo_info()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_info();
+    }
+
+    function google_seo_is_installed()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_is_installed();
+    }
+
+    function google_seo_install()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_install();
+    }
+
+    function google_seo_uninstall()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_uninstall();
+    }
+
+    function google_seo_activate()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_activate();
+    }
+
+    function google_seo_deactivate()
+    {
+        require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
+        return google_seo_plugin_deactivate();
+    }
+
+    /**
+     * Load the language variables on the settings page.
+     */
+
+    $plugins->add_hook("admin_config_settings_begin", "google_seo_lang_settings");
+
+    function google_seo_lang_settings()
+    {
+        global $lang;
+        $lang->load("googleseo_settings");
+    }
+
+    /**
+     * Override some Google SEO settings if the database table is missing
+     * to avoid Admin CP becoming unuseable when the google_seo table is
+     * deleted manually or otherwise lost.
+     */
+    if(!$db->table_exists("google_seo"))
+    {
+        $mybb->settings['google_seo_404'] = 0;
+        $mybb->settings['google_seo_meta'] = 0;
+        $mybb->settings['google_seo_redirect'] = 0;
+        $mybb->settings['google_seo_sitemap'] = 0;
+        $mybb->settings['google_seo_url'] = 0;
+    }
+}
+
 /* --- Prerequisites: --- */
 
 /*
@@ -51,62 +133,6 @@ function google_seo_lang()
 {
     global $lang;
     $lang->load("googleseo");
-}
-
-if(defined("IN_ADMINCP"))
-{
-    $plugins->add_hook("admin_config_settings_begin", "google_seo_lang_settings");
-
-    function google_seo_lang_settings()
-    {
-        global $lang;
-        $lang->load("googleseo_settings");
-    }
-}
-
-/* --- Plugin API: --- */
-
-/**
- * Please see google_seo/plugin.php for the real Plugin API.
- *
- * Plugin API is huge (>25k) and it's only required on the Admin CP plugin page.
- * Therefore it is loaded only on demand.
- */
-
-function google_seo_info()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_info();
-}
-
-function google_seo_is_installed()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_is_installed();
-}
-
-function google_seo_install()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_install();
-}
-
-function google_seo_uninstall()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_uninstall();
-}
-
-function google_seo_activate()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_activate();
-}
-
-function google_seo_deactivate()
-{
-    require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_deactivate();
 }
 
 /* --- Submodules: --- */

@@ -158,10 +158,21 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             // Additional permission check.
             $unviewableforums = get_unviewable_forums();
+            $inactiveforums = get_inactive_forums();
 
             if($unviewableforums)
             {
-                $condition = "WHERE fid NOT IN ($unviewableforums)";
+                $condition[] = "fid NOT IN ($unviewableforums)";
+            }
+
+            if($inactiveforums)
+            {
+                $condition[] = "fid NOT IN ($inactiveforums)";
+            }
+
+            if($condition)
+            {
+                $condition = "WHERE ".implode(" AND ", $condition);
             }
 
             // Include pages?
@@ -187,10 +198,16 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
+            $inactiveforums = get_inactive_forums();
 
             if($unviewableforums)
             {
                 $condition .= " AND fid NOT IN ($unviewableforums)";
+            }
+
+            if($inactiveforums)
+            {
+                $condition .= " AND fid NOT IN ($inactiveforums)";
             }
 
             // Include pages?
@@ -225,10 +242,16 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
+            $inactiveforums = get_inactive_forums();
 
             if($unviewableforums)
             {
                 $condition .= " AND fid NOT IN ($unviewableforums)";
+            }
+
+            if($inactiveforums)
+            {
+                $condition .= " AND fid NOT IN ($inactiveforums)";
             }
 
             break;
