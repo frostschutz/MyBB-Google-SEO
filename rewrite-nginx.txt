@@ -10,7 +10,7 @@ Here is an example of what nginx rules for Google SEO look like:
 
   # Google SEO workaround for search.php highlights:
   # Make this rule the first rewrite rule in your .htaccess!
-  rewrite ^/MyBB/([^&]*)&(.*)$ http://yourhost/MyBB/$1?$2 permanent;
+  rewrite ^/MyBB/([^&]*)&(.*)$ http://yoursite/MyBB/$1?$2 permanent;
 
   # Google SEO Sitemap:
   rewrite ^/MyBB/((?i)sitemap-([^./]+)\.xml)$ /MyBB/misc.php?google_seo_sitemap=$2;

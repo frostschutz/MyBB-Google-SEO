@@ -1248,58 +1248,53 @@ function google_seo_url_multipage($url)
     switch(THIS_SCRIPT)
     {
         case 'forumdisplay.php':
+            // Initialize variables for forumdisplay.
             global $fid;
-
-            // Check that the given URL is really the one for this forum.
+            $id = $fid;
             $urlcheck = FORUM_URL_PAGED;
-            $urlcheck = str_replace("{fid}", $fid, $urlcheck);
-
-            if(strpos($url, $urlcheck) === 0)
-            {
-                // Check that Google SEO URLs are being used for forums.
-                $seourl = google_seo_url_forum($fid, "{page}");
-
-                if(get_forum_link($fid, "{page}") == $seourl)
-                {
-                    $newurl = $seourl;
-
-                    // Append extra parameters.
-                    $extra = substr($url, strlen($urlcheck)+1);
-
-                    if($extra)
-                    {
-                        $newurl .= '&'.$extra;
-                    }
-                }
-            }
+            $idname = "fid";
+            $type = "forum";
             break;
 
         case 'showthread.php':
+            // Initialize variables for showthread.
             global $tid;
-
-            // Check that the given URL is really the one for this thread.
+            $id = $tid;
             $urlcheck = THREAD_URL_PAGED;
-            $urlcheck = str_replace("{tid}", $tid, $urlcheck);
+            $idname = "tid";
+            $type = "thread";
+            break;
+    }
 
-            if(strpos($url, $urlcheck) === 0)
+    // The actual code that builds the new multipage URL:
+    if($id)
+    {
+        $getlink = "get_{$type}_link";
+        $getlink_googleseo = "google_seo_url_{$type}";
+
+        // replace {idname} with the id to get the default URL
+        $urlcheck = str_replace("{{$idname}}", $id, $urlcheck);
+
+        // see if we have a default multipage URL here
+        if($url == $urlcheck || strpos($url, $urlcheck.'?') === 0)
+        {
+            // Check that the Google SEO URLs are being used.
+            $seourl = $getlink_googleseo($id, "{page}");
+
+            if($seourl == $getlink($id, "{page}"))
             {
-                // Check that Google SEO URLs are being used for forums.
-                $seourl = google_seo_url_forum($tid, "{page}");
+                // Replace it with the Google SEO URL
+                $newurl = $seourl;
 
-                if(get_forum_link($tid, "{page}") == $seourl)
+                // Append extra parameters.
+                $extra = substr($url, strlen($urlcheck)+1);
+
+                if($extra)
                 {
-                    $newurl = $seourl;
-
-                    // Append extra parameters.
-                    $extra = substr($url, strlen($urlcheck)+1);
-
-                    if($extra)
-                    {
-                        $newurl .= '&'.$extra;
-                    }
+                    $newurl .= '&'.$extra;
                 }
             }
-            break;
+        }
     }
 
     return $newurl;

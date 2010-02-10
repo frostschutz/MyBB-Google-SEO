@@ -9,8 +9,8 @@ you are not using Apache, and will only generate .htaccess rules.
 Here is an example of what lighttpd rules for Google SEO look like:
 
 url.redirect:
-	"^/MyBB/([^&?]*)&([^?]*)$" => "http://yourhost/MyBB/$1?$2",
-	"^/MyBB/([^&?]*)&([^?]*)\?(.*)$" => "http://yourhost/MyBB/$1?$2&$3",
+	"^/MyBB/([^&?]*)&([^?]*)$" => "http://yoursite/MyBB/$1?$2",
+	"^/MyBB/([^&?]*)&([^?]*)\?(.*)$" => "http://yoursite/MyBB/$1?$2&$3",
 
 url.rewrite:
 	# Google SEO Sitemap:

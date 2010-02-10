@@ -6,7 +6,7 @@
 # Before using this file please make sure to:
 #
 #   - replace /MyBB/ with your forum folder, e.g. / or /forum/
-#   - replace yourhost/MyBB with your forum URL
+#   - replace yoursite/MyBB with your forum URL
 #   - name the file '.htaccess' (starting with the dot, no .txt)
 #
 # Alternatively you can add the required rewrite rules to your
@@ -44,7 +44,7 @@ Options -MultiViews +FollowSymlinks -Indexes
 
 	# Google SEO workaround for search.php highlights:
 	# Make this rule the first rewrite rule in your .htaccess!
-	RewriteRule ^([^&]*)&(.*)$ http://yourhost/MyBB/$1?$2 [L,QSA,R=301]
+	RewriteRule ^([^&]*)&(.*)$ http://yoursite/MyBB/$1?$2 [L,QSA,R=301]
 
 	# Google SEO Sitemap:
 	RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
