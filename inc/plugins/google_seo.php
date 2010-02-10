@@ -28,12 +28,36 @@ if(!defined("IN_MYBB"))
 /* --- Prerequisites: --- */
 
 /*
- * MyBB does not set up mb charset in global_start hook.
- * So we have to do it ourselves.
+ * Unfortunately global.php sets mb_internal_encoding only after running
+ * the global_start hook (or maybe even not at all). We need it set in
+ * the global_start hook however, so we do it ourselves.
  */
-if(function_exists("mb_internal_encoding"))
+
+// code taken from global.php
+if(function_exists('mb_internal_encoding'))
 {
-    mb_internal_encoding("UTF-8");
+    @mb_internal_encoding('UTF-8');
+}
+
+/*
+ * Load the translation file for Google SEO.
+ *
+ */
+
+global $lang, $plugins;
+
+$lang->load("googleseo");
+
+if(defined("IN_ADMINCP"))
+{
+    $plugins->add_hook("admin_load", "google_seo_admin_load");
+
+    function google_seo_admin_load()
+    {
+        global $lang;
+        $lang->load("googleseo_settings");
+        $lang->load("googleseo_plugin");
+    }
 }
 
 /* --- Plugin API: --- */

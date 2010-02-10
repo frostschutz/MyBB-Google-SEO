@@ -27,208 +27,196 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
-// generating and setting meta data:
-$plugins->add_hook("global_start", "google_seo_meta_global_start");
+$plugins->add_hook("forumdisplay_end", "google_seo_meta_forum");
+$plugins->add_hook("postbit", "google_seo_meta_thread");
+$plugins->add_hook("member_profile_end", "google_seo_meta_user");
+$plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
+$plugins->add_hook("calendar_event_end", "google_seo_meta_event");
+$plugins->add_hook("calendar_end", "google_seo_meta_calendar");
 
-/* --- Meta description: --- */
+/* --- Functions: --- */
 
 /**
- * Clean up a descriptiona nd set the global google_seo_meta variable,
- * which will then (hopefully) be included by the headertemplate.
+ * Clean up a description and append it to headerinclude.
  *
  * @param string The unfiltered description that should be used.
  */
-function google_seo_meta($description)
+function google_seo_meta_description($description)
 {
-    global $google_seo_meta, $settings;
+    global $settings, $headerinclude;
 
-    if($description)
+    if($settings['google_seo_meta_length'] > 0)
     {
-        $description = preg_replace("/\[[^\]]+]/u", "", $description);
-        $description = preg_replace("/[ \n\t\r]+/u", " ", $description);
+        $description = strip_tags($description);
+        $description = str_replace("&nbsp;", " ", $description);
+        $description = preg_replace("/\\[[^\\]]+\\]/u", "", $description);
+        $description = preg_replace("/\\s+/u", " ", $description);
         $description = trim($description);
         $description = my_substr($description, 0, $settings['google_seo_meta_length'], true);
         $description = trim($description);
 
         if($description)
         {
-            $google_seo_meta .= "<meta name=\"description\""
-                ." content=\"$description\" />";
+            $headerinclude = "<meta name=\"description\" content=\"{$description}\" />\n{$headerinclude}";
         }
     }
 }
 
 /**
- * Generate a meta description for a forum.
+ * Append a canonical link to headerinclude.
+ *
+ * @param string The link that is canonical for this page.
+ */
+function google_seo_meta_canonical($link)
+{
+    global $settings, $headerinclude;
+
+    if($link)
+    {
+        $headerinclude = "<link rel=\"canonical\" href=\"{$settings['bburl']}/$link\" />\n{$headerinclude}";
+    }
+}
+
+/**
+ * Generate meta tags for a forum.
  *
  * @param int Forum-ID
  */
-function google_seo_meta_forum($fid)
+function google_seo_meta_forum()
 {
-    global $db;
+    global $settings, $foruminfo, $fid, $page;
 
-    if($fid > 0)
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $fid > 0)
     {
-        $query = $db->simple_select("forums", "description", "fid=$fid");
-        $description = $db->fetch_field($query, "description");
-        google_seo_meta($description);
+        if($page > 1)
+        {
+            google_seo_meta_canonical(get_forum_link($fid, $page));
+        }
+
+        else
+        {
+            google_seo_meta_canonical(get_forum_link($fid));
+        }
+    }
+
+    // Description:
+    if($foruminfo)
+    {
+        google_seo_meta_description($foruminfo['description']);
     }
 }
 
 /**
- * Generate a meta description for a post (usually firstpost).
+ * Generate meta tags for a thread.
  *
- * @param int Post-ID
+ * @param post
  */
-function google_seo_meta_post($pid)
+function google_seo_meta_thread($post)
 {
-    global $db;
+    global $settings, $plugins, $tid, $page;
 
-    if($pid > 0)
+    // We're only interested in the first post of a page.
+    $plugins->remove_hook("postbit", "google_seo_meta_thread");
+
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $tid > 0)
     {
-        $query = $db->simple_select("posts", "message", "pid=$pid");
-        $message = $db->fetch_field($query, "message");
-        google_seo_meta($message);
+        if($page > 1)
+        {
+            google_seo_meta_canonical(get_thread_link($tid, $page));
+        }
+
+        else
+        {
+            google_seo_meta_canonical(get_thread_link($tid));
+        }
+    }
+
+    // Description:
+    if($post)
+    {
+        google_seo_meta_description($post['message']);
     }
 }
 
 /**
- * Generate a meta description for a thread.
- *
- * @param int Thread-ID
- */
-function google_seo_meta_thread($tid)
-{
-    global $db;
-
-    if($tid > 0)
-    {
-        $query = $db->simple_select("threads", "firstpost", "tid=$tid");
-        $firstpost = $db->fetch_field($query, "firstpost");
-        google_seo_meta_post($firstpost);
-    }
-}
-
-/**
- * Generate a meta description for a user.
+ * Generate meta tags for a user.
  *
  * @param int User-ID
  */
-function google_seo_meta_user($uid)
+function google_seo_meta_user()
 {
-    if($uid > 0)
+    global $settings, $uid;
+
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $uid > 0)
     {
-        /* not implemented */
+        google_seo_meta_canonical(get_profile_link($uid));
     }
+
+    // Description:
+    // not implemented yet
 }
 
 /**
- * Generate a meta description for an announcement.
+ * Generate meta tags for an announcement.
  *
  * @param int Announcement-ID
  */
-function google_seo_meta_announcement($aid)
+function google_seo_meta_announcement($post)
 {
-    global $db;
+    global $settings, $aid;
 
-    if($aid > 0)
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $aid > 0)
     {
-        $query = $db->simple_select("announcements", "message", "aid=$aid");
-        $message = $db->fetch_field($query, "message");
-        google_seo_meta($message);
+        google_seo_meta_canonical(get_announcement_link($aid));
+    }
+
+    // Description:
+    if($post)
+    {
+        google_seo_meta_description($post['message']);
     }
 }
 
 /**
- * Generate a meta description for an event.
+ * Generate meta tags for an event.
  *
  * @param int Event-ID
  */
 function google_seo_meta_event($eid)
 {
-    global $db;
+    global $settings, $event;
 
-    if($eid > 0)
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $event['eid'] > 0)
     {
-        $query = $db->simple_select("events", "description", "eid=$eid");
-        $description = $db->fetch_field($query, "description");
-        google_seo_meta($description);
+        google_seo_meta_canonical(get_event_link($event['eid']));
     }
+
+    // Description:
+    google_seo_meta_description($event['description']);
 }
 
 /**
- * Generate a meta description for a calendar
+ * Generate meta tags for a calendar
  *
  * @param int Calendar-ID
  */
-function google_seo_meta_calendar($cid)
+function google_seo_meta_calendar()
 {
-    if($cid > 0)
+    global $settings, $calendar;
+
+    // Canonical:
+    if($settings['google_seo_meta_canonical'] && $calendar['cid'] > 0)
     {
-        /* not implemented */
+        google_seo_meta_canonical(get_calendar_link($calendar['cid']));
     }
-}
 
-/**
- * Generate and set meta data for the current page, if applicable.
- *
- */
-function google_seo_meta_global_start()
-{
-    global $mybb, $google_seo_meta;
-
-    switch(THIS_SCRIPT)
-    {
-        case 'forumdisplay.php':
-            if($mybb->input['fid'])
-            {
-                google_seo_meta_forum($mybb->input['fid']);
-            }
-
-            break;
-
-        case 'showthread.php':
-            if($mybb->input['tid'])
-            {
-                google_seo_meta_thread($mybb->input['tid']);
-            }
-
-            else if($mybb->input['pid'])
-            {
-                google_seo_meta_post($mybb->input['pid']);
-            }
-
-            break;
-
-        case 'announcement.php':
-            if($mybb->input['aid'])
-            {
-                google_seo_meta_announcement($mybb->input['aid']);
-            }
-
-            break;
-
-        case 'member.php':
-            if($mybb->input['uid'] && $mybb->input['action'] == 'profile')
-            {
-                google_seo_meta_user($mybb->input['uid']);
-            }
-
-            break;
-
-        case 'calendar.php':
-            if($mybb->input['eid'])
-            {
-                google_seo_meta_event($mybb->input['eid']);
-            }
-
-            else if($mybb->input['cid'])
-            {
-                google_seo_meta_calendar($mybb->input['cid']);
-            }
-
-            break;
-    }
+    // Description:
+    // not implemented yet
 }
 
 /* --- End of file. --- */

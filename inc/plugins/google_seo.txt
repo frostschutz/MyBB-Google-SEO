@@ -47,6 +47,7 @@
 
    - Google SEO Meta:
      * generate description meta tags for forums / threads / etc.
+     * specify canonical pages
 
    - Google SEO Redirect:
      * redirect old URLs to new URLs
@@ -93,13 +94,6 @@
      This will cause 404 errors outside of MyBB show up as MyBB
      error messages, using your boards layout. Please note that
      Google SEO 404 has to be enabled in your configuration first.
-
-   - Google SEO Meta:
-
-     Go to Admin CP, Templates & Style, and add the following line
-     to your headerinclude template:
-
-       {$google_seo_meta}
 
    - Google SEO Sitemap:
 
@@ -419,7 +413,10 @@
    - functions.php.1.4.4-googleseo:
      Ready to use functions.php for MyBB 1.4.4
 
-   - functions.php.patch:
+   - functions.php.1.4.5-googleseo:
+     Ready to use functions.php for MyBB 1.4.4
+
+   - functions.php.patch-googleseo:
      Patch file that lists the changes made to functions.php.
 
    - htaccess.txt.example:
@@ -431,8 +428,20 @@
    - translate.php.german:
      Example inc/plugins/google_seo/translate.php file for German umlauts
 
+   - translate.php.turkish:
+     Example inc/plugins/google_seo/translate.php file for Turkish.
+
    - translate.php.widelatin:
      Example inc/plugins/google_seo/translate.php file for Wide latin.
+
+   - inc/languages/english/googleseo.lang.php:
+     Standard English messages. Can be translated for other languages.
+
+   - inc/lanugages/english/admin/googleseo_plugin.php:
+     Standard English messages for Admin CP plugin status.
+
+   - inc/languages/english/admin/googleseo_settings.php:
+     Standard English messages for Admin CP configuration.
 
    - inc/plugins/google_seo.php:
      Main plugin file.

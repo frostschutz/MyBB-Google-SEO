@@ -71,7 +71,7 @@ function google_seo_redirect_current_url()
  */
 function google_seo_redirect_hook()
 {
-    global $db, $mybb, $settings;
+    global $db, $mybb, $settings, $plugins, $google_seo_redirect;
 
     if($mybb->request_method == "post")
     {
@@ -123,6 +123,7 @@ function google_seo_redirect_hook()
             {
                 $target = get_announcement_link($mybb->input['aid']);
                 $kill['aid'] = '';
+                $kill['google_seo_announcement'] = '';
             }
 
             break;
@@ -223,8 +224,8 @@ function google_seo_redirect_hook()
             }
 
             // Query
-            parse_str(htmlspecialchars_decode($target_parse[1]), &$query_target);
-            parse_str($current_parse[1], &$query_current);
+            parse_str(htmlspecialchars_decode($target_parse[1]), $query_target);
+            parse_str($current_parse[1], $query_current);
 
             $query = array_merge($query_current, $mybb->input);
 
@@ -266,31 +267,34 @@ function google_seo_redirect_hook()
                         header("Content-type: text/html; charset=UTF-8");
                         echo "<pre style=\"text-align: left\">";
                         echo "Google SEO Redirect Debug Information:\n";
-                        echo htmlentities(
+                        echo htmlspecialchars(
                             print_r(
                                 array(
-                                    'current' => $current,
+                                    'THIS_SCRIPT' => THIS_SCRIPT,
+                                    '_SERVER' => array_merge($_SERVER, array('HTTP_COOKIE' => '')),
+                                    'mybb->input' => $mybb->input,
+                                    'kill' => $kill,
                                     'target' => $target,
-                                    'current_parse' => $current_parse,
+                                    'current' => $current,
                                     'target_parse' => $target_parse,
+                                    'current_parse' => $current_parse,
                                     'location_target' => $location_target,
                                     'location_current' => $location_current,
                                     'broken_query' => $broken_query,
+                                    'change' => $change,
                                     'query_target' => $query_target,
                                     'query_current' => $query_current,
                                     'query' => $query,
-                                    'server' => $_SERVER,
                                     ),
-                                true
-                                )
-                            );
+                                true),
+                            ENT_COMPAT, "UTF-8");
                         echo "</pre>";
                         return;
                     }
 
                     else
                     {
-                        $query['google_seo_redirect'] = $current;
+                        $query['google_seo_redirect'] = "debug";
                     }
                 }
 
@@ -305,20 +309,50 @@ function google_seo_redirect_hook()
                     $location_target .= "?" . implode("&", $querystr);
                 }
 
-                header("Location: $location_target", true, 301);
+                $google_seo_redirect = $location_target;
 
-                // Only exit if the headers haven't been sent yet.
-                // (i.e. if the headers will be sent on exit).
-                if(!headers_sent())
+                if($settings['google_seo_redirect_permission'] &&
+                   THIS_SCRIPT != "member.php")
                 {
-                    exit;
+                    // Leave permission checks to the current page.
+                    // Issue the redirect in a later hook.
+                    $plugins->add_hook("forumdisplay_end", "google_seo_redirect_header", 2);
+                    $plugins->add_hook("postbit", "google_seo_redirect_header", 2);
+                    $plugins->add_hook("postbit_announcement", "google_seo_redirect_header", 2);
+                    $plugins->add_hook("calendar_event_end", "google_seo_redirect_header", 2);
+                    $plugins->add_hook("calendar_end", "google_seo_redirect_header", 2);
                 }
 
-                // Otherwise let the page load normally, but the above
-                // call to header will also display a warning message.
+                else
+                {
+                    google_seo_redirect_header();
+                }
             }
         }
     }
+}
+
+function google_seo_redirect_header()
+{
+    global $plugins, $google_seo_redirect;
+
+    header("Location: $google_seo_redirect", true, 301);
+
+    // Only exit if the headers haven't been sent yet.
+    // (i.e. if the headers will be sent on exit).
+    if(!headers_sent())
+    {
+        exit;
+    }
+
+    // Otherwise let the page load normally, but the above
+    // call to header will also display a warning message.
+
+    $plugins->remove_hook("forumdisplay_end", "google_seo_redirect_header", "", 2);
+    $plugins->remove_hook("postbit", "google_seo_redirect_header", "", 2);
+    $plugins->remove_hook("postbit_announcement", "google_seo_redirect_header", "", 2);
+    $plugins->remove_hook("calendar_event_end", "google_seo_redirect_header", "", 2);
+    $plugins->remove_hook("calendar_end", "google_seo_redirect_header", "", 2);
 }
 
 /* --- End of file. --- */

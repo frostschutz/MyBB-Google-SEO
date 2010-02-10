@@ -77,25 +77,41 @@ function google_seo_url_translate_callback($matches)
  */
 function google_seo_url_translate($str)
 {
-    global $google_seo_translate_pat;
+    // Required for URL translation.
+    global $google_seo_translate, $google_seo_translate_pat;
 
-    if(!$google_seo_translate_pat)
+    if(!$google_seo_translate)
     {
-        global $google_seo_translate;
-
-        require_once MYBB_ROOT."inc/plugins/google_seo/translate.php";
-
-        foreach($google_seo_translate as $k=>$v)
+        if(file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
         {
-            $google_seo_translate_pat[] = preg_quote($k, '/');
+            require_once MYBB_ROOT."inc/plugins/google_seo/translate.php";
         }
 
-        $google_seo_translate_pat = implode($google_seo_translate_pat, "|");
+        if($google_seo_translate)
+        {
+            foreach($google_seo_translate as $k=>$v)
+            {
+                $google_seo_translate_pat[] = preg_quote($k, '/');
+            }
+
+            $google_seo_translate_pat = implode($google_seo_translate_pat, "|");
+        }
+
+        else
+        {
+            // prevent translate pat from getting generated again.
+            $google_seo_translate = true;
+        }
     }
 
-    return preg_replace_callback("/$google_seo_translate_pat/u",
-                                 "google_seo_url_translate_callback",
-                                 $str);
+    if($google_seo_translate_pat)
+    {
+        return preg_replace_callback("/$google_seo_translate_pat/u",
+                                     "google_seo_url_translate_callback",
+                                     $str);
+    }
+
+    return $str;
 }
 
 /**
@@ -305,6 +321,12 @@ function google_seo_url_create($type, $ids)
             $url = google_seo_url_truncate($url);
             $uniqueurl = google_seo_url_uniquify($url, $id);
 
+            // Special case: for empty URLs we must use the unique variant
+            if($url == "")
+            {
+                $url = $uniqueurl;
+            }
+
             $idtype = $google_seo_url_idtype[$type];
 
             // Check for existing entry and possible collisions.
@@ -312,7 +334,7 @@ function google_seo_url_create($type, $ids)
                                  WHERE idtype=$idtype
                                  AND url IN ('"
                                 .$db->escape_string($url)."','"
-                                .$db->escape_string($unique_url)."')
+                                .$db->escape_string($uniqueurl)."')
                                  AND active=1
                                  AND id<=$id
                                  AND EXISTS(SELECT * FROM ".TABLE_PREFIX."$type
@@ -323,11 +345,21 @@ function google_seo_url_create($type, $ids)
             $uniquerow = $db->fetch_array($query);
 
             // Check if the entry was not up to date anyway.
-            if(!($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url) &&
-               !($uniquerow && $uniquerow['id'] == $id && $uniquerow['url'] == $url))
+            if($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url)
             {
-                // Use unique URL if empty or if there was a row with a different URL.
-                if($url == "" || $urlrow && $urlrow['id'] != $id)
+                // It's up to date. Do nothing.
+            }
+
+            else if($uniquerow && $uniquerow['id'] == $id && $uniquerow['url'] == $uniqueurl)
+            {
+                // It's up to date for the unique URL.
+                $url = $uniqueurl;
+            }
+
+            else
+            {
+                // Use unique URL if there was a row with a different id.
+                if($urlrow && $urlrow['id'] != $id)
                 {
                     $url = $uniqueurl;
                 }

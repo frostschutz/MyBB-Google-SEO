@@ -25,6 +25,10 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+// This define triggers code to generate new language file for settings.
+// (Activate the plugin, Copy&Paste the output to googleseo_settings.lang.php)
+// define("GOOGLESEO_GENERATE_LANG", 1);
+
 /* --- Plugin Info: --- */
 
 /**
@@ -34,21 +38,24 @@ if(!defined("IN_MYBB"))
  */
 function google_seo_plugin_info()
 {
-    global $settings, $plugins_cache;
+    global $lang, $settings, $plugins_cache;
+
+    $lang->load("googleseo_plugin");
 
     $info = array(
         "name"          => "Google SEO",
-        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
+        "description"   => $lang->googleseo_plugin_description,
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.5",
+        "version"       => "1.1.0",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
 
-
     // Provide some additional status information, if the plugin is enabled.
     if(google_seo_plugin_is_installed() &&
+       is_array($plugins_cache) &&
+       is_array($plugins_cache['active']) &&
        $plugins_cache['active']['google_seo'])
     {
         $info['description'] .= @google_seo_plugin_status();
@@ -64,64 +71,79 @@ function google_seo_plugin_info()
  */
 function google_seo_plugin_status()
 {
-    global $mybb, $settings, $db;
+    global $lang, $mybb, $config, $settings, $db;
 
     $success = array();
     $warning = array();
     $error = array();
     $htaccess = array();
     $lines = array();
-    $headerinclude = array();
 
     // UTF-8 is required:
     if($mybb->config['database']['encoding'] != 'utf8')
     {
-        $warning[] = "Your database encoding is '".$mybb->config['database']['encoding']."', should be 'utf8'. Please update your MyBB to use UTF-8 everywhere.";
+        $warning[] = $lang->sprintf($lang->googleseo_plugin_databasencoding,
+                                    $mybb->config['database']['encoding']);
     }
 
     // Google SEO 404:
     if($settings['google_seo_404'])
     {
-        $success[] = '404 is enabled.';
+        $success[] = $lang->googleseo_plugin_404_success;
     }
 
     else
     {
-        $error[] = '404 is disabled.';
+        $error[] = $lang->googleseo_plugin_404_error;
     }
 
     // Google SEO Meta:
     if($settings['google_seo_meta'])
     {
-        $success[] = 'Meta is enabled.';
-        $headerinclude['{$google_seo_meta}'] = array();
+        $success[] = $lang->googleseo_plugin_meta_success;
     }
 
     else
     {
-        $error[] = 'Meta is disabled.';
+        $error[] = $lang->googleseo_plugin_meta_error;
     }
 
     // Google SEO Redirect:
     if($settings['google_seo_redirect'])
     {
-        $success[] = 'Redirect is enabled.';
+        $success[] = $lang->googleseo_plugin_redirect_success;
 
         if(!$settings['google_seo_url'])
         {
-            $warning[] = "Redirect enabled, but URL disabled. This is fine for redirecting stock MyBB URLs (showthread.php?tid=x) to MyBB search engine friendly URLs (thread-x.html) or vice versa. If you want to redirect stock MyBB URLs to Google SEO URLs or vice versa, please enable URL as well.";
+            $warning[] = $lang->googleseo_plugin_redirect_warn_url;
+        }
+
+        $current_url = google_seo_redirect_current_url();
+        $pos = my_strpos($current_url, "/{$config['admin_dir']}/index.php");
+
+        if($pos)
+        {
+            $current_url = my_substr($current_url, 0, $pos);
+        }
+
+
+        if(!$settings['bburl'] || $settings['bburl'] != $current_url)
+        {
+            $warning[] = $lang->sprintf($lang->googleseo_plugin_redirect_warn_bburl,
+                                        htmlspecialchars($settings['bburl'], ENT_COMPAT, "UTF-8"),
+                                        htmlspecialchars($current_url), ENT_COMPAT, "UTF-8");
         }
     }
 
     else
     {
-        $error[] = 'Redirect is disabled.';
+        $error[] = $lang->googleseo_plugin_redirect_error;
     }
 
     // Google SEO Sitemap:
     if($settings['google_seo_sitemap'])
     {
-        $success[] = 'Sitemap is enabled.';
+        $success[] = $lang->googleseo_plugin_sitemap_success;
         $htaccess[] = array($settings['google_seo_sitemap_url'],
                             'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
                             'Google SEO Sitemap');
@@ -129,97 +151,73 @@ function google_seo_plugin_status()
 
     else
     {
-        $error[] = 'Sitemap is disabled.';
-
+        $error[] = $lang->googleseo_plugin_sitemap_error;
     }
 
     // Google SEO URL:
     if($settings['google_seo_url'])
     {
-        $success[] = 'URL is enabled.';
+        $success[] = $lang->googleseo_plugin_url_success;
 
         $file = @file_get_contents(MYBB_ROOT."inc/functions.php");
 
         if(strstr($file, "google_seo_url") === false)
         {
-            $warning[] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
+            $warning[] = $lang->googleseo_plugin_url_warn_functions;
+        }
+
+        if($settings['google_seo_url_translate'] &&
+           !file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
+        {
+            $warning[] = $lang->googleseo_plugin_url_warn_translate;
         }
 
         if($settings['google_seo_url_forums'])
         {
             $htaccess[] = array($settings['google_seo_url_forums'],
                                 'forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]',
-                                'Google SEO URL Forums');
+                                $lang->googleseo_plugin_htaccess_forums);
         }
 
         if($settings['google_seo_url_threads'])
         {
             $htaccess[] = array($settings['google_seo_url_threads'],
                                 'showthread.php?google_seo_thread=$1 [L,QSA,NC]',
-                                'Google SEO URL Threads');
+                                $lang->googleseo_plugin_htaccess_threads);
         }
 
         if($settings['google_seo_url_announcements'])
         {
             $htaccess[] = array($settings['google_seo_url_announcements'],
                                 'announcements.php?google_seo_announcement=$1 [L,QSA,NC]',
-                                'Google SEO URL Announcements');
+                                $lang->googleseo_plugin_htaccess_announcements);
         }
 
         if($settings['google_seo_url_users'])
         {
             $htaccess[] = array($settings['google_seo_url_users'],
                                 'member.php?action=profile&google_seo_user=$1 [L,QSA,NC]',
-                                'Google SEO URL Users');
+                                $lang->googleseo_plugin_htaccess_users);
         }
 
         if($settings['google_seo_url_calendars'])
         {
             $htaccess[] = array($settings['google_seo_url_calendars'],
                                 'calendar.php?google_seo_calendar=$1 [L,QSA,NC]',
-                                'Google SEO URL Calendars');
+                                $lang->googleseo_plugin_htaccess_calendars);
         }
 
         if($settings['google_seo_url_events'])
         {
             $htaccess[] = array($settings['google_seo_url_events'],
                                 'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]',
-                                'Google SEO URL Events');
+                                $lang->googleseo_plugin_htaccess_events);
         }
     }
 
     else
     {
-        $error[] = 'URL is disabled.';
-    }
-
-    // Check headerinclude.
-    $query = $db->query("SELECT a.title,
-                                b.template
-                         FROM ".TABLE_PREFIX."templatesets a
-                         LEFT JOIN
-                             (SELECT * FROM ".TABLE_PREFIX."templates
-                              WHERE title='headerinclude') b
-                              ON a.sid = b.sid");
-
-    while($row = $db->fetch_array($query))
-    {
-        foreach(array_keys($headerinclude) as $k)
-        {
-            if(strstr($row['template'], $k) === false)
-            {
-                $headerinclude[$k][] = $row['title'];
-            }
-        }
-    }
-
-    foreach(array_keys($headerinclude) as $k)
-    {
-        if(count($headerinclude[$k]))
-        {
-            $warning[] = "Add ".htmlentities($k)." to headerinclude template"
-                ." for these template sets: ".join($headerinclude[$k], ", ");
-        }
+        $error[] = $lang->googleseo_plugin_url_error;
     }
 
     // Check htaccess.
@@ -229,7 +227,7 @@ function google_seo_plugin_status()
         $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
         $htaccess[] = array("ErrorDocument 404 $url/misc.php?google_seo_error=404",
                             0,
-                            'Google SEO 404');
+                            $lang->googleseo_plugin_htaccess_404);
     }
 
     if(count($htaccess))
@@ -270,7 +268,7 @@ function google_seo_plugin_status()
 
             if($line)
             {
-                $lines[] = htmlentities($line);
+                $lines[] = htmlspecialchars($line);
                 $line = '';
             }
         }
@@ -281,9 +279,7 @@ function google_seo_plugin_status()
 
         if($rewrite && ($pos === false || $pos != strstr($file, "RewriteRule")))
         {
-            array_unshift($lines,
-                          "# As first rewrite rule, Google SEO workaround for search.php highlights:\n"
-                          .$workaround."\n");
+            array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n{$workaround}\n");
         }
 
         if($rewrite && strstr($file, "RewriteEngine on") === false)
@@ -291,19 +287,19 @@ function google_seo_plugin_status()
             array_unshift($lines, "RewriteEngine on\n");
         }
 
-        // Check if mbstring is available:
-        if($rewrite && !function_exists("mb_internal_encoding"))
-        {
-            $warning[] = "Your host does not seem to support mbstring. This may cause problems with UTF-8 in URLs.";
-        }
-
         if(count($lines))
         {
-            $warning[] = "Add to .htaccess:"
+            $warning[] = $lang->googleseo_plugin_warn_htaccess
                 ."<pre style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
                 .implode($lines, "\n")
                 ."</pre>";
         }
+    }
+
+    // Check if mbstring is available:
+    if($rewrite && !function_exists("mb_internal_encoding"))
+    {
+        $warning[] = $lang->googleseo_plugin_warn_mbstring;
     }
 
     // Build a list with success, warnings, errors:
@@ -355,6 +351,12 @@ function google_seo_plugin_settings($name, $title, $description, $list)
                    'description' => $description,
                    'disporder' => $row['disporder']+1);
 
+    if(defined("GOOGLESEO_GENERATE_LANG"))
+    {
+        echo htmlspecialchars("\$l['setting_group_{$group['name']}'] = \"".addcslashes($title, '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
+        echo htmlspecialchars("\$l['setting_group_{$group['name']}_desc'] = \"".addcslashes($description, '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
+    }
+
     // Create settings group if it does not exist.
     $query = $db->query("SELECT gid
                          FROM ".TABLE_PREFIX."settinggroups
@@ -388,6 +390,12 @@ function google_seo_plugin_settings($name, $title, $description, $list)
     // Create and/or update settings.
     foreach($list as $key => $value)
     {
+        if(defined("GOOGLESEO_GENERATE_LANG"))
+        {
+            echo htmlspecialchars("\$l['setting_{$key}'] = \"".addcslashes($value['title'], '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
+            echo htmlspecialchars("\$l['setting_{$key}_desc'] = \"".addcslashes($value['description'], '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
+        }
+
         // Set default values for value:
         foreach($value as $a => $b)
         {
@@ -520,21 +528,9 @@ function google_seo_plugin_activate()
                 'description' => "Add the Google 404 widget for invalid thread / forum / etc error pages.",
                 'value' => 1,
                 ),
-            'google_seo_404_lang' => array(
-                'title' => "404 widget language",
-                'description' => 'Set the language of the Google 404 widget. See <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=93644">Enhance your custom 404 page</a> for details.',
-                'optionscode' => "text",
-                'value' => "en",
-                ),
-            'google_seo_404_wol' => array(
-                'title' => "404 Who's Online",
-                'description' => "Define here how you want users on the 404 page to show up in the Who Is Online user list. Use [location]link[/location] to make a link to the location of the user.",
-                'optionscode' => "text",
-                'value' => 'Seeing an [location]Error Page[/location]'
-                ),
-            'google_seo_404_wol_hide' => array(
-                'title' => "Hide guests in 404 Who's Online",
-                'description' => "Say yes if you want to hide guests who are currently seeing a 404 page from the detailed Who's Online list. This is useful if you have a lot of guests (usually spambots) hitting 404 error pages on your site.",
+            'google_seo_404_wol_show' => array(
+                'title' => "Show 404 errors in Who's Online",
+                'description' => "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.",
                 ),
             )
         );
@@ -547,13 +543,18 @@ function google_seo_plugin_activate()
         array(
             'google_seo_meta' => array(
                 'title' => 'Google SEO Meta',
-                'description' => "This module generates an unique description meta tag based on the content of the current page. For forums, it uses the description of the forum, for threads it uses the contents of the first posting. For this to work, you have to add {\$google_seo_meta} to your <i>headerinclude</i> template. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
+                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
                 ),
             'google_seo_meta_length' => array(
-                'title' => 'Meta tag length',
-                'description' => "Maximum length of a meta description. This is to prevent very long posts to be copied into the description tag as a whole. Keep it as long as necessary and as short as possible.",
+                'title' => 'Meta description',
+                'description' => "Generate Meta description tags based on the contents of the current page (description of a forum, first posting of a thread, ...). Set to the maximum description length you want to allow or to 0 to disable.",
                 'optionscode' => "text",
-                'value' => "150",
+                'value' => "200",
+                ),
+            'google_seo_meta_canonical' => array(
+                'title' => "Canonical Page",
+                'description' => "Specify a canonical page. This helps avoid Google indexing the same page under several different names. Please see <a href=\"http://www.google.com/support/webmasters/bin/answer.py?hl=en&amp;answer=139394\">About rel=\"canonical\"</a> for details.",
+                'value' => 1,
                 ),
             )
         );
@@ -568,8 +569,12 @@ function google_seo_plugin_activate()
                 'title' => "Google SEO Redirect",
                 'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
                 ),
+            'google_seo_redirect_permission' => array(
+                'title' => "Permission Checks",
+                'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
+                ),
             'google_seo_redirect_debug' => array(
-                'title' => "Google SEO Redirect Debug",
+                'title' => "Debug Redirect",
                 'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",
                 ),
             )
@@ -594,11 +599,13 @@ function google_seo_plugin_activate()
             'google_seo_sitemap_forums' => array(
                 'title' => "XML Sitemap Forums",
                 'description' => "Include Forums in the XML Sitemap.",
+                'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including forum pages",
                 'value' => 1,
                 ),
             'google_seo_sitemap_threads' => array(
                 'title' => "XML Sitemap Threads",
                 'description' => "Include Threads in the XML Sitemap.",
+                'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including thread pages",
                 'value' => 1,
                 ),
             'google_seo_sitemap_users' => array(
@@ -629,15 +636,9 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_sitemap_pagination' => array(
                 'title' => "XML Sitemap pagination",
-                'description' => "Set the maximum number of links that may appear in a single XML Sitemap before it is split. Setting it too low will result in too many sitemaps, setting it too high may cause server load every time the sitemap is generated. If unsure, leave at 1000.",
+                'description' => "Set the maximum number of items that may appear in a single XML Sitemap before it is split (not counting optional forum/thread pages). Setting it too low will result in too many sitemaps, setting it too high may cause server load every time the sitemap is generated. If unsure, leave at 1000.",
                 'optionscode' => "text",
                 'value' => "1000",
-                ),
-            'google_seo_sitemap_wol' => array(
-                'title' => "XML Sitemap Who's Online",
-                'description' => "Define here how you want users (usually search engines) on the XML Sitemap to show up in the Who's Online list. Use [location]link[/location] to make a link to the location of the user.",
-                'optionscode' => 'text',
-                'value' => 'Fetching the [location]XML Sitemap[/location]'
                 ),
             )
         );
@@ -728,6 +729,11 @@ function google_seo_plugin_activate()
                 ),
             )
         );
+
+    if(defined("GOOGLESEO_GENERATE_LANG"))
+    {
+        exit;
+    }
 }
 
 /**

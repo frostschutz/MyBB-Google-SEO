@@ -25,6 +25,25 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+/* --- NO_ONLINE Hack: --- */
+
+/**
+ * Hooks are called too late, so this is done before hooks:
+ *
+ * Define NO_ONLINE if it looks like we're going to show an 404 error,
+ * unless the user explicitely wants these errors to show in the WOL.
+ *
+ */
+
+global $mybb;
+
+if(THIS_SCRIPT == "misc.php"
+   && $mybb->input['google_seo_error'] == "404"
+   && $mybb->settings['google_seo_404_wol_show'] == 0)
+{
+    define("NO_ONLINE", 1);
+}
+
 /* --- Hooks: --- */
 
 // Set HTTP 404 status code, add widget to error pages:
@@ -45,7 +64,7 @@ $plugins->add_hook("build_friendly_wol_location_end", "google_seo_404_wol");
  */
 function google_seo_404($error)
 {
-    global $settings, $mybb;
+    global $lang, $settings, $mybb;
 
     if(!$mybb->input['ajax'])
     {
@@ -62,15 +81,8 @@ function google_seo_404($error)
 
         if($settings['google_seo_404_widget'])
         {
-            $error .= "\n <script type=\"text/javascript\">\n"
-                ." <!--\n"
-                ." var GOOG_FIXURL_LANG='{$settings['google_seo_404_lang']}';\n"
-                ." var GOOG_FIXURL_SITE='{$settings['bburl']}';\n"
-                ." -->\n"
-                ." </script>\n"
-                ." <script type=\"text/javascript\" src=\""
-                ."http://linkhelp.clients.google.com/tbproxy/lh/wm/fixurl.js"
-                ."\"></script>\n";
+            $error .= $lang->sprintf($lang->googleseo_404_widget,
+                                     $settings['bburl']);
         }
     }
 }
@@ -83,17 +95,11 @@ function google_seo_404($error)
  */
 function google_seo_404_page()
 {
-    global $mybb, $db, $session;
+    global $lang, $mybb, $db, $session;
 
     if($mybb->input['google_seo_error'] == 404)
     {
-        if($mybb->user['uid'] == 0 && $mybb->settings['google_seo_404_wol_hide'])
-        {
-            // Hide this guest by removing his session.
-            $db->delete_query("sessions", "sid='".$db->escape_string($session->sid)."'");
-        }
-
-        error("404 Not Found");
+        error($lang->googleseo_404_notfound);
     }
 }
 
@@ -103,27 +109,19 @@ function google_seo_404_page()
  * Extend WOL for users on the 404 page.
  *
  */
-function google_seo_404_wol($plugin_array)
+function google_seo_404_wol($p)
 {
-    global $user, $settings;
+    global $lang, $user, $settings;
 
     // Check if this user is on a 404 page.
-    if(strstr($plugin_array['user_activity']['location'], "google_seo_error") !== false)
+    if(strstr($p['user_activity']['location'], "google_seo_error"))
     {
-        $plugin_array['user_activity']['activity'] = 'google_seo_404';
-        $location = $plugin_array['user_activity']['location'];
-        $location = str_replace("&amp;", "&", $location); // MyBB 1.4.4 Bug workaround
-        $location_name = $settings['google_seo_404_wol'];
-        $location_name = str_replace("[location]", "<a href=\"$location\">", $location_name);
-        $location_name = str_replace("[/location]", "</a>", $location_name);
-
-        // Hide guests on 404 pages
-        if($settings['google_seo_404_wol_hide'] && $user['uid'] == 0)
-        {
-            $user['invisible'] = 1;
-        }
-
-        $plugin_array['location_name'] = $location_name;
+        $p['user_activity']['activity'] = 'google_seo_404';
+        $location = $p['user_activity']['location'];
+        // MyBB 1.4.4 bug workaround:
+        $location = str_replace("&amp;amp;", "&amp;", $location);
+        $p['location_name'] = $lang->sprintf($lang->googleseo_404_wol,
+                                             $location);
     }
 }
 

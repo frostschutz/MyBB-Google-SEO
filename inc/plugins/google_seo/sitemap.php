@@ -117,7 +117,7 @@ function google_seo_sitemap($tag, $items)
  */
 function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 {
-    global $db, $mybb, $settings, $google_seo_url_optimize;
+    global $lang, $db, $mybb, $settings, $google_seo_url_optimize;
 
     if(!$settings["google_seo_sitemap_$type"])
     {
@@ -131,11 +131,25 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'fid';
             $datename = 'lastpost';
             $getlink = 'get_forum_link';
+
             // Additional permission check.
             $unviewableforums = get_unviewable_forums();
+
             if($unviewableforums)
             {
                 $condition = "WHERE fid NOT IN ($unviewableforums)";
+            }
+
+            // Include pages?
+            if($settings['google_seo_sitemap_forums'] == 2)
+            {
+                $pagescount = ', threads AS pagescount';
+                $perpage = $mybb->settings['threadsperpage'];
+
+                if(!$perpage)
+                {
+                    $perpage = 20;
+                }
             }
             break;
 
@@ -145,12 +159,27 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $datename = 'dateline';
             $getlink = 'get_thread_link';
             $condition = "WHERE visible>0 AND closed NOT LIKE 'moved|%'";
+
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
+
             if($unviewableforums)
             {
                 $condition .= " AND fid NOT IN ($unviewableforums)";
             }
+
+            // Include pages?
+            if($settings['google_seo_sitemap_threads'] == 2)
+            {
+                $pagescount = ', replies+1 AS pagescount';
+                $perpage = $settings['postsperpage'];
+
+                if(!$perpage)
+                {
+                    $perpage = 20;
+                }
+            }
+
             break;
 
         case "users":
@@ -256,7 +285,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     // Build the sitemap for this page.
     $offset = ($page - 1) * $pagination;
 
-    $query = $db->query("SELECT $idname,$datename FROM ".TABLE_PREFIX."$table
+    $query = $db->query("SELECT $idname,$datename $pagescount FROM ".TABLE_PREFIX."$table
                          $condition
                          ORDER BY $datename ASC
                          LIMIT $offset, $pagination");
@@ -267,13 +296,23 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         $ids[] = $id;
         $dates[$id] = $row[$datename];
 
+        if($pagescount)
+        {
+            $pages[$id] = intval(($row['pagescount']-1) / $perpage) + 1;
+        }
+
+        else
+        {
+            $pages[$id] = 0;
+        }
+
         // Google SEO URL Optimization:
         $google_seo_url_optimize[$type][$id] = 0;
     }
 
     if(!sizeof($ids))
     {
-        error("Sitemap empty or invalid page.");
+        error($lang->googleseo_sitemap_emptyorinvalid);
     }
 
     foreach($ids as $id)
@@ -287,6 +326,19 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         }
 
         $items[] = $item;
+
+        for($p = 2; $p <= $pages[$id]; $p += 1)
+        {
+            $item = array();
+            $item['loc'] = call_user_func($getlink, $id, $p);
+
+            if($dates[$id])
+            {
+                $item['lastmod'] = $dates[$id];
+            }
+
+            $items[] = $item;
+        }
     }
 
     google_seo_sitemap("url", $items);
@@ -370,7 +422,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
  */
 function google_seo_sitemap_hook()
 {
-    global $mybb, $settings;
+    global $lang, $mybb, $settings;
 
     if(!isset($mybb->input['google_seo_sitemap']))
     {
@@ -383,7 +435,7 @@ function google_seo_sitemap_hook()
     if($type != "index" && !$settings["google_seo_sitemap_$type"])
     {
         // This type of sitemap is not enabled.
-        error("Sitemap disabled or invalid");
+        error($lang->googleseo_sitemap_disabledorinvalid);
     }
 
     // Set pagination to something between 100 and 50000.
@@ -402,7 +454,7 @@ function google_seo_sitemap_hook()
 
     else if(!$page)
     {
-        error("Sitemap page invalid.");
+        error($lang->googleseo_sitemap_pageinvalid);
     }
 
     else
@@ -421,18 +473,15 @@ function google_seo_sitemap_hook()
  */
 function google_seo_sitemap_wol($plugin_array)
 {
-    global $user, $settings;
+    global $lang, $user, $settings;
 
     // Check if this user is on a sitemap page.
-    if(strstr($plugin_array['user_activity']['location'], "google_seo_sitemap") !== false)
+    if(strstr($plugin_array['user_activity']['location'], "google_seo_sitemap"))
     {
         $plugin_array['user_activity']['activity'] = 'google_seo_sitemap';
         $location = $plugin_array['user_activity']['location'];
-        $location = str_replace("&amp;", "&", $location); // MyBB 1.4.4 Bug workaround
-        $location_name = $settings['google_seo_sitemap_wol'];
-        $location_name = str_replace("[location]", "<a href=\"$location\">", $location_name);
-        $location_name = str_replace("[/location]", "</a>", $location_name);
-        $plugin_array['location_name'] = $location_name;
+        $location = str_replace("&amp;amp;", "&amp;", $location); // MyBB 1.4.4 Bug workaround
+        $plugin_array['location_name'] = $lang->sprintf($lang->googleseo_sitemap_wol, $location);
     }
 }
 
