@@ -1,0 +1,20 @@
+Sitemap: http://yoursite/yourMyBB/Sitemap-Index
+
+User-Agent: *
+Disallow: /yourMyBB/captcha.php
+Disallow: /yourMyBB/editpost.php
+Disallow: /yourMyBB/misc.php
+Disallow: /yourMyBB/modcp.php
+Disallow: /yourMyBB/moderation.php
+Disallow: /yourMyBB/newreply.php
+Disallow: /yourMyBB/newthread.php
+Disallow: /yourMyBB/printthread.php
+Disallow: /yourMyBB/private.php
+Disallow: /yourMyBB/ratethread.php
+Disallow: /yourMyBB/report.php
+Disallow: /yourMyBB/sendthread.php
+Disallow: /yourMyBB/task.php
+Disallow: /yourMyBB/usercp.php
+Disallow: /yourMyBB/usercp2.php
+Disallow: /yourMyBB/calendar.php
+Allow: /

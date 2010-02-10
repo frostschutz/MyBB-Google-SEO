@@ -1,126 +1,25 @@
 <?php
 /**
- * Copyright (C) 2008 Andreas Klauer <Andreas.Klauer@metamorpher.de>
+ * Google Search Engine Optimization plugin for MyBB
+ * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
- * This file is Google SEO, a MyBB plugin.
- *
- * Google SEO is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Google SEO is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Google SEO.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 /*
- * BETA SOFTWARE
- *
- * This plugin is still in beta stage. This means it can cause all sorts
- * of problems like high server load, stability problems, and data loss.
- *
- * You are welcome to test this plugin and report any bugs and issues.
- * It is NOT RECOMMENDED to use this plugin in a production forum yet.
- *
- * UPGRADING INSTRUCTIONS
- *
- * If you already have Google SEO installed and want to upgrade,
- *
- * - check the installation instructions below to find out if any
- *   additional or different changes to files are required for the
- *   new version
- *
- * - deactivate the old plugin, upload the new file, activate the
- *   new plugin
- *
- * - check the Admin CP config for new or changed settings
- *
- * INSTALLATION INSTRUCTIONS
- *
- * This plugin requires Apache server with mod_rewrite and mod_env.
- *
- * Upload this file to inc/plugins/google_seo.php and activate the plugin.
- * Do this before making any of the following changes.
- *
- * You will then have to modify some files for the plugin to do any work:
- *
- * .htaccess:
- *
- *   If you haven't done so, rename the MyBB 'htaccess.txt' to '.htaccess'.
- *   This is required for any kind of SEO URL to work (MyBB built in SEO too).
- *
- *   Add the following to the mod_rewrite section:
- *
- *     # Google SEO start
- *     RewriteRule ^Forum-([^./]+)$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
- *     RewriteRule ^Thread-([^./]+)$ showthread.php?google_seo_thread=$1 [L,QSA,NC]
- *     RewriteRule ^Announcement-([^./]+)$ announcements.php?google_seo_announcement=$1 [L,QSA,NC]
- *     RewriteRule ^User-([^./]+)$ member.php?action=profile&google_seo_user=$1 [L,QSA,NC]
- *     RewriteRule ^Calendar-([^./]+)$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
- *     RewriteRule ^Event-([^./]+)$ calendar.php?google_seo_event=$1 [L,QSA,NC]
- *
- *     # If you intend to use Google SEO sitemap, uncomment this:
- *     # RewriteRule ^Sitemap-([^./]+)$ index.php?google_seo_sitemap=$1 [L,QSA,NC]
- *
- *     # If you need additional rules due to custom settings, use this as a model:
- *     # RewriteRule ^{$prefix}([^./]+){$postfix}$ page.php?google_seo_type=$1 [L,QSA,NC]
- *     # Google SEO end
- *
- * inc/functions.php:
- *
- *   Add a mybb_ prefix to the following function declarations:
- *
- *     function get_profile_link($uid=0)
- *     function get_announcement_link($aid=0)
- *     function get_forum_link($fid, $page=0)
- *     function get_thread_link($tid, $page=0, $action='')
- *     function get_post_link($pid, $tid=0)
- *     function get_event_link($eid)
- *     function get_calendar_link($calendar, $year=0, $month=0, $day=0)
- *     function get_calendar_week_link($calendar, $week)
- *
- *   Afterwards the function declarations should look like this:
- *
- *     function mybb_get_profile_link($uid=0)
- *     function mybb_get_announcement_link($aid=0)
- *     function mybb_get_forum_link($fid, $page=0)
- *     function mybb_get_thread_link($tid, $page=0, $action='')
- *     function mybb_get_post_link($pid, $tid=0)
- *     function mybb_get_event_link($eid)
- *     function mybb_get_calendar_link($calendar, $year=0, $month=0, $day=0)
- *     function mybb_get_calendar_week_link($calendar, $week)
- *
- *   On a Linux system, you can use this command to change the file:
- *
- *     sed -i -r -e \
- *       's/function get_(.*)_link/function mybb_get_\1_link/' \
- *       inc/functions.php
- *
- * UNINSTALL INSTRUCTIONS
- *
- * There are two ways to uninstall Google SEO.
- *
- * 1) Keep the changes, only deactivate Google SEO URLs in the settings.
- *    This way you will be back to MyBB stock URLs and Google SEO will
- *    redirect old Google SEO URLs back to stock URLs.
- *
- *    While technically the plugin stays installed, this is recommended
- *    as it gives users and search engines time to adapt to the change.
- *
- * 2) Undo the changes by reuploading .htaccess and inc/functions.php.
- *    Then go to Admin CP -> Plugins and click 'Deactivate'.
- *    This way the Google SEO URLs will end up in 404 error land.
- *
- *    If you click 'Uninstall' all data regarding Google SEO URLs will
- *    be lost, so you don't get (all of) your old Google SEO URLs back
- *    when you reinstall.
- *
+ * THIS PLUGIN IS BETA SOFTWARE AND NOT RECOMMENDED FOR PRODUCTION USE!
  */
 
 // Disallow direct access to this file for security reasons
@@ -136,11 +35,11 @@ if(!defined("IN_MYBB"))
 function google_seo_info()
 {
     return array(
-        "name"          => "Google SEO",
-        "description"   => "Search engine optimization as described in Google's SEO starter guide.",
+        "name"          => "Google Search Engine Optimization",
+        "description"   => "Google Search Engine Optimization, following the guidelines of the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.3",
+        "version"       => "0.4",
     );
 }
 
@@ -156,15 +55,15 @@ function google_seo_settings()
             ),
         'url' => array(
             'title' => "Enable Google SEO URLs",
-            'description' => "When set to YES, Google SEO URLs will be used instead of the stock MyBB URLs. When set to NO, MyBB stock URLs will be used, but old links to Google SEO URLs will still be understood unless you disable the plugin completely.",
+            'description' => "When set to YES, Google SEO URLs will be used instead of the stock MyBB URLs. For this to work, modifications to .htaccess and inc/functions.php are necessary (see installation instructions).<br /><br />When set to NO, MyBB stock URLs will be used, but old links to Google SEO URLs will still be understood unless you disable the plugin completely.",
             ),
         'redirect' => array(
             'title' => "URL redirection",
-            'description' => "When set to YES, redirect to the current valid URL. This is used to redirect stock MyBB URLs to Google SEO URLs, or the other way around when Google SEO URLs are disabled, as well as redirect users who use wrong upper or lower case letters. Do not turn this off unless it causes problems (which can only happen if something else redirects too, which is something you should fix), as it prevents Google from seeing the same page under several different names.",
+            'description' => "When set to YES, redirect to the current valid URL. This is used to redirect stock MyBB URLs to Google SEO URLs, or the other way around when Google SEO URLs are disabled, as well as redirect users who use wrong upper or lower case letters. Do not turn this off unless it causes problems (e.g. when something else redirects too), as it prevents Google from seeing the same page under several different names.",
             ),
         'verify' => array(
             'title' => "Always verify URLs",
-            'description' => "When set to YES, the Google SEO URLs are verified every time a link is made to them, so it catches name / title changes of forums, threads, users etc. as early as possible. When you set this to NO, lazy verification will be used instead (the URL will be updated once the page gets actually accessed). Verification will cost you several additional SQL queries per page view, and it's not really necessary as the next time Google crawls your page it will verify everything anyway. However if you're not concerned about load or your users complain about not up to date links, set this to YES.",
+            'description' => "When set to YES, the Google SEO URLs are verified every time a link is made to them, so it catches name / title changes of forums, threads, users etc. as early as possible. When you set this to NO, lazy verification will be used instead (the URL will be updated once the page gets actually accessed). Verification will cost you several additional SQL queries per page view, and it's not really necessary as the next time Google crawls your page it will verify everything anyway. However if you're not concerned about load or your users complain about not up to date links, set this to YES.<br /><br />If unsure, leave at NO.",
             ),
         'lowercase' => array(
             'title' => "lowercase words",
@@ -172,7 +71,7 @@ function google_seo_settings()
             ),
         'separator' => array(
             'title' => "URL separator",
-            'description' => "Enter the separator that should be used to separate words in the URLs. By default this is <i>-</i> which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like : or @ or / or space could render your URLs unuseable or hard to work with.",
+            'description' => "Enter the separator that should be used to separate words in the URLs. By default this is - which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like : or @ or / or space could render your URLs unuseable or hard to work with.",
             'optionscode' => "text",
             'value' => "-",
             ),
@@ -246,7 +145,7 @@ function google_seo_settings()
             ),
         'sitemap' => array(
             'title' => "XML Sitemap",
-            'description' => 'When set to YES, the Google SEO plugin will provide <a href="http://sitemaps.org/">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. See Google SEO installation instructions for details on how to make your XML Sitemap available to Google. If you say YES here, please also say YES to at least one of the following settings as well, otherwise your XML Sitemap will be empty.',
+            'description' => 'When set to YES, the Google SEO plugin will provide <a href="http://sitemaps.org/">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. See Google SEO installation instructions, <i>Advanced Usage</i> for details on how to make your XML Sitemap available to Google and other search engines. If you say YES here, please also say YES to at least one of the following settings as well, otherwise your XML Sitemap will be empty.',
             ),
         'sitemap_prefix' => array(
             'title' => "XML Sitemap Prefix",
@@ -254,27 +153,27 @@ function google_seo_settings()
             'optionscode' => "text",
             'value' => "Sitemap-",
             ),
-        'sitemap_forums' => array(
+        'sitemap_Forums' => array(
             'title' => "XML Sitemap Forums",
             'description' => "Include Forums in the XML Sitemap.",
             ),
-        'sitemap_threads' => array(
+        'sitemap_Threads' => array(
             'title' => "XML Sitemap Threads",
             'description' => "Include Threads in the XML Sitemap.",
             ),
-        'sitemap_users' => array(
+        'sitemap_Users' => array(
             'title' => "XML Sitemap Users",
             'description' => "Include Users in the XML Sitemap.",
             ),
-        'sitemap_announcements' => array(
+        'sitemap_Announcements' => array(
             'title' => "XML Sitemap Announcements",
             'description' => "Include Announcements in the XML Sitemap.",
             ),
-        'sitemap_calendars' => array(
+        'sitemap_Calendars' => array(
             'title' => "XML Sitemap Calendards",
             'description' => "Include Calendards in the XML Sitemap.",
             ),
-        'sitemap_events' => array(
+        'sitemap_Events' => array(
             'title' => "XML Sitemap Events",
             'description' => "Include Events in the XML Sitemap.",
             ),
@@ -295,6 +194,16 @@ portal.php",
             'title' => "XML Sitemap debug",
             'description' => "This adds a &lt;debug&gt; tag at the end of each sitemap, which contains debug information such as the total time in seconds it took to generate the sitemap. Technically this makes a XML Sitemap invalid, so do not enable this option unless you suspect Sitemap generation to be the cause of high server load (which is unlikely as Sitemaps do not get requested that often, especially when their timestamp did not change). Generation time should stay below 1 second for each Sitemap page, if you get values much higher than that consider reducing the Sitemap pagination value.",
             ),
+        'meta' => array(
+            'title' => 'Meta tags',
+            'description' => "When set to YES, Google SEO will attempt to generate an unique description meta tag based on the content of the current page. For forums, it uses the description of the forum, for threads it uses the contents of the first posting. For this to work, you have to add {\$google_seo_meta} to your <i>headerinclude</i> template."
+            ),
+        'meta_length' => array(
+            'title' => 'Meta tag length',
+            'description' => "Maximum length of a meta description. This is to prevent very long posts to be copied into the description tag as a whole. Keep it as long as necessary and as short as possible.",
+            'optionscode' => "text",
+            'value' => "300",
+            ),
         );
 }
 
@@ -313,8 +222,7 @@ function google_seo_activate()
     if($db->num_rows($query))
     {
         // It exists, get the gid.
-        $gid = $db->fetch_array($query);
-        $gid = $gid['gid'];
+        $gid = $db->fetch_field($query, "gid");
 
         // Update title and description.
         $db->update_query("settinggroups",
@@ -495,8 +403,7 @@ function google_seo_uninstall()
 
     if($db->num_rows($query))
     {
-        $gid = $db->fetch_array($query);
-        $gid = $gid['gid'];
+        $gid = $db->fetch_field($query, "gid");
 
         $db->delete_query("settinggroups", "gid='$gid'");
         $db->delete_query("settings", "gid='$gid'");
@@ -523,49 +430,6 @@ if(!$google_seo_cache)
     );
 }
 
-/* --- Debug: --- */
-
-define("GOOGLE_SEO_DEBUG", 1); // set to 0 to temporarily disable debug
-
-global $google_seo_debug_str;
-
-if(defined("GOOGLE_SEO_DEBUG"))
-{
-    $plugins->add_hook("pre_output_page", "google_seo_pre_output_page_debug");
-
-    function google_seo_debug($desc, $arg=false, $now=false)
-    {
-        global $google_seo_debug_str;
-
-        $str = "<blockquote style=\"text-align: left\">"
-            ."<h4>$desc</h4><pre>"
-            .print_r($arg, true)
-            ."</pre></blockquote>";
-
-        if($now)
-        {
-            echo $str;
-        }
-
-        else
-        {
-            $google_seo_debug_str .= $str;
-        }
-    }
-
-    function google_seo_pre_output_page_debug($contents)
-    {
-        global $google_seo_debug_str;
-
-        return $google_seo_debug_str.$contents;
-    }
-}
-
-else
-{
-    function google_seo_debug($desc, $arg) {}
-}
-
 /* --- Update/Create URLs: --- */
 
 // Separate a string by punctuation for use in URLs.
@@ -577,20 +441,21 @@ function google_seo_separate($str)
 
     if($pattern)
     {
+        // Escape the pattern.
         $pattern = preg_replace("/[\\\\\\^\\-\\[\\]\\/]/u",
                                 "\\\\\\0",
                                 $pattern);
+
+        // Cut off punctuation at beginning and end.
+        $str = preg_replace("/^[$pattern]+|[$pattern]+$/u",
+                            "",
+                            $str);
+
+        // Replace middle punctuation with one separator.
+        $str = preg_replace("/[$pattern]+/u",
+                            $settings['google_seo_separator'],
+                            $str);
     }
-
-    // Cut off punctuation at beginning and end.
-    $str = preg_replace("/^[".$pattern."]+|[".$pattern."]+$/u",
-                        "",
-                        $str);
-
-    // Replace middle punctuation with one separator.
-    $str = preg_replace("/[".$pattern."]+/u",
-                        $settings['google_seo_separator'],
-                        $str);
 
     return $str;
 }
@@ -614,7 +479,7 @@ function google_seo_unique($tablename, $idname, $id, $oldurl, $url)
     }
 
     // Update required. Unique check against older articles.
-    $query = $db->query("SELECT rowid, $idname
+    $query = $db->query("SELECT rowid,$idname
                          FROM ".TABLE_PREFIX."google_seo_$tablename
                          WHERE url='".$db->escape_string($url)."'
                          AND $idname<$id
@@ -632,8 +497,7 @@ function google_seo_unique($tablename, $idname, $id, $oldurl, $url)
                              WHERE $idname='$collid'
                              ORDER BY rowid DESC
                              LIMIT 1");
-        $rowid = $db->fetch_array($query);
-        $rowid = $rowid['rowid'];
+        $rowid = $db->fetch_field($query, "rowid");
 
         if(!$rowid || $collision['rowid'] != $rowid)
         {
@@ -700,8 +564,7 @@ function google_seo_update($tablename, $idname, $titlename, $id, $verify=0)
                          WHERE $idname='$id'
                          ORDER BY rowid DESC
                          LIMIT 1");
-    $url = $db->fetch_array($query);
-    $url = $url['url'];
+    $url = $db->fetch_field($query, "url");
 
     if(!$url || $verify)
     {
@@ -710,7 +573,7 @@ function google_seo_update($tablename, $idname, $titlename, $id, $verify=0)
                              WHERE $idname='$id'
                              LIMIT 1");
 
-        $title = $db->fetch_array($query);
+        $title = $db->fetch_field($query, $titlename);
 
         if(!$title)
         {
@@ -718,7 +581,6 @@ function google_seo_update($tablename, $idname, $titlename, $id, $verify=0)
             return;
         }
 
-        $title = $title[$titlename];
         $title = google_seo_separate($title);
         $url = google_seo_unique($tablename, $idname, $id, $url, $title);
     }
@@ -948,8 +810,7 @@ function google_seo_get_post_link($pid, $tid=0)
                 "limit" => 1
                 );
             $query = $db->simple_select("posts", "tid", "pid=".$pid, $options);
-            $post = $db->fetch_array($query);
-            $tid = $post['tid'];
+            $tid = $db->fetch_field($query, "tid");
         }
     }
 
@@ -1107,8 +968,7 @@ function google_seo_url_id($tablename, $idname, $url)
                          ORDER BY rowid DESC
                          LIMIT 1");
 
-    $id = $db->fetch_array($query);
-    $id = $id[$idname];
+    $id = $db->fetch_field($query, $idname);
 
     if(!$id)
     {
@@ -1121,8 +981,7 @@ function google_seo_url_id($tablename, $idname, $url)
                              ORDER BY rowid DESC
                              LIMIT 1");
 
-        $id = $db->fetch_array($query);
-        $id = $id[$idname];
+        $id = $db->fetch_field($query, $idname);
     }
 
     return $id;
@@ -1157,8 +1016,10 @@ function google_seo_current_url()
     return urldecode($page_url);
 }
 
-// Look up pages, verify and redirect if necessary.
-$plugins->add_hook("global_start", "google_seo_global_start");
+// Look up pages, verify, redirect if necessary.
+// Use a high priority since we may have to redirect the page.
+$plugins->add_hook("global_start", "google_seo_global_start", 5);
+
 function google_seo_global_start()
 {
     global $db, $settings, $mybb;
@@ -1265,13 +1126,16 @@ function google_seo_global_start()
             // Verification.
             $eid = $mybb->input['eid'];
 
-            if($eid && $settings['google_seo_url'])
+            if($eid)
             {
-                google_seo_update("events", "eid", "name",
-                                  $eid, 1);
+                if($settings['google_seo_url'])
+                {
+                    google_seo_update("events", "eid", "name",
+                                      $eid, 1);
+                }
             }
 
-            if(!$url && !$eid)
+            else if(!$url)
             {
                 $url = $mybb->input['google_seo_calendar'];
 
@@ -1284,10 +1148,13 @@ function google_seo_global_start()
                 // Verification.
                 $cid = $mybb->input['calendar'];
 
-                if($cid && $settings['google_seo_url'])
+                if($cid)
                 {
-                    google_seo_update("calendars", "cid",
-                                      "name", $cid, 1);
+                    if($settings['google_seo_url'])
+                    {
+                        google_seo_update("calendars", "cid",
+                                          "name", $cid, 1);
+                    }
                 }
             }
 
@@ -1354,58 +1221,88 @@ function google_seo_global_start()
         $target = urldecode($target_location);
         $current = google_seo_current_url();
 
-        // Case 1: identical. don't do anything.
-        if($target == $current)
+        // Not identical (although it may only be the query string).
+        if($target != $current)
         {
-            return;
+            // parse_url unfortunately can make a mess out of UTF-8 on some hosts.
+            // So we split the query string by ourselves.
+            if(function_exists('mb_split'))
+            {
+                // MyBB unfortunately does not set up the encoding for us.
+                mb_internal_encoding('UTF-8');
+                mb_regex_encoding('UTF-8');
+
+                $target_location = mb_split("\\?", $target_location, 2);
+                $target_location = $target_location[0];
+                $target_parse = mb_split("\\?", $target, 2);
+                $current_parse = mb_split("\\?", $current, 2);
+            }
+
+            else
+            {
+                // No multibyte support in this day and age? Good luck.
+                $target_location = split("\\?", $target_location, 2);
+                $target_location = $target_location[0];
+                $target_parse = split("\\?", $target, 2);
+                $current_parse = split("\\?", $current, 2);
+            }
+
+            // Definitely not identical?
+            if($target_parse[0] != $current_parse[0])
+            {
+                // Redirect but retain query.
+                parse_str($target_parse[1], &$query_target);
+                parse_str($current_parse[1], &$query_current);
+                $query = array_merge($query_target, $query_current);
+
+                foreach($query as $k=>$v)
+                {
+                    $querystr[] = "$k=".urlencode($v);
+                }
+
+                if(sizeof($querystr))
+                {
+                    $target_location .= "?" . implode("&", $querystr);
+                }
+
+                header("Location: $target_location", true, 301);
+                exit;
+            }
+        }
+    }
+
+    // All done, no more redirects, add meta now.
+    if($settings['google_seo_meta'])
+    {
+        if($fid)
+        {
+            google_seo_meta_forum($fid);
         }
 
-        // parse_url unfortunately can make a mess out of UTF-8 on some hosts.
-        // So we split the query string by ourselves.
-        if(function_exists('mb_split'))
+        if($tid)
         {
-            // MyBB unfortunately does not set up the encoding for us.
-            mb_internal_encoding('UTF-8');
-            mb_regex_encoding('UTF-8');
-
-            $target_location = mb_split("\\?", $target_location, 2);
-            $target_location = $target_location[0];
-            $target_parse = mb_split("\\?", $target, 2);
-            $current_parse = mb_split("\\?", $current, 2);
+            google_seo_meta_thread($tid);
         }
 
-        else
+        if($uid)
         {
-            // No multibyte support in this day and age? Good luck.
-            $target_location = split("\\?", $target_location, 2);
-            $target_location = $target_location[0];
-            $target_parse = split("\\?", $target, 2);
-            $current_parse = split("\\?", $current, 2);
+            google_seo_meta_user($uid);
         }
 
-        // Case 2: identical except for query. don't do anything.
-        if($target_parse[0] == $current_parse[0])
+        if($aid)
         {
-            return;
+            google_seo_meta_announcement($aid);
         }
 
-        // Case 3: Different. Redirect but retain query.
-        parse_str($target_parse[1], &$query_target);
-        parse_str($current_parse[1], &$query_current);
-        $query = array_merge($query_target, $query_current);
-
-        foreach($query as $k=>$v)
+        if($eid)
         {
-            $querystr[] = "$k=".urlencode($v);
+            google_seo_meta_event($eid);
         }
 
-        if(sizeof($querystr))
+        if($cid)
         {
-            $target_location .= "?" . implode("&", $querystr);
+            google_seo_meta_calendar($cid);
         }
-
-        header("Location: $target_location", true, 301);
-        exit;
     }
 }
 
@@ -1413,9 +1310,10 @@ function google_seo_global_start()
 
 // 404 error handling if the user wants this.
 $plugins->add_hook("error", "google_seo_error");
+
 function google_seo_error($error)
 {
-    global $settings, $mybb, $lang;
+    global $settings, $mybb;
 
     if($settings['google_seo_404error'] && !$mybb->input['ajax'])
     {
@@ -1442,6 +1340,19 @@ function google_seo_error($error)
                 ."http://linkhelp.clients.google.com/tbproxy/lh/wm/fixurl.js"
                 ."\"></script>\n";
         }
+    }
+}
+
+// Custom 404 error pages:
+$plugins->add_hook("misc_start", "google_seo_error_404page");
+
+function google_seo_error_404page()
+{
+    global $mybb;
+
+    if($mybb->input['google_seo_error'] == 404)
+    {
+        error("404 Not Found");
     }
 }
 
@@ -1519,16 +1430,79 @@ function google_seo_sitemap($tag, $items)
 }
 
 // Generate the sitemap.
-function google_seo_sitemap_gen($table, $idname, $datename, $getlink,
-                                $prefix, $page, $pagination)
+function google_seo_sitemap_gen($prefix, $type, $page, $pagination)
 {
-    global $db, $mybb;
+    global $db, $mybb, $settings;
+
+    if(!$settings["google_seo_sitemap_$type"])
+    {
+        return;
+    }
+
+    switch($type)
+    {
+        case "Forums":
+            $table = 'forums';
+            $idname = 'fid';
+            $datename = 'lastpost';
+            $getlink = 'get_forum_link';
+            break;
+
+        case "Threads":
+            $table = 'threads';
+            $idname = 'tid';
+            $datename = 'dateline';
+            $getlink = 'get_thread_link';
+            $condition = "WHERE visible>0 AND closed NOT LIKE 'moved|%'";
+            break;
+
+        case "Users":
+            $table = 'users';
+            $idname = 'uid';
+            $datename = 'regdate';
+            $getlink = 'get_profile_link';
+            break;
+
+        case "Announcements":
+            $table = 'announcements';
+            $idname = 'aid';
+            $datename = 'startdate';
+            $getlink = 'get_announcement_link';
+            break;
+
+        case "Calendars":
+            if($mybb->settings['enablecalendar'] == 0
+               || $mybb->usergroup['canviewcalendar'] == 0)
+            {
+                return;
+            }
+
+            $table = 'calendars';
+            $idname = 'cid';
+            $datename = 'disporder';
+            $getlink = 'get_calendar_link';
+            break;
+
+        case "Events":
+            if($mybb->settings['enablecalendar'] == 0
+               || $mybb->usergroup['canviewcalendar'] == 0)
+            {
+                return;
+            }
+
+            $table = 'events';
+            $idname ='eid';
+            $datename = 'dateline';
+            $getlink = 'get_event_link';
+            break;
+    }
 
     if(!$page)
     {
         // Do a pagination index.
         $query = $db->query("SELECT COUNT(*) as count
-                             FROM ".TABLE_PREFIX.$table);
+                             FROM ".TABLE_PREFIX."$table
+                             $condition");
         $count = $db->fetch_field($query, "count");
         $offset = 0;
 
@@ -1536,11 +1510,12 @@ function google_seo_sitemap_gen($table, $idname, $datename, $getlink,
         {
             $page++;
             $item = array();
-            $item["loc"] = "{$prefix}{$table}?page={$page}";
+            $item["loc"] = "{$prefix}{$type}?page={$page}";
 
             // find the last (newest) of the oldest posts
             $query = $db->query("SELECT $datename FROM
                                    (SELECT $datename FROM ".TABLE_PREFIX."$table
+                                    $condition
                                     ORDER BY $datename ASC
                                     LIMIT $offset, $pagination) AS foobar
                                  ORDER BY $datename DESC LIMIT 1");
@@ -1564,6 +1539,7 @@ function google_seo_sitemap_gen($table, $idname, $datename, $getlink,
     $offset = ($page - 1) * $pagination;
 
     $query = $db->query("SELECT $idname,$datename FROM ".TABLE_PREFIX."$table
+                         $condition
                          ORDER BY $datename ASC
                          LIMIT $offset, $pagination");
 
@@ -1609,53 +1585,10 @@ function google_seo_sitemap_index($prefix, $page, $pagination)
 
     $items = array();
 
-    foreach(array("forums", "threads", "users", "announcements",
-                  "calendars", "events") as $type)
+    foreach(array("Forums", "Threads", "Users", "Announcements",
+                  "Calendars", "Events") as $type)
     {
-        // If this kind of Sitemap isn't enabled, continue.
-        if(!$settings["google_seo_sitemap_$type"])
-        {
-            continue;
-        }
-
-        switch($type)
-        {
-            case "forums":
-                $gen = google_seo_sitemap_gen(
-                    'forums', 'fid', 'lastpost', 'get_forum_link',
-                    $prefix, 0, $pagination);
-                break;
-
-            case "threads":
-                $gen = google_seo_sitemap_gen(
-                    'threads', 'tid', 'dateline', 'get_thread_link',
-                    $prefix, 0, $pagination);
-                break;
-
-            case "users":
-                $gen = google_seo_sitemap_gen(
-                    'users', 'uid', 'regdate', 'get_profile_link',
-                    $prefix, 0, $pagination);
-                break;
-
-            case "announcements":
-                $gen = google_seo_sitemap_gen(
-                    'announcements', 'aid', 'startdate', 'get_announcement_link',
-                    $prefix, 0, $pagination);
-                break;
-
-            case "calendars":
-                $gen = google_seo_sitemap_gen(
-                    'calendars', 'cid', 'disporder', 'get_calendar_link',
-                    $prefix, 0, $pagination);
-                break;
-
-            case "events":
-                $gen = google_seo_sitemap_gen(
-                    'events', 'eid', 'dateline', 'get_event_link',
-                    $prefix, 0, $pagination);
-                break;
-        }
+        $gen = google_seo_sitemap_gen($prefix, $type, $page, $pagination);
 
         if(sizeof($gen))
         {
@@ -1665,7 +1598,7 @@ function google_seo_sitemap_index($prefix, $page, $pagination)
 
     if($settings['google_seo_sitemap_additional'])
     {
-        $items[] = array('loc' => "{$prefix}index?page=1");
+        $items[] = array('loc' => "{$prefix}Index?page=1");
     }
 
     google_seo_sitemap("sitemap", $items);
@@ -1692,7 +1625,7 @@ function google_seo_index_start()
 
     $type = $mybb->input['google_seo_sitemap'];
 
-    if($type != "index" && !$settings["google_seo_sitemap_$type"])
+    if($type != "Index" && !$settings["google_seo_sitemap_$type"])
     {
         // This type of sitemap is not enabled.
         error("Sitemap disabled or invalid");
@@ -1708,62 +1641,114 @@ function google_seo_index_start()
     $page = min(max($page, 0), 50000);
 
     // Temporarily turn off 'always verify'.
-    // It's expensive and not necessary just for a Sitemap.
+    // It's expensive and not necessary for a Sitemap.
     $settings['google_seo_verify'] = 0;
 
-    if($type != "index" && $page == 0)
+    if($type == "Index")
     {
-        // Everything but the Index needs a page.
-        error("Sitemap invalid or bad page parameter");
+        google_seo_sitemap_index($prefix, $page, $pagination);
     }
 
-    switch($type)
+    else
     {
-        case "index":
-            google_seo_sitemap_index($prefix, $page, $pagination);
-            break;
-
-        case "forums":
-            google_seo_sitemap_gen(
-                'forums', 'fid', 'lastpost', 'get_forum_link',
-                $prefix, $page, $pagination);
-            break;
-
-        case "threads":
-            google_seo_sitemap_gen(
-                'threads', 'tid', 'dateline', 'get_thread_link',
-                $prefix, $page, $pagination);
-            break;
-
-        case "users":
-            google_seo_sitemap_gen(
-                'users', 'uid', 'regdate', 'get_profile_link',
-                $prefix, $page, $pagination);
-            break;
-
-        case "announcements":
-            google_seo_sitemap_gen(
-                'announcements', 'aid', 'startdate', 'get_announcement_link',
-                $prefix, $page, $pagination);
-            break;
-
-        case "calendars":
-            google_seo_sitemap_gen(
-                'calendars', 'cid', 'disporder', 'get_calendar_link',
-                $prefix, $page, $pagination);
-            break;
-
-        case "events":
-            google_seo_sitemap_gen(
-                'events', 'eid', 'dateline', 'get_event_link',
-                $prefix, $page, $pagination);
-            break;
-
-        default:
-            error("Sitemap invalid");
+        google_seo_sitemap_gen($prefix, $type, $page, $pagination);
     }
 
     exit;
+}
+
+/* --- Meta description: --- */
+
+global $google_seo_meta;
+
+function google_seo_meta($description)
+{
+    global $google_seo_meta, $settings;
+
+    if($description)
+    {
+        $description = preg_replace("/\[[^\]]+]/u", "", $description);
+        $description = preg_replace("/[ \n\t\r]+/u", " ", $description);
+        $description = trim($description);
+        $description = my_substr($description, 0, $settings['google_seo_meta_length'], true);
+        $description = trim($description);
+
+        if(description)
+        {
+            $google_seo_meta .= "<meta name=\"description\""
+                ." content=\"$description\" />";
+        }
+    }
+}
+
+function google_seo_meta_forum($fid)
+{
+    global $db;
+
+    $query = $db->simple_select("forums", "description", "fid=$fid");
+    $description = $db->fetch_field($query, "description");
+    google_seo_meta($description);
+}
+
+function google_seo_meta_thread($tid)
+{
+    global $db;
+
+    $query = $db->simple_select("threads", "firstpost", "tid=$tid");
+    $firstpost = $db->fetch_field($query, "firstpost");
+    google_seo_meta_post($firstpost);
+}
+
+function google_seo_meta_post($pid)
+{
+    global $db;
+
+    $query = $db->simple_select("posts", "message", "pid=$pid");
+    $message = $db->fetch_field($query, "message");
+    google_seo_meta($message);
+}
+
+function google_seo_meta_user($uid)
+{
+/*
+ * Hmmm, what do put here?
+ *
+ * Maybe like in the profile:
+ * User admin, joined 12-29-2008, last visit 01-01-2009, total posts 7.
+ *
+ * But that string has to be localized in a setting.
+ *
+ */
+}
+
+function google_seo_meta_announcement($aid)
+{
+    global $db;
+
+    $query = $db->simple_select("announcements", "message", "aid=$aid");
+    $message = $db->fetch_field($query, "message");
+    google_seo_meta($message);
+}
+
+function google_seo_meta_event($eid)
+{
+    global $db;
+
+    $query = $db->simple_select("events", "description", "eid=$eid");
+    $description = $db->fetch_field($query, "description");
+    google_seo_meta($description);
+}
+
+function google_seo_meta_calendar($cid)
+{
+/*
+ * Hmmm, what to put here?
+ *
+ * Calendars don't have descriptions.
+ *
+ * Maybe the number of events? :-/
+ *
+ */
 }
 
 /* --- End of file. --- */
