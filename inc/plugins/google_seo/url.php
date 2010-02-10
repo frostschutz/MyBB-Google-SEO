@@ -1064,7 +1064,7 @@ function google_seo_url_forum($fid, $page=0)
     {
         $url = google_seo_url_cache("forums", $fid);
 
-        if($url && $page > 1)
+        if($url && $page && $page != 1)
         {
             $url .= "?page=$page";
         }
@@ -1091,12 +1091,12 @@ function google_seo_url_thread($tid, $page=0, $action='')
 
         if($url)
         {
-            if($page > 1 && $action)
+            if($page && $page != 1 && $action)
             {
                 $url .= "?page=$page&amp;action=$action";
             }
 
-            else if($page > 1)
+            else if($page && $page != 1)
             {
                 $url .= "?page=$page";
             }
@@ -1250,33 +1250,59 @@ function google_seo_url_multipage($url)
         case 'forumdisplay.php':
             global $fid;
 
-            // Check that the given URL is really the one for paged forums.
+            // Check that the given URL is really the one for this forum.
             $urlcheck = FORUM_URL_PAGED;
             $urlcheck = str_replace("{fid}", $fid, $urlcheck);
 
             if(strpos($url, $urlcheck) === 0)
             {
-                // OK, replace this URL with the Google SEO URL.
-                $url = get_forum_link($fid, "{page}");
+                // Check that Google SEO URLs are being used for forums.
+                $seourl = google_seo_url_forum($fid, "{page}");
+
+                if(get_forum_link($fid, "{page}") == $seourl)
+                {
+                    $newurl = $seourl;
+
+                    // Append extra parameters.
+                    $extra = substr($url, strlen($urlcheck)+1);
+
+                    if($extra)
+                    {
+                        $newurl .= '&'.$extra;
+                    }
+                }
             }
             break;
 
         case 'showthread.php':
             global $tid;
 
-            // Check that the given URL is really the one for paged threads.
+            // Check that the given URL is really the one for this thread.
             $urlcheck = THREAD_URL_PAGED;
             $urlcheck = str_replace("{tid}", $tid, $urlcheck);
 
             if(strpos($url, $urlcheck) === 0)
             {
-                // OK, replace this URL with the Google SEO URL.
-                $url = get_thread_link($tid, "{page}");
+                // Check that Google SEO URLs are being used for forums.
+                $seourl = google_seo_url_forum($tid, "{page}");
+
+                if(get_forum_link($tid, "{page}") == $seourl)
+                {
+                    $newurl = $seourl;
+
+                    // Append extra parameters.
+                    $extra = substr($url, strlen($urlcheck)+1);
+
+                    if($extra)
+                    {
+                        $newurl .= '&'.$extra;
+                    }
+                }
             }
             break;
     }
 
-    return $url;
+    return $newurl;
 }
 
 /* --- End of file. --- */
