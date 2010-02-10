@@ -1,0 +1,119 @@
+2010-01-03: stable release 1.1.10
+
+    * security update: fix possible SQL injection
+
+2009-12-22: stable release 1.1.9
+
+    * fix multipage() regression from the previous update
+
+2009-12-17: stable release 1.1.8
+
+    * multipage() no longer removes sorting / highlight parameters when Google SEO URL is enabled
+
+2009-12-03: stable release 1.1.7
+
+    * functions.php for MyBB 1.4.10
+    * fix compatibility issue with PHP 5.3
+    * add example rewrite rules for nginx and lighttpd
+
+2009-09-26: stable release 1.1.6
+
+    * from now on releases will include functions.php of the current MyBB version only - for security reasons you should always be running the latest version anyway
+    * fix typos in htaccess.txt.example and robots.txt.example
+    * fix typo in plugin installation routine
+    * add workaround setting for LiteSpeed redirect bug
+    * Sitemap no longer lists items of inactive forums
+    * Merge threads now recognizes Google SEO URLs
+    * If the google_seo table is missing, it will no longer raise an error in the Admin CP so you can go in and deactivate or reinstall the plugin
+
+2009-07-25: stable release 1.1.5
+
+    * update htaccess.txt.example and robots.txt.example
+    * fix redirect loop for webservers running on non-standard ports
+    * add missing permission checks for calendar / events on Sitemap
+    * reduce number of queries on portal.php
+
+2009-06-19: stable release 1.1.4
+
+    * modify multipage() to use Google SEO URLs
+
+2009-06-12: stable release 1.1.3
+
+    * add meta / canonical support for Lite (Archive) Mode
+    * add uniquifier enforcer option (for those who absolutely want ID in every URL)
+    * (forgotten debug message removed on 2009-06-13)
+
+2009-05-19: stable release 1.1.2
+
+    * fix typo in htaccess example file
+    * fix infinite redirect issue: use HTTP_HOST instead of SERVER_NAME for redirection, since a badly configured server can have bad values for the latter. This may be a temporary fix.
+    * fix infinite redirect issue: if magic_quotes_gpc is set, unwanted quotes in the query string could lead Google SEO to believe that the user was in the wrong place
+    * invalid user and calendar URLs caused the default profile / calendar to be shown instead of an invalid user / calendar page
+
+2009-05-01: stable release 1.1.1
+
+    * fix a problem with loading the language files
+    * fix thread views increase by 2 issue on redirect
+    * update functions.php for MyBB 1.4.5 (file changed after release)
+    * update example htaccess and robots.txt
+    * more obvious hint that the workaround rewrite wants to be first
+    * set a lower priority for forums/thread pages in the sitemap
+
+2009-04-22: stable release 1.1.0
+
+    * add support for canonical page
+    * add support for pages of forums/threads in XML Sitemap
+    * add support for third party language packs
+    * redo option to make Who's Online ignore users seeing 404 ErrorPage
+    * Meta no longer requires template changes
+    * several fixes / additional checks to plugin status
+    * add permission checks to Meta and (optional) Redirect
+    * fix a case where up-to-date URL wasn't detected and updated, causing additional SQL queries
+    * other minor bugfixes
+
+2009-04-05: stable release 1.0.5
+
+    * fix announcements appearing in Sitemap even after they expired
+    * fix HTML in forum names that shouldn't be there in the first place to show up in the URL
+    * Optimize number of SQL queries on index.php when many users are online
+    * remove translate.php from the zip archive so people don't overwrite their custom translate.php when updating Google SEO
+    * add translate.php.german and translate.php.widelatin example files
+    * documentation: character translation and list of files
+
+2009-03-20: stable release 1.0.4
+
+    * fix & issue in URLs on redirect
+    * remove support for fake directory structure because it breaks URLs in various places (unfortunately MyBB expects relative URLs everywhere)
+    * remove SEO_SUPPORT warning which confused too many people
+    * add warning when mbstring support is missing
+
+2009-03-17: stable release 1.0.3
+
+    * update example htaccess.txt and robots.txt.example
+    * add optional support for fake directory structure (slashes) in URLs
+    * fix URLs for items that have only punctuation in their name
+    * add debug option to Redirect for admins. If you see an infinite redirect issue please enable debug and report the information in the plugin thread.
+
+2009-03-12: stable release 1.0.2
+
+    * add sanity checks to avoid odd SQL errors in various places
+    * fix users browsing this forum / reading this thread not showing up
+    * remove URL WOL option, it's implemented better now and no longer optional
+    * fix revoking URLs on collision with deleted items (regression from 0.5)
+
+2009-03-10: stable release 1.0.1
+
+    * fix MyBB rewrite rules in the htaccess example files (MyBB bug presumably fixed in MyBB 1.4.5)
+    * add warnings to the plugin status page for bad encoding and missing SEO support
+    * (hopefully) fix Redirect issue with Safari Beta browser
+    * add explanation about sitemap to readme
+
+2009-03-09: first stable release 1.0.0
+2009-02-26: public beta release 0.8
+2009-02-23: public beta release 0.7
+2009-02-20: public beta release 0.6
+2009-02-15: public beta release 0.5
+2009-01-03: public beta release 0.4
+2008-12-22: public beta release 0.3
+2008-12-15: public beta release 0.2
+2008-12-13: first public beta release 0.1
