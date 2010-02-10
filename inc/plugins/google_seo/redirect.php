@@ -62,7 +62,7 @@ function google_seo_redirect_current_url()
 
     $page_url .= $_SERVER["REQUEST_URI"];
 
-    return urldecode($page_url);
+    return $page_url;
 }
 
 /**
@@ -198,16 +198,15 @@ function google_seo_redirect_hook()
     // Verify that we are already at the target.
     if($target)
     {
-        $target_decode = $settings['bburl'].'/'.html_entity_decode(urldecode($target));
+        $target = $settings['bburl'].'/'.$target;
         $current = google_seo_redirect_current_url();
 
         // Not identical (although it may only be the query string).
-        if($current != $target_decode)
+        if($current != $target)
         {
             // Parse current and target
-            $target_parse = split("\\?", $target_decode, 2);
+            $target_parse = split("\\?", $target, 2);
             $current_parse = split("\\?", $current, 2);
-            $current_parse[0] = urldecode($current_parse[0]);
 
             // Location
             $location_target = $target_parse[0];
@@ -257,9 +256,43 @@ function google_seo_redirect_hook()
             // Definitely not identical?
             if($change || $target_parse[0] != $current_parse[0])
             {
-                // urlencode target
-                $redirect = split("\\?", $settings['bburl'].'/'.$target, 2);
-                $location_target = $redirect[0];
+                // Check if redirect debugging is enabled.
+                if($settings['google_seo_redirect_debug']
+                   && $mybb->usergroup['cancp'] == 1)
+                {
+                    if($query['google_seo_redirect'])
+                    {
+                        // print out information about this redirect and return
+                        header("Content-type: text/html; charset=UTF-8");
+                        echo "<pre style=\"text-align: left\">";
+                        echo "Google SEO Redirect Debug Information:\n";
+                        echo htmlentities(
+                            print_r(
+                                array(
+                                    'current' => $current,
+                                    'target' => $target,
+                                    'current_parse' => $current_parse,
+                                    'target_parse' => $target_parse,
+                                    'location_target' => $location_target,
+                                    'location_current' => $location_current,
+                                    'broken_query' => $broken_query,
+                                    'query_target' => $query_target,
+                                    'query_current' => $query_current,
+                                    'query' => $query,
+                                    'server' => $_SERVER,
+                                    ),
+                                true
+                                )
+                            );
+                        echo "</pre>";
+                        return;
+                    }
+
+                    else
+                    {
+                        $query['google_seo_redirect'] = $current;
+                    }
+                }
 
                 // Redirect but retain query.
                 foreach($query as $k=>$v)

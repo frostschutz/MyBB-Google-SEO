@@ -23,44 +23,57 @@ Options -MultiViews +FollowSymlinks -Indexes
 <IfModule mod_rewrite.c>
 	RewriteEngine on
 
+        # Some hosts require you to specify a RewriteBase
+        # RewriteBase /MyBB/
+
 	# As first rewrite rule, Google SEO workaround for search.php highlights:
-	RewriteRule ^([^&]*)&(.*)$ http://localhost/MyBB/$1?$2 [R=301,QSA]
+	RewriteRule ^([^&]*)&(.*)$ http://yoursite/MyBB/$1?$2 [L,QSA,R=301]
 
-	RewriteRule ^forum-([0-9]+)\.html$ forumdisplay.php?fid=$1 [L,QSA]
-	RewriteRule ^forum-([0-9]+)-page-([0-9]+)\.html$ forumdisplay.php?fid=$1&page=$2 [L,QSA]
+	RewriteRule ^forum-([0-9]+).html forumdisplay.php?fid=$1 [L,QSA]
+	RewriteRule ^forum-([0-9]+)-page-([0-9]+).html forumdisplay.php?fid=$1&page=$2 [L,QSA]
 
-	RewriteRule ^thread-([0-9]+)\.html$ showthread.php?tid=$1 [L,QSA]
-	RewriteRule ^thread-([0-9]+)-page-([0-9]+)\.html$ showthread.php?tid=$1&page=$2 [L,QSA]
-	RewriteRule ^thread-([0-9]+)-lastpost\.html$ showthread.php?tid=$1&action=lastpost [L,QSA]
-	RewriteRule ^thread-([0-9]+)-nextnewest\.html$ showthread.php?tid=$1&action=nextnewest [L,QSA]
-	RewriteRule ^thread-([0-9]+)-nextoldest\.html$ showthread.php?tid=$1&action=nextoldest [L,QSA]
-	RewriteRule ^thread-([0-9]+)-newpost\.html$ showthread.php?tid=$1&action=newpost [L,QSA]
-	RewriteRule ^thread-([0-9]+)-post-([0-9]+)\.html$ showthread.php?tid=$1&pid=$2 [L,QSA]
+	RewriteRule ^thread-([0-9]+).html showthread.php?tid=$1 [L,QSA]
+	RewriteRule ^thread-([0-9]+)-page-([0-9]+).html showthread.php?tid=$1&page=$2 [L,QSA]
+	RewriteRule ^thread-([0-9]+)-lastpost.html showthread.php?tid=$1&action=lastpost [L,QSA]
+	RewriteRule ^thread-([0-9]+)-nextnewest.html showthread.php?tid=$1&action=nextnewest [L,QSA]
+	RewriteRule ^thread-([0-9]+)-nextoldest.html showthread.php?tid=$1&action=nextoldest [L,QSA]
+	RewriteRule ^thread-([0-9]+)-newpost.html showthread.php?tid=$1&action=newpost [L,QSA]
+	RewriteRule ^thread-([0-9]+)-post-([0-9]+).html showthread.php?tid=$1&pid=$2 [L,QSA]
 
-	RewriteRule ^post-([0-9]+)\.html$ showthread.php?pid=$1 [L,QSA]
+	RewriteRule ^post-([0-9]+).html showthread.php?pid=$1 [L,QSA]
 
-	RewriteRule ^announcement-([0-9]+)\.html$ announcements.php?aid=$1 [L,QSA]
+	RewriteRule ^announcement-([0-9]+).html announcements.php?aid=$1 [L,QSA]
 
-	RewriteRule ^user-([0-9]+)\.html$ member.php?action=profile&uid=$1 [L,QSA]
+	RewriteRule ^user-([0-9]+).html member.php?action=profile&uid=$1 [L,QSA]
 
-	RewriteRule ^calendar-([0-9]+)\.html$ calendar.php?calendar=$1 [L,QSA]
-	RewriteRule ^calendar-([0-9]+)-year-([0-9]+)\.html$ calendar.php?action=yearview&calendar=$1&year=$2 [L,QSA]
-	RewriteRule ^calendar-([0-9]+)-year-([0-9]+)-month-([0-9]+)\.html$ calendar.php?calendar=$1&year=$2&month=$3 [L,QSA]
-	RewriteRule ^calendar-([0-9]+)-year-([0-9]+)-month-([0-9]+)-day-([0-9]+)\.html$ calendar.php?action=dayview&calendar=$1&year=$2&month=$3&day=$4 [L,QSA]
-	RewriteRule ^calendar-([0-9]+)-week-(n?[0-9]+)\.html$ calendar.php?action=weekview&calendar=$1&week=$2 [L,QSA]
+	RewriteRule ^calendar-([0-9]+).html calendar.php?calendar=$1 [L,QSA]
+	RewriteRule ^calendar-([0-9]+)-year-([0-9]+).html calendar.php?action=yearview&calendar=$1&year=$2 [L,QSA]
+	RewriteRule ^calendar-([0-9]+)-year-([0-9]+)-month-([0-9]+).html calendar.php?calendar=$1&year=$2&month=$3 [L,QSA]
+	RewriteRule ^calendar-([0-9]+)-year-([0-9]+)-month-([0-9]+)-day-([0-9]+).html calendar.php?action=dayview&calendar=$1&year=$2&month=$3&day=$4 [L,QSA]
+	RewriteRule ^calendar-([0-9]+)-week-(n?[0-9]+).html calendar.php?action=weekview&calendar=$1&week=$2 [L,QSA]
 
-	RewriteRule ^event-([0-9]+)\.html$ calendar.php?action=event&eid=$1 [L,QSA]
+	RewriteRule ^event-([0-9]+).html calendar.php?action=event&eid=$1 [L,QSA]
 
-        # Google SEO URL:
-        RewriteRule ^Forum-([^./]+)$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
-        RewriteRule ^Thread-([^./]+)$ showthread.php?google_seo_thread=$1 [L,QSA,NC]
-        RewriteRule ^Announcement-([^./]+)$ announcements.php?google_seo_announcement=$1 [L,QSA,NC]
-        RewriteRule ^User-([^./]+)$ member.php?action=profile&google_seo_user=$1 [L,QSA,NC]
-        RewriteRule ^Calendar-([^./]+)$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
-        RewriteRule ^Event-([^./]+)$ calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]
+	# Google SEO Sitemap:
+	RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
 
-        # Google SEO Sitemap:
-        RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
+	# Google SEO URL Forums:
+	RewriteRule ^Forum/([^./]+)$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
+
+	# Google SEO URL Threads:
+	RewriteRule ^Thread/([^./]+)$ showthread.php?google_seo_thread=$1 [L,QSA,NC]
+
+	# Google SEO URL Announcements:
+	RewriteRule ^Announcement/([^./]+)$ announcements.php?google_seo_announcement=$1 [L,QSA,NC]
+
+	# Google SEO URL Users:
+	RewriteRule ^User/([^./]+)$ member.php?action=profile&google_seo_user=$1 [L,QSA,NC]
+
+	# Google SEO URL Calendars:
+	RewriteRule ^Calendar/([^./]+)$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
+
+	# Google SEO URL Events:
+	RewriteRule ^Event/([^./]+)$ calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]
 
 	<IfModule mod_env.c>
 		SetEnv SEO_SUPPORT 1

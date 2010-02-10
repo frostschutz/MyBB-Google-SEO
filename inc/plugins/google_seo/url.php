@@ -216,7 +216,14 @@ function google_seo_url_finalize($url, $scheme)
         return 0;
     }
 
-    return urlencode($url);
+    $url = rawurlencode($url);
+
+    if($settings['google_seo_url_slash'])
+    {
+        $url = str_replace("%2F", "/", $url);
+    }
+
+    return $url;
 }
 
 /* --- URL Creation: --- */
@@ -313,8 +320,8 @@ function google_seo_url_create($type, $ids)
             if(!($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url) &&
                !($uniquerow && $uniquerow['id'] == $id && $uniquerow['url'] == $url))
             {
-                // Use unique URL if there was a row with a different URL.
-                if($urlrow && $urlrow['id'] != $id)
+                // Use unique URL if empty or if there was a row with a different URL.
+                if($url == "" || $urlrow && $urlrow['id'] != $id)
                 {
                     $url = $uniqueurl;
                 }

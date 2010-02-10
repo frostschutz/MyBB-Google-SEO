@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.2",
+        "version"       => "1.0.3",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -71,6 +71,7 @@ function google_seo_plugin_status()
     $error = array();
     $htaccess = array();
     $lines = array();
+    $headerinclude = array();
 
     // UTF-8 is required:
     if($mybb->config['database']['encoding'] != 'utf8')
@@ -93,29 +94,7 @@ function google_seo_plugin_status()
     if($settings['google_seo_meta'])
     {
         $success[] = 'Meta is enabled.';
-
-        // Check for missing template modifications:
-        $query = $db->query("SELECT a.title,
-                                    b.template
-                             FROM ".TABLE_PREFIX."templatesets a
-                             LEFT JOIN
-                               (SELECT * FROM ".TABLE_PREFIX."templates
-                                WHERE title='headerinclude') b
-                             ON a.sid = b.sid");
-
-        while($row = $db->fetch_array($query))
-        {
-            if(strstr($row['template'], '{$google_seo_meta}') === false)
-            {
-                $sets[] = htmlentities($row['title']);
-            }
-        }
-
-        if(sizeof($sets))
-        {
-            $warning[] = "Add {\$google_seo_meta} to headerinclude template"
-                ." for these template sets: ".join($sets, ", ");
-        }
+        $headerinclude['{$google_seo_meta}'] = array();
     }
 
     else
@@ -207,11 +186,45 @@ function google_seo_plugin_status()
                                 'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]',
                                 'Google SEO URL Events');
         }
+
+        if($settings['google_seo_url_slash'])
+        {
+            $headerinclude["<base href=\"{\$settings['bburl']}/\" />"] = array();
+        }
     }
 
     else
     {
         $error[] = 'URL is disabled.';
+    }
+
+    // Check headerinclude.
+    $query = $db->query("SELECT a.title,
+                                b.template
+                         FROM ".TABLE_PREFIX."templatesets a
+                         LEFT JOIN
+                             (SELECT * FROM ".TABLE_PREFIX."templates
+                              WHERE title='headerinclude') b
+                              ON a.sid = b.sid");
+
+    while($row = $db->fetch_array($query))
+    {
+        foreach(array_keys($headerinclude) as $k)
+        {
+            if(strstr($row['template'], $k) === false)
+            {
+                $headerinclude[$k][] = $row['title'];
+            }
+        }
+    }
+
+    foreach(array_keys($headerinclude) as $k)
+    {
+        if(count($headerinclude[$k]))
+        {
+            $warning[] = "Add ".htmlentities($k)." to headerinclude template"
+                ." for these template sets: ".join($headerinclude[$k], ", ");
+        }
     }
 
     // Check htaccess.
@@ -492,6 +505,11 @@ function google_seo_plugin_uninstall()
 
 function google_seo_plugin_activate()
 {
+    global $db;
+
+    /* Bugfix: Empty URLs */
+    $db->delete_query("google_seo", "url=''");
+
     /* Settings for Google SEO 404 */
     google_seo_plugin_settings(
         "google_seo_404",
@@ -554,6 +572,10 @@ function google_seo_plugin_activate()
             'google_seo_redirect' => array(
                 'title' => "Google SEO Redirect",
                 'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
+                ),
+            'google_seo_redirect_debug' => array(
+                'title' => "Google SEO Redirect Debug",
+                'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",
                 ),
             )
         );
@@ -708,6 +730,10 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
                 'value' => 'Event-{$url}',
+                ),
+            'google_seo_url_slash' => array(
+                'title' => "Support fake directory structure in URLs",
+                'description' => "MyBB does not support subdirectories, so using the slash '/' character in URLs is not recommended. If however you want to be able to use slashes in URLs anyway, say yes here, add &lt;base href=&quot;{\$settings['bburl']}/&quot; /&gt; to your headerinclude template, and adapt your URL scheme settings and .htaccess rules accordingly.",
                 ),
             )
         );
