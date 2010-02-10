@@ -324,10 +324,10 @@
      Make sure that your template gives a unique title to each page.
      MyBB does this well by default, except for forum display pages.
 
-     In Admin CP -> Templates & Style -> Templates, find the 'forumdisplay'
+     In Admin CP -> Templates & Style -> Templates, open the 'forumdisplay'
      template and find this line:
 
-       <title>{$mybb->settings['bbname']} - {$foruminfo['name']} </title>
+       <title>{$mybb->settings['bbname']} - {$foruminfo['name']}</title>
 
      Change it to:
 

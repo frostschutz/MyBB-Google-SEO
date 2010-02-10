@@ -193,19 +193,21 @@ function google_seo_url_uniquify($url, $id)
  */
 function google_seo_url_finalize($url, $scheme)
 {
+    global $settings;
+
     eval("\$url = \"$scheme\";");
 
     if(strlen($url) >= 256)
     {
-        /*
+        /**
          * Maximum URL length hack.
          *
-         * Most hosts do not allow for filenames > 256 bytes in URLs.
+         * Most hosts do not allow for filenames > 255 bytes in URLs.
          * Trying to access such an URL results in 403 Forbidden.
          *
          * Since MyBB already limits length of user names and topic
          * subjects this is normally not a problem. However it is still
-         * possible to hit the limit with UTF-8 multi byte characters.
+         * possible to hit the limit with UTF-8 multibyte characters.
          *
          * This hack causes Google SEO to fall back to stock URLs in
          * the rare case where the Google SEO URL would be unuseable.
@@ -452,6 +454,7 @@ function google_seo_url_optimize($type, $id)
     // Extract and return IDs for this type.
     $ids = $google_seo_url_optimize[$type];
     unset($google_seo_url_optimize[$type]);
+    unset($ids[0]);
 
     return $ids;
 }
@@ -492,9 +495,9 @@ function google_seo_url_cache($type, $id)
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE active=1
                              AND idtype=$idtype
-                             AND id IN ('"
-                            .implode(array_keys($ids),"','")
-                            ."')");
+                             AND id IN ("
+                            .implode(array_keys($ids),",")
+                            .")");
 
         // Process the query results.
         $scheme = $settings["google_seo_url_$type"];
@@ -817,13 +820,11 @@ function google_seo_url_post($pid, $tid=0)
         if(!$tid)
         {
             // We didn't get a tid so we have to fetch it. Ugly.
-
             // Code based on showthread.php:
             global $style;
 
             if(isset($style) && $style['pid'] == $pid && $style['tid'])
             {
-                echo "success";
                 $tid = $style['tid'];
             }
 

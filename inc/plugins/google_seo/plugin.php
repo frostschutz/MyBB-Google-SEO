@@ -38,15 +38,16 @@ function google_seo_plugin_info()
 
     $info = array(
         "name"          => "Google SEO <b>BETA</b>",
-        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.<br><b>This plugin is still in beta stage. Use at your own risk.</b>",
+        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.<br><b>This plugin is still in beta stage. Use at your own risk only!</b>",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.7",
+        "version"       => "0.8",
     );
 
 
     // Provide some additional status information, if the plugin is enabled.
-    if($plugins_cache['active']['google_seo'])
+    if(google_seo_plugin_is_installed() &&
+       $plugins_cache['active']['google_seo'])
     {
         $info['description'] .= @google_seo_plugin_status();
     }
@@ -61,7 +62,7 @@ function google_seo_plugin_info()
  */
 function google_seo_plugin_status()
 {
-    global $settings, $db;
+    global $mybb, $settings, $db;
 
     $success = array();
     $warning = array();
@@ -104,8 +105,8 @@ function google_seo_plugin_status()
 
         if(sizeof($sets))
         {
-            $warning[] = 'Add {$google_seo_meta} to headerinclude template for these template sets: '
-                .join($sets, ", ");
+            $warning[] = "Add {\$google_seo_meta} to headerinclude template"
+                ." for these template sets: ".join($sets, ", ");
         }
     }
 
@@ -118,6 +119,11 @@ function google_seo_plugin_status()
     if($settings['google_seo_redirect'])
     {
         $success[] = 'Redirect is enabled.';
+
+        if(!$settings['google_seo_url'])
+        {
+            $warning[] = "Redirect enabled, but URL disabled. This is fine for redirecting stock MyBB URLs (showthread.php?tid=x) to MyBB search engine friendly URLs (thread-x.html) or vice versa. If you want to redirect stock MyBB URLs to Google SEO URLs or vice versa, please enable URL as well.";
+        }
     }
 
     else
@@ -139,7 +145,6 @@ function google_seo_plugin_status()
 
     }
 
-
     // Google SEO URL:
     if($settings['google_seo_url'])
     {
@@ -149,7 +154,7 @@ function google_seo_plugin_status()
 
         if(strstr($file, "google_seo_url") === false)
         {
-            $warning[] = "You must modify your inc/functions.php for URLs to work. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
+            $warning[] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
         }
 
         $htaccess[] = array($settings['google_seo_url_forums'],
@@ -227,35 +232,36 @@ function google_seo_plugin_status()
 
         if(count($lines))
         {
-            $warning[] = 'Add to .htaccess:<pre style="background-color: #ffffff; margin: 2px; padding: 2px;">'
+            $warning[] = "Add to .htaccess:"
+                ."<pre style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
                 .implode($lines, "\n")
-                .'</pre>';
+                ."</pre>";
         }
     }
 
     // Build a list with success, warnings, errors:
     foreach($error as $e)
     {
-        $status .= '<li style="list-style-image: url(styles/default/images/icons/error.gif)">'
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/error.gif)\">"
             .$e
-            .'</li>';
+            ."</li>\n";
     }
 
     foreach($warning as $w)
     {
-        $status .= '<li style="list-style-image: url(styles/default/images/icons/warning.gif)">'
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/warning.gif)\">"
             .$w
-            .'</li>';
+            ."</li>\n";
     }
 
     foreach($success as $s)
     {
-        $status .= '<li style="list-style-image: url(styles/default/images/icons/success.gif)">'
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.gif)\">"
             .$s
-            .'</li>';
+            ."</li>\n";
     }
 
-    return '<ul>'.$status.'</ul>';
+    return "\n<ul>\n$status</ul>\n";
 }
 
 /* --- Plugin Helpers: --- */
@@ -541,10 +547,6 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => "1000",
                 ),
-            'google_seo_sitemap_debug' => array(
-                'title' => "XML Sitemap debug",
-                'description' => "This adds a &lt;debug&gt; tag at the end of each sitemap, which contains debug information such as the total time in seconds it took to generate the sitemap. Technically this makes a XML Sitemap invalid, so do not enable this option unless you suspect Sitemap generation to be the cause of high server load (which is unlikely as Sitemaps do not get requested that often, especially when their timestamp did not change). Generation time should stay below 1 second for each Sitemap page, if you get values much higher than that consider reducing the Sitemap pagination value.",
-                ),
             )
         );
 
@@ -560,13 +562,13 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_punctuation' => array(
                 'title' => "Punctuation characters",
-                'description' => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters including space. If you are running an international forum with non-ascii script, you might want to add unwanted punctuation characters of those scripts here.",
+                'description' => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters including space. If you are running an international forum with non-ASCII script, you might want to add unwanted punctuation characters of those scripts here.",
                 'optionscode' => "text",
                 'value' => "!\"#$%&'( )*+,-./:;<=>?@[\\]^_`{|}~",
                 ),
             'google_seo_url_separator' => array(
                 'title' => "URL separator",
-                'description' => "Enter the separator that should be used to separate words in the URLs. By default this is - which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like : or @ or / or space could render your URLs unuseable or hard to work with.",
+                'description' => "Enter the separator that should be used to separate words in the URLs. By default this is - which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like :&amp;?@/ or space could render your URLs unuseable or hard to work with.",
                 'optionscode' => "text",
                 'value' => "-",
                 ),
@@ -578,21 +580,21 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_translate' => array(
                 'title' => "Character Translation",
-                'description' => "This feature is <i>optional</i>. Google SEO is fine with UTF-8 in URLs so there is no need for character translation. However, if you absolutely want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/translate.php</i> and then say YES to this option. Please note that this will increase CPU load.",
+                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/translate.php</i> and then enable this option.",
                 ),
             'google_seo_url_lowercase' => array(
                 'title' => "lowercase words",
-                'description' => "If you prefer lower case URLs, you can set this to YES. This will not affect the way URLs are stored in the database so you can go back to the original case letters any time. Please note that if you set this to YES, you will also have to make sure that your forum URL, as well as Google SEO prefixes, postfixes, and uniqufier are all lowercase too for the URL to be completely in lower case.",
+                'description' => "If you prefer lower case URLs, you can set this to YES. This will not affect the way URLs are stored in the database so you can go back to the original case letters any time. Please note that if you set this to YES, you will also have to make sure that your forum URL, as well as scheme and uniqufier are all lowercase too for the URL to be completely in lower case.",
                 ),
             'google_seo_url_length_soft' => array(
                 'title' => "URL length soft limit",
-                'description' => "If an URL becomes too long, it can be shortened after a soft limit by truncating it after a word (punctuation separator). Set to 0 to disable.",
+                'description' => "URLs can be shortened after a soft limit by truncating it after a word (punctuation separator). Set to 0 to disable.",
                 'optionscode' => "text",
                 'value' => '0',
                 ),
             'google_seo_url_length_hard' => array(
                 'title' => "URL length hard limit",
-                'description' => "If an URL becomes too long, it can be shortened after a hard limit by truncating it regardless of word separators. Set to 0 to disable.",
+                'description' => "URLs can be shortened after a hard limit by truncating it regardless of word separators. Set to 0 to disable.",
                 'optionscode' => "text",
                 'value' => '0',
                 ),

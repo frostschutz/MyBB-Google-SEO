@@ -75,7 +75,7 @@ function google_seo_activate()
 function google_seo_deactivate()
 {
     require_once MYBB_ROOT."inc/plugins/google_seo/plugin.php";
-    return google_seo_plugin_activate();
+    return google_seo_plugin_deactivate();
 }
 
 /* --- Submodules: --- */

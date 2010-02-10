@@ -27,6 +27,7 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
+// Check current URL and redirect if necessary.
 $plugins->add_hook("global_start", "google_seo_redirect_hook", 2);
 
 /* --- Redirect: --- */
@@ -59,7 +60,7 @@ function google_seo_redirect_current_url()
         }
     }
 
-    $page_url .= urldecode($_SERVER["REQUEST_URI"]);
+    $page_url .= $_SERVER["REQUEST_URI"];
 
     return $page_url;
 }
@@ -86,8 +87,9 @@ function google_seo_redirect_hook()
             {
                 $target = get_forum_link($mybb->input['fid'],
                                          $mybb->input['page']);
-                $kill = array('fid' => '',
-                              'page' => '');
+                $kill['fid'] = '';
+                $kill['page'] = '';
+                $kill['google_seo_forum'] = '';
             }
 
             break;
@@ -98,7 +100,9 @@ function google_seo_redirect_hook()
             if($mybb->input['pid'])
             {
                 $target = get_post_link($mybb->input['pid']);
-                $kill = array('pid' => '');
+                $kill['pid'] = '';
+                $kill['tid'] = '';
+                $kill['google_seo_thread'] = '';
             }
 
             else if($mybb->input['tid'])
@@ -106,9 +110,10 @@ function google_seo_redirect_hook()
                 $target = get_thread_link($mybb->input['tid'],
                                           $mybb->input['page'],
                                           $mybb->input['action']);
-                $kill = array('tid' => '',
-                              'page' => '',
-                              'action' => '');
+                $kill['tid'] = '';
+                $kill['page'] = '';
+                $kill['action'] = '';
+                $kill['google_seo_thread'] = '';
             }
 
             break;
@@ -117,7 +122,7 @@ function google_seo_redirect_hook()
             if($mybb->input['aid'])
             {
                 $target = get_announcement_link($mybb->input['aid']);
-                $kill = array('aid' => '');
+                $kill['aid'] = '';
             }
 
             break;
@@ -126,11 +131,12 @@ function google_seo_redirect_hook()
             if($mybb->input['uid'])
             {
                 $target = get_profile_link($mybb->input['uid']);
-                $kill = array('uid' => '');
+                $kill['uid'] = '';
 
                 if($mybb->input['action'] == 'profile')
                 {
                     $kill['action'] = '';
+                    $kill['google_seo_user'] = '';
                 }
             }
 
@@ -140,11 +146,12 @@ function google_seo_redirect_hook()
             if($mybb->input['eid'])
             {
                 $target = get_event_link($mybb->input['eid']);
-                $kill = array('eid' => '');
+                $kill['eid'] = '';
 
                 if($mybb->input['action'] == 'event')
                 {
                     $kill['action'] = '';
+                    $kill['google_seo_event'] = '';
                 }
             }
 
@@ -165,9 +172,10 @@ function google_seo_redirect_hook()
                 {
                     $target = get_calendar_week_link($mybb->input['calendar'],
                                                      $mybb->input['week']);
-                    $kill = array('calendar' => '',
-                                  'week' => '',
-                                  'action' => '');
+                    $kill['calendar'] = '';
+                    $kill['week'] = '';
+                    $kill['action'] = '';
+                    $kill['google_seo_calendar'] = '';
                 }
 
                 else
@@ -176,10 +184,11 @@ function google_seo_redirect_hook()
                                                 $mybb->input['year'],
                                                 $mybb->input['month'],
                                                 $mybb->input['day']);
-                    $kill = array('calendar' => '',
-                                  'year' => '',
-                                  'month' => '',
-                                  'day' => '');
+                    $kill['calendar'] = '';
+                    $kill['year'] = '';
+                    $kill['month'] = '';
+                    $kill['day'] = '';
+                    $kill['google_seo_calendar'] = '';
                 }
             }
 
@@ -190,7 +199,7 @@ function google_seo_redirect_hook()
     if($target)
     {
         $target = html_entity_decode($settings['bburl'].'/'.$target);
-        $current = html_entity_decode(google_seo_redirect_current_url());
+        $current = google_seo_redirect_current_url();
 
         // Not identical (although it may only be the query string).
         if($target != $current)
@@ -198,16 +207,27 @@ function google_seo_redirect_hook()
             // Parse current and target
             $target_parse = split("\\?", $target, 2);
             $current_parse = split("\\?", $current, 2);
+            $current_parse[0] = urldecode($current_parse[0]);
 
             // Location
             $location_target = $target_parse[0];
             $location_current = $current_parse[0];
 
+            // Fix broken query strings (e.g. search.php)
+            $broken_query = $current_parse[1];
+            $broken_query = preg_replace("/\?([^&?]+)=/u", '&$1=', $broken_query);
+
+            if($current_parse[1] != $broken_query)
+            {
+                $change = 1;
+                $current_parse[1] = $broken_query;
+            }
+
             // Query
             parse_str($target_parse[1], &$query_target);
             parse_str($current_parse[1], &$query_current);
 
-            $query = $query_current;
+            $query = array_merge($query_current, $mybb->input);
 
             // Kill query string elements that already are part of the URL.
             foreach($kill as $k=>$v)
@@ -218,7 +238,6 @@ function google_seo_redirect_hook()
             // Final query, current parameters retained
             $query = array_merge($query_target, $query);
 
-            // Compare query.
             if(count($query) != count($query_current))
             {
                 $change = 1;
@@ -250,7 +269,16 @@ function google_seo_redirect_hook()
                 }
 
                 header("Location: $location_target", true, 301);
-                exit;
+
+                // Only exit if the headers haven't been sent yet.
+                // (i.e. if the headers will be sent on exit).
+                if(!headers_sent())
+                {
+                    exit;
+                }
+
+                // Otherwise let the page load normally, but the above
+                // call to header will also display a warning message.
             }
         }
     }

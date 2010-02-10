@@ -12,6 +12,7 @@ Disallow: /yourMyBB/printthread.php
 Disallow: /yourMyBB/private.php
 Disallow: /yourMyBB/ratethread.php
 Disallow: /yourMyBB/report.php
+Disallow: /yourMyBB/reputation.php
 Disallow: /yourMyBB/sendthread.php
 Disallow: /yourMyBB/task.php
 Disallow: /yourMyBB/usercp.php

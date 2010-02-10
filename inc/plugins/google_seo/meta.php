@@ -25,8 +25,19 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+/* --- Hooks: --- */
+
+// generating and setting meta data:
+$plugins->add_hook("global_start", "google_seo_meta_global_start");
+
 /* --- Meta description: --- */
 
+/**
+ * Clean up a descriptiona nd set the global google_seo_meta variable,
+ * which will then (hopefully) be included by the headertemplate.
+ *
+ * @param string The unfiltered description that should be used.
+ */
 function google_seo_meta($description)
 {
     global $google_seo_meta, $settings;
@@ -47,6 +58,11 @@ function google_seo_meta($description)
     }
 }
 
+/**
+ * Generate a meta description for a forum.
+ *
+ * @param int Forum-ID
+ */
 function google_seo_meta_forum($fid)
 {
     global $db;
@@ -56,6 +72,11 @@ function google_seo_meta_forum($fid)
     google_seo_meta($description);
 }
 
+/**
+ * Generate a meta description for a post (usually firstpost).
+ *
+ * @param int Post-ID
+ */
 function google_seo_meta_post($pid)
 {
     global $db;
@@ -65,6 +86,11 @@ function google_seo_meta_post($pid)
     google_seo_meta($message);
 }
 
+/**
+ * Generate a meta description for a thread.
+ *
+ * @param int Thread-ID
+ */
 function google_seo_meta_thread($tid)
 {
     global $db;
@@ -74,19 +100,21 @@ function google_seo_meta_thread($tid)
     google_seo_meta_post($firstpost);
 }
 
+/**
+ * Generate a meta description for a user.
+ *
+ * @param int User-ID
+ */
 function google_seo_meta_user($uid)
 {
-/**
- * Hmmm, what do put here?
- *
- * Maybe like in the profile:
- * User admin, joined 12-29-2008, last visit 01-01-2009, total posts 7.
- *
- * But that string has to be localized in a setting.
- *
- */
+    /* not implemented */
 }
 
+/**
+ * Generate a meta description for an announcement.
+ *
+ * @param int Announcement-ID
+ */
 function google_seo_meta_announcement($aid)
 {
     global $db;
@@ -96,6 +124,11 @@ function google_seo_meta_announcement($aid)
     google_seo_meta($message);
 }
 
+/**
+ * Generate a meta description for an event.
+ *
+ * @param int Event-ID
+ */
 function google_seo_meta_event($eid)
 {
     global $db;
@@ -105,20 +138,20 @@ function google_seo_meta_event($eid)
     google_seo_meta($description);
 }
 
+/**
+ * Generate a meta description for a calendar
+ *
+ * @param int Calendar-ID
+ */
 function google_seo_meta_calendar($cid)
 {
-/**
- * Hmmm, what to put here?
- *
- * Calendars don't have descriptions.
- *
- * Maybe the number of events? :-/
- *
- */
+    /* not implemented */
 }
 
-$plugins->add_hook("global_start", "google_seo_meta_global_start");
-
+/**
+ * Generate and set meta data for the current page, if applicable.
+ *
+ */
 function google_seo_meta_global_start()
 {
     global $mybb, $google_seo_meta;
@@ -134,14 +167,14 @@ function google_seo_meta_global_start()
             break;
 
         case 'showthread.php':
-            if($mybb->input['pid'])
-            {
-                google_seo_meta_post($mybb->input['pid']);
-            }
-
-            else if($mybb->input['tid'])
+            if($mybb->input['tid'])
             {
                 google_seo_meta_thread($mybb->input['tid']);
+            }
+
+            else if($mybb->input['pid'])
+            {
+                google_seo_meta_post($mybb->input['pid']);
             }
 
             break;

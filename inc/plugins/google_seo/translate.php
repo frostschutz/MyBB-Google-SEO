@@ -29,8 +29,24 @@ if(!defined("IN_MYBB"))
 
 /**
  * If you want to use character translation for Google SEO URL,
- * add your translations to this file, then enable the option
- * for character translation in Google SEO URL settings.
+ * add your translations to this file in UTF-8 encoding and
+ * enable character translation in Google SEO URL settings.
+ *
+ * Please note that this is entirely optional:
+ * Google SEO can handle UTF-8 characters in URLs just fine.
+ *
+ */
+
+/**
+ * WARNING:
+ *
+ * When translating single characters to two or more characters,
+ * it's possible to create URLs that are too long to be stored
+ * in the database (default limit is 120 characters).
+ *
+ * In this case you must either enable the URL length limit options
+ * (set hard limit to 120) or change the database table google_seo,
+ * url column, to allow storing VARCHAR longer than 120 characters.
  */
 
 // Example translation for German umlauts:

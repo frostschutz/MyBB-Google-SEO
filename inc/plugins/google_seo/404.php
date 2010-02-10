@@ -25,11 +25,21 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
-/* --- 404 error handling: --- */
+/* --- Hooks: --- */
 
-// 404 error handling if the user wants this.
+// Set HTTP 404 status code, add widget to error pages:
 $plugins->add_hook("error", "google_seo_404");
 
+// Custom 404 error page:
+$plugins->add_hook("misc_start", "google_seo_404_page");
+
+/* --- 404 error handling: --- */
+
+/**
+ * Set the 404 header, add Google 404 widget, if enabled.
+ *
+ * @param string Error message, which may be modified.
+ */
 function google_seo_404($error)
 {
     global $settings, $mybb;
@@ -62,9 +72,13 @@ function google_seo_404($error)
     }
 }
 
-// Custom 404 error pages:
-$plugins->add_hook("misc_start", "google_seo_404_page");
+/* ---  Custom 404 error page --- */
 
+
+/**
+ * Create a custom 404 error page for errors that occur outside of MyBB.
+ *
+ */
 function google_seo_404_page()
 {
     global $mybb;

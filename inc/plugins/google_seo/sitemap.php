@@ -27,6 +27,7 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
+// Hijack misc.php for XML Sitemap output.
 $plugins->add_hook("misc_start", "google_seo_sitemap_hook");
 
 /* --- Sitemap: --- */
@@ -87,13 +88,6 @@ function google_seo_sitemap($tag, $items)
         $output[] = "  </$tag>";
     }
 
-    if($settings['google_seo_sitemap_debug'])
-    {
-        global $maintimer, $db;
-        $totaltime = $maintimer->stop();
-        $output[] = "<debug><totaltime>$totaltime</totaltime><querycount>".$db->query_count."</querycount></debug>";
-    }
-
     if($tag == "sitemap")
     {
         $output[] = "</sitemapindex>";
@@ -108,7 +102,16 @@ function google_seo_sitemap($tag, $items)
     echo implode("\n", $output);
 }
 
-// Generate the sitemap.
+/**
+ * Generate the list of items for a sitemap.
+ * This will be handed to google_seo_sitemap() to produce the XML output.
+ *
+ * @param string XML Sitemap URL scheme
+ * @param string type of items to list in sitemap
+ * @param int page number
+ * @param int number of items per page
+ * @return array List of items (in case of main index)
+ */
 function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 {
     global $db, $mybb, $settings, $google_seo_url_optimize;
@@ -265,7 +268,19 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     google_seo_sitemap("url", $items);
 }
 
-// Build the main Index sitemap.
+/**
+ * Build the main Index sitemap.
+ *
+ * This index includes all pages for all types and is made
+ * by calling google_seo_sitemap_gen for each type.
+ *
+ * The resulting list of items is handed off to google_seo_sitemap()
+ * to produce the XML Sitemap output.
+ *
+ * @param string XML Sitemap URL scheme
+ * @param int Page number (page 1 == custom, static items)
+ * @param int Number of items that should appear per page.
+ */
 function google_seo_sitemap_index($scheme, $page, $pagination)
 {
     global $settings;
@@ -322,6 +337,13 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
     google_seo_sitemap("sitemap", $items);
 }
 
+/**
+ * Hook into misc.php in order to hijack it for XML Sitemap output.
+ *
+ * Call either google_seo_sitemap_index or _gen to generate the requested
+ * XML Sitemap on the fly.
+ *
+ */
 function google_seo_sitemap_hook()
 {
     global $mybb, $settings;
