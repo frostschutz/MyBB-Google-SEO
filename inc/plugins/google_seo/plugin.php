@@ -34,25 +34,23 @@ if(!defined("IN_MYBB"))
  */
 function google_seo_plugin_info()
 {
-    global $settings;
+    global $settings, $plugins_cache;
 
     $info = array(
         "name"          => "Google SEO <b>BETA</b>",
-        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
+        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.<br><b>This plugin is still in beta stage. Use at your own risk.</b>",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.5",
+        "version"       => "0.6",
     );
 
-/*
- *   if(google_seo_plugin_is_installed())
- *   {
- *       // Provide some additional status information.
- *       $info['description'] .= "\n<ul>\n  <li>"
- *           .implode(google_seo_plugin_status(), "</li>\n  <li>")
- *           ."</li>\n</ul>\n";
- *   }
- */
+
+    // Provide some additional status information, if the plugin is enabled.
+    if($plugins_cache['active']['google_seo'])
+    {
+        $info['description'] .= @google_seo_plugin_status();
+    }
+
     return $info;
 }
 
@@ -61,11 +59,205 @@ function google_seo_plugin_info()
 /**
  * Additional status information about the plugin.
  *
- * @return array of additional status strings that will be shown in a bullet list
+ * @return string status string
  */
 function google_seo_plugin_status()
 {
-    return array("1","2","3");
+    global $settings, $db;
+
+    $success = array();
+    $warning = array();
+    $error = array();
+    $htaccess = array();
+    $lines = array();
+
+    // Google SEO 404:
+    if($settings['google_seo_404'])
+    {
+        $success[] = '404 is enabled.';
+    }
+
+    else
+    {
+        $error[] = '404 is disabled.';
+    }
+
+    // Google SEO Meta:
+    if($settings['google_seo_meta'])
+    {
+        $success[] = 'Meta is enabled.';
+
+        // Check for missing template modifications:
+        $query = $db->query("SELECT a.title,
+                                    b.template
+                             FROM ".TABLE_PREFIX."templatesets a
+                             LEFT JOIN
+                               (SELECT * FROM ".TABLE_PREFIX."templates
+                                WHERE title='headerinclude') b
+                             ON a.sid = b.sid");
+
+        while($row = $db->fetch_array($query))
+        {
+            if(strstr($row['template'], '{$google_seo_meta}') === false)
+            {
+                $sets[] = htmlentities($row['title']);
+            }
+        }
+
+        if(sizeof($sets))
+        {
+            $warning[] = 'Add {$google_seo_meta} to headerinclude template for these template sets: '
+                .join($sets, ", ");
+        }
+    }
+
+    else
+    {
+        $error[] = 'Meta is disabled.';
+    }
+
+    // Google SEO Redirect:
+    if($settings['google_seo_redirect'])
+    {
+        $success[] = 'Redirect is enabled.';
+    }
+
+    else
+    {
+        $error[] = 'Redirect is disabled.';
+    }
+
+    // Google SEO Sitemap:
+    if($settings['google_seo_sitemap'])
+    {
+        $success[] = 'Sitemap is enabled.';
+        $htaccess[] = array($settings['google_seo_sitemap_url'],
+                            'misc.php?google_seo_sitemap=$1 [L,QSA,NC]');
+    }
+
+    else
+    {
+        $error[] = 'Sitemap is disabled.';
+
+    }
+
+
+    // Google SEO URL:
+    if($settings['google_seo_url'])
+    {
+        $success[] = 'URL is enabled.';
+
+        $file = @file_get_contents(MYBB_ROOT."inc/functions.php");
+
+        if(strstr($file, "google_seo_url") === false)
+        {
+            $warning[] = "You must modify your inc/functions.php for URLs to work. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
+        }
+
+        $htaccess[] = array($settings['google_seo_url_forums'],
+                            'forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]');
+        $htaccess[] = array($settings['google_seo_url_threads'],
+                            'showthread.php?google_seo_thread=$1 [L,QSA,NC]');
+        $htaccess[] = array($settings['google_seo_url_announcements'],
+                            'announcements.php?google_seo_announcement=$1 [L,QSA,NC]');
+        $htaccess[] = array($settings['google_seo_url_users'],
+                            'member.php?action=profile&google_seo_user=$1 [L,QSA,NC]');
+        $htaccess[] = array($settings['google_seo_url_calendars'],
+                            'calendar.php?google_seo_calendar=$1 [L,QSA,NC]');
+        $htaccess[] = array($settings['google_seo_url_events'],
+                            'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]');
+    }
+
+    else
+    {
+        $error[] = 'URL is disabled.';
+    }
+
+    // Check htaccess.
+    if($settings['google_seo_404'])
+    {
+        $url = $settings['bburl'];
+        $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
+        $htaccess[] = array(0, 0, "ErrorDocument 404 $url/misc.php?google_seo_error=404");
+    }
+
+    if(count($htaccess))
+    {
+        $file = @file_get_contents(MYBB_ROOT.".htaccess");
+
+        if($file)
+        {
+            $file = preg_replace('/^[\s\t]*#.*$/m', '', $file);
+        }
+
+        foreach($htaccess as $v)
+        {
+            if($v[0])
+            {
+                $rewrite = 1;
+                $rule = preg_quote($v[0]);
+                $rule = preg_replace('/\\\\{\\\\\\$url\\\\}/', '{$url}', $rule);
+                $url = "([^./]+)";
+                eval("\$rule = \"^{$rule}$\";");
+                $rule = "RewriteRule $rule {$v[1]}";
+
+                if(strstr($file, $rule) === false)
+                {
+                    $line = $rule;
+                }
+            }
+
+            else if($v[2])
+            {
+                if(strstr($file, $v[2]) === false)
+                {
+                    $line = $v[2];
+                }
+            }
+
+            if($line)
+            {
+                $lines[] = htmlentities($line);
+                $line = '';
+            }
+        }
+
+        if($rewrite && strstr($file, "RewriteEngine on") === false)
+        {
+            array_unshift($lines, "RewriteEngine on");
+        }
+
+        if(count($lines))
+        {
+            $warning[] = 'Add to .htaccess:<pre style="background-color: #ffffff; margin: 2px; padding: 2px;">'
+                .implode($lines, "\n")
+                .'</pre>';
+        }
+    }
+
+    // Build a list with success, warnings, errors:
+    foreach($error as $e)
+    {
+        $status .= '<li style="list-style-image: url(styles/default/images/icons/error.gif)">'
+            .$e
+            .'</li>';
+    }
+
+    foreach($warning as $w)
+    {
+        $status .= '<li style="list-style-image: url(styles/default/images/icons/warning.gif)">'
+            .$w
+            .'</li>';
+    }
+
+    foreach($success as $s)
+    {
+        $status .= '<li style="list-style-image: url(styles/default/images/icons/success.gif)">'
+            .$s
+            .'</li>';
+    }
+
+    return '<ul>'.$status.'</ul>';
 }
 
 /**
@@ -441,9 +633,9 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_uniquifier' => array(
                 'title' => "URL uniquifier",
-                'description' => "Google SEO tries to make URLs that do not contain ID numbers. However at the same time, URLs <i>must be unique</i>. For the case where the URL cannot be unique (such as two forum threads with the same title) or would be empty (user name that is made up of punctuation only), the URL must be made unique by incorporating the ID. This setting determines how that is done, by default it appends the ID of the item to the end of the URL.",
+                'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
-                'value' => '{$url}-{$id}',
+                'value' => '{$url}{$separator}{$separator}{$id}',
                 ),
             'google_seo_url_lowercase' => array(
                 'title' => "lowercase words",

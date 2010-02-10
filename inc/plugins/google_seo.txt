@@ -61,8 +61,8 @@
    - Google SEO URL:
      * replace standard id based URLs (e.g. showthread.php?tid=12345)
        with name based URLs (e.g. Thread-some-subject)
-       that are usually id free (id is appended for non-unique URLs)
      * UTF-8 in URLs is supported
+     * uniquifier is applied for non-unique URLs (see 5. Advanced Usage)
 
 ---------------------------------------------------------------------------
 
@@ -71,13 +71,13 @@
    Upload google_seo.php, google_seo.txt and the google_seo folder
    to inc/plugins of your MyBB installation.
 
-   You can then install and activate the plugin in your Admin CP,
-   and enable Google SEO features in the Google SEO setting groups.
+   You can then install and activate the plugin in your Admin CP.
+   The plugin will display a status information on the plugins page.
+   You can enable Google SEO features in the Google SEO setting groups.
 
-   Several features require you to make changes to MyBB. In a future
-   version of Google SEO several of these may be automatically done
-   for you when you install the plugin, but for now you have to do
-   it manually:
+   Several features require you to make changes to MyBB. The status
+   information on the plugins page will notify you of these, once you
+   enable the features. The changes have to be applied manually.
 
    - Google SEO 404:
 
@@ -130,15 +130,15 @@
        {
 
      Append:
-           if(function_exists("google_seo_url_profile"))
-           {
-               $link = google_seo_url_profile($uid);
+       if(function_exists("google_seo_url_profile"))
+       {
+           $link = google_seo_url_profile($uid);
 
-               if($link)
-               {
-                   return $link;
-               }
+           if($link)
+           {
+               return $link;
            }
+       }
 
      Find:
        function get_announcement_link($aid=0)
@@ -185,84 +185,83 @@
            }
        }
 
-      Find:
-        function get_post_link($pid, $tid=0)
-        {
+     Find:
+       function get_post_link($pid, $tid=0)
+       {
 
-      Append:
-        if(function_exists("google_seo_url_post"))
-        {
-            $link = google_seo_url_post($pid, $tid);
+     Append:
+       if(function_exists("google_seo_url_post"))
+       {
+           $link = google_seo_url_post($pid, $tid);
 
-            if($link)
-            {
-                return $link;
-            }
-        }
+           if($link)
+           {
+               return $link;
+           }
+       }
 
-      Find:
-        function get_event_link($eid)
-        {
+     Find:
+       function get_event_link($eid)
+       {
 
-      Append:
-        if(function_exists("google_seo_url_event"))
-        {
-            $link = google_seo_url_event($eid);
+     Append:
+       if(function_exists("google_seo_url_event"))
+       {
+           $link = google_seo_url_event($eid);
 
-            if($link)
-            {
-                return $link;
-            }
-        }
+           if($link)
+           {
+               return $link;
+           }
+       }
 
-      Find:
-        function get_calendar_link($calendar, $year=0, $month=0, $day=0)
-        {
+     Find:
+       function get_calendar_link($calendar, $year=0, $month=0, $day=0)
+       {
 
-      Append:
-        if(function_exists("google_seo_url_calendar"))
-        {
-            $link = google_seo_url_calendar($calendar, $year, $month, $day);
+     Append:
+       if(function_exists("google_seo_url_calendar"))
+       {
+           $link = google_seo_url_calendar($calendar, $year, $month, $day);
 
-            if($link)
-            {
-                return $link;
-            }
-        }
+           if($link)
+           {
+               return $link;
+           }
+       }
 
-      Find:
-        function get_calendar_week_link($calendar, $week)
-        {
+     Find:
+       function get_calendar_week_link($calendar, $week)
+       {
 
-      Append:
-        if(function_exists("google_seo_url_calendar_week"))
-        {
-            $link = google_seo_url_calendar_week($calendar, $week);
+     Append:
+       if(function_exists("google_seo_url_calendar_week"))
+       {
+           $link = google_seo_url_calendar_week($calendar, $week);
 
-            if($link)
-            {
-                return $link;
-            }
-        }
+           if($link)
+           {
+               return $link;
+           }
+       }
 
 ---------------------------------------------------------------------------
 
 4. Uninstalling Instructions
 
    If you want to redirect Google SEO URLs back to stock MyBB URLs,
-   keep Google SEO installed and upload the original, unmodified
-   inc/functions.php for MyBB, undoing the URL related changes.
+   just upload the original, unmodified inc/functions.php, but make
+   sure to keep Google SEO URL and Google SEO Redirect enabled.
 
    This way Google SEO stays installed and will continue to translate
-   page names to IDs. However because the URLs themselves are not
-   active, Google SEO Redirect can redirect the Google SEO URLs back
-   to stock MyBB URLs.
+   page names to IDs, allowing Google SEO Redirect to redirect the
+   Google SEO URLs back to stock MyBB URLs.
 
    This gives users and search engines time to adapt to the change.
 
-   To uninstall completely, undo all the changes you made on install.
+   To uninstall completely, undo all the changes you made on install,
+   then go to Admin CP -> Plugins and click 'Deactivate'.
 
-   Then go to Admin CP -> Plugins and click 'Deactivate'.
    This way the Google SEO URLs will end up in 404 error land.
 
    If you click 'Uninstall' all data regarding Google SEO URLs will
@@ -272,6 +271,41 @@
 ---------------------------------------------------------------------------
 
 5. Advanced Usage
+
+   Uniquifier:
+
+     The Google SEO URL uniquifier is applied to URLs that would otherwise
+     not be unique (and thus result in threads that are not accessible).
+     Collision testing (for example for two threads with the same title)
+     is done only once, therefore the uniquifier must result in a truly
+     unique URL that can not possibly collide with anything else.
+
+     A good uniquifier needs to fulfill these two criteria:
+
+       1) contain the items unique {$id}
+       2) contain punctuation that cannot occur in non-uniquified URLs
+
+     Early versions of Google SEO used {$url}-{$id} as uniquifier and
+     therefore did not fulfill criteria 2). This could lead to collisions
+     in rare cases, for example:
+
+       ID: 1, Title: Unique, URL: Thread-Unique
+       ID: 2, Title: Unique 3, URL: Thread-Unique-3
+       ID: 3, Title: Unique, URL: Thread-Unique-3 (same as Thread 2)
+
+     Thread 3 collides with Thread 1 (both are called Unique), so the
+     uniquifier is applied. This results in Unique-3. However, there
+     already happens to be a thread called Unique 3. Doesn't work.
+
+     With the new uniquifier {$url}{$separator}{$separator}{$id},
+     the uniquified URL will be Thread-Unique--3. Because the id is
+     already unique, and other URLs can't contain -- (title punctuation
+     is reduced to one single separator, not two), that makes the URL
+     as a whole unique.
+
+     If you use a custom uniquifier, make sure it fulfills the two
+     criteria listed above. Be aware that special punctuation characters
+     like : or @ or / or space can break your URLs.
 
    robots.txt:
 
@@ -291,13 +325,13 @@
      MyBB does this well by default, except for forum display pages.
 
      In Admin CP -> Templates & Style -> Templates, find the 'forumdisplay'
-     template and change this line:
+     template and find this line:
 
        <title>{$mybb->settings['bbname']} - {$foruminfo['name']} </title>
 
      Change it to:
 
-       <title>{$foruminfo['name'} - {$mybb->settings['bbname']}</title>
+       <title>{$foruminfo['name']} - {$mybb->settings['bbname']}</title>
 
      Having the bbname in the title on every page is optional, if you
      have a properly named domain you can even leave it out entirely.

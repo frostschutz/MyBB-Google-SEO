@@ -79,7 +79,7 @@ function google_seo_url_separate($str)
  * @param string The word separator.
  * @param int The soft limit.
  * @param int The hard limit.
- * @return truncated string
+ * @return string truncated string
  */
 function google_seo_url_truncate($str)
 {
@@ -107,6 +107,23 @@ function google_seo_url_truncate($str)
     {
         $str = my_substr($str, 0, $hard);
     }
+
+    return $str;
+}
+
+/**
+ * Uniquify URLs.
+ *
+ * @param string The URL that collided with something
+ * @param int The ID of this item
+ * @return string The uniquified URL
+ */
+function google_seo_url_uniquify($url, $id)
+{
+    global $settings;
+
+    $separator = $settings['google_seo_url_separator'];
+    eval("\$str = \"{$settings['google_seo_url_uniquifier']}\";");
 
     return $str;
 }
@@ -141,7 +158,7 @@ function google_seo_url_finalize($url, $scheme)
         return 0;
     }
 
-    return urlencode($url);
+    return htmlspecialchars_uni($url);
 }
 
 /* --- URL Caching: --- */
@@ -204,9 +221,10 @@ function google_seo_url_cache($type, $id)
 
         // Run database query.
         $query = $db->query("SELECT $what FROM ".TABLE_PREFIX."google_seo_$type
-                             WHERE $where
-                             GROUP BY id
-                             ORDER BY rowid DESC");
+                             WHERE rowid IN
+                               (SELECT MAX(rowid) FROM ".TABLE_PREFIX."google_seo_$type
+                                WHERE $where
+                                GROUP BY id)");
 
         // Process the query results.
         $scheme = $settings["google_seo_url_$type"];
@@ -278,18 +296,27 @@ function google_seo_url_create($type, $id)
             $url = google_seo_url_separate($url);
             $url = google_seo_url_truncate($url);
 
-            // Check for existing entry and possible collision.
-            $query = $db->query("SELECT url,id FROM
-                                   (SELECT url,id FROM ".TABLE_PREFIX."google_seo_$type
-                                      WHERE id IN
-                                        (SELECT id FROM ".TABLE_PREFIX."google_seo_$type
-                                         WHERE url='".$db->escape_string($url)."'
-                                         AND id<=$id)
-                                      ORDER BY rowid DESC
-                                      LIMIT 1) as top_row
-                                 WHERE url='".$db->escape_string($url)."'
-                                 ORDER BY id ASC
-                                 LIMIT 1");
+            // Special case: nothing left (punctuation only titles etc)
+            if(!$url)
+            {
+                $url = google_seo_url_uniquify($url, $id);
+            }
+
+            // Check for existing entry and possible collisions.
+            $query = $db->query(
+                "SELECT url,id FROM
+                   (SELECT url,id
+                    FROM ".TABLE_PREFIX."google_seo_$type
+                    WHERE id IN
+                      (SELECT id
+                       FROM ".TABLE_PREFIX."google_seo_$type
+                       WHERE url='".$db->escape_string($url)."'
+                       AND id<=$id)
+                    ORDER BY rowid DESC
+                    LIMIT 1) as top_row
+                 WHERE url='".$db->escape_string($url)."'
+                 ORDER BY id ASC
+                 LIMIT 1");
 
             $row = $db->fetch_array($query);
 
@@ -299,7 +326,7 @@ function google_seo_url_create($type, $id)
                 // Uniquify in case of collision.
                 if($row && $row['id'] != $id)
                 {
-                    eval("\$url = \"{$settings['google_seo_url_uniquifier']}\";");
+                    $url = google_seo_url_uniquify($url, $id);
                 }
 
                 // Delete old entries in favour of the new one.
@@ -706,12 +733,13 @@ function google_seo_url_post($pid, $tid=0)
         if(!$tid)
         {
             // We didn't get a tid so we have to fetch it. Ugly.
-            // Code based on showthread.php:
 
+            // Code based on showthread.php:
             global $style;
 
             if(isset($style) && $style['pid'] == $pid && $style['tid'])
             {
+                echo "success";
                 $tid = $style['tid'];
             }
 
@@ -723,6 +751,12 @@ function google_seo_url_post($pid, $tid=0)
                 $query = $db->simple_select("posts", "tid", "pid={$pid}",
                                             $options);
                 $tid = $db->fetch_field($query, "tid");
+            }
+
+            // If we still don't have a tid, we were given an invalid pid.
+            if(!$tid)
+            {
+                return 0;
             }
         }
 

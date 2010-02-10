@@ -198,7 +198,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             else
             {
-                $item['loc'] = "misc.php?google_seo_sitemap={$url}&amp;page={$page}";
+                $item['loc'] = "misc.php?google_seo_sitemap={$url}&page={$page}";
             }
 
             // find the last (newest) of the oldest posts
@@ -315,7 +315,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 
         else
         {
-            $loc = "misc.php?google_seo_sitemap=index&amp;page=1";
+            $loc = "misc.php?google_seo_sitemap=index&page=1";
         }
 
         $items[] = array('loc' => $loc);

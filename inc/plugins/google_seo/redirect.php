@@ -59,7 +59,7 @@ function google_seo_redirect_current_url()
         }
     }
 
-    $page_url .= $_SERVER["REQUEST_URI"];
+    $page_url .= urldecode($_SERVER["REQUEST_URI"]);
 
     return $page_url;
 }
