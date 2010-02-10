@@ -1141,5 +1141,47 @@ function google_seo_url_calendar_week($cid, $week)
     }
 }
 
+/**
+ * Replacement for multipage links
+ *
+ * @param string base URL of the multipage
+ * @return string new base URL of the multipage
+ */
+function google_seo_url_multipage($url)
+{
+    switch(THIS_SCRIPT)
+    {
+        case 'forumdisplay.php':
+            global $fid;
+
+            // Check that the given URL is really the one for paged forums.
+            $urlcheck = FORUM_URL_PAGED;
+            $urlcheck = str_replace("{fid}", $fid, $urlcheck);
+
+            if(strpos($url, $urlcheck) === 0)
+            {
+                // OK, replace this URL with the Google SEO URL.
+                $url = get_forum_link($fid, "{page}");
+            }
+            break;
+
+        case 'showthread.php':
+            global $tid;
+
+            // Check that the given URL is really the one for paged threads.
+            $urlcheck = THREAD_URL_PAGED;
+            $urlcheck = str_replace("{tid}", $tid, $urlcheck);
+
+            if(strpos($url, $urlcheck) === 0)
+            {
+                // OK, replace this URL with the Google SEO URL.
+                $url = get_thread_link($tid, "{page}");
+            }
+            break;
+    }
+
+    return $url;
+}
+
 /* --- End of file. --- */
 ?>

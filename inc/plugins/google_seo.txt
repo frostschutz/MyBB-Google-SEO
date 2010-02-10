@@ -119,9 +119,10 @@
 
      You will also need modify inc/functions.php.
 
-     For your convenience, the modified version of MyBB 1.4.4 functions.php
-     as well as a patch file which may also work for future versions is included
-     with this plugin. If you prefer, you can also apply the changes manually:
+     For your convenience, modified versions of functions.php as well as a patch file
+     which may also work for future versions are included with this plugin.
+
+     If you prefer, you can also apply the changes manually:
 
      Find:
        function get_profile_link($uid=0)
@@ -256,6 +257,23 @@
                if($link)
                {
                    return $link;
+               }
+           }
+
+     Find:
+       function multipage($count, $perpage, $page, $url)
+       {
+
+     Replace with:
+       function multipage($count, $perpage, $page, $url)
+       {
+           if(function_exists("google_seo_url_multipage"))
+           {
+               $newurl = google_seo_url_multipage($url);
+
+               if($newurl)
+               {
+                   $url = $newurl;
                }
            }
 
