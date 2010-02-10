@@ -169,7 +169,10 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $unviewableforums = get_unviewable_forums(true);
             if($unviewableforums)
             {
-                $condition = "WHERE fid NOT IN ($unviewableforums)";
+                $time = TIME_NOW;
+                $condition = "WHERE fid NOT IN ($unviewableforums)"
+                    ." AND startdate <= '$time'"
+                    ." AND (enddate >= '$time' OR enddate='0')";
             }
             break;
 

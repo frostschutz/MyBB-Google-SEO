@@ -286,6 +286,13 @@ function google_seo_url_create($type, $ids)
         while($row = $db->fetch_array($titles))
         {
             $url = $row[$titlename];
+
+            // MyBB unfortunately allows HTML in forum names.
+            if($type == "forums")
+            {
+                $url = strip_tags($url);
+            }
+
             $id = $row[$idname];
 
             // Prepare the URL.
@@ -355,9 +362,15 @@ function google_seo_url_create($type, $ids)
 
 /**
  * Optimize queries by collecting as many IDs as possible before sending
- * a request off to a database. This is done in a relatively dirty way
- * by accessing global data structures of whatever called get_*_link()
- * to get at their list of IDs.
+ * a request off to a database. This is a dirty trick, a hack, black magic.
+ *
+ * This list of IDs is obtained by either accessing global data structures
+ * of MyBB (possible when MyBB stores data in some sort of cache) or by
+ * querying the IDs from the database (necessary when MyBB doesn't cache
+ * the data by itself).
+ *
+ * The list of IDs obtained here is used later to fetch Google SEO URLs
+ * in a single query, and create URLs for IDs that do not have an URL yet.
  *
  * @param string Type of the item that caused the query.
  * @param int ID of the item that caused the query.
@@ -365,147 +378,195 @@ function google_seo_url_create($type, $ids)
  */
 function google_seo_url_optimize($type, $id)
 {
-    global $settings, $google_seo_url_optimize, $google_seo_url_cache;
+    global $mybb, $settings, $cache, $db;
+    global $google_seo_url_optimize, $google_seo_url_cache;
 
-    // fcache optimization (index.php)
-    global $fcache, $google_seo_fcache;
-
-    if($fcache !== $google_seo_fcache)
+    switch(THIS_SCRIPT)
     {
-        $GLOBALS['google_seo_fcache'] =& $fcache;
+        case 'index.php':
+            // fcache
+            global $fcache, $google_seo_fcache;
 
-        foreach($fcache as $a)
-        {
-            foreach($a as $b)
+            if($fcache !== $google_seo_fcache)
             {
-                foreach($b as $c)
+                $GLOBALS['google_seo_fcache'] =& $fcache;
+
+                foreach($fcache as $a)
                 {
-                    $google_seo_url_optimize["forums"][$c['fid']] = 0;
-                    $google_seo_url_optimize["users"][$c['lastposteruid']] = 0;
-                    $google_seo_url_optimize["threads"][$c['lastposttid']] = 0;
+                    foreach($a as $b)
+                    {
+                        foreach($b as $c)
+                        {
+                            $google_seo_url_optimize["forums"][$c['fid']] = 0;
+                            $google_seo_url_optimize["users"][$c['lastposteruid']] = 0;
+                            $google_seo_url_optimize["threads"][$c['lastposttid']] = 0;
+                        }
+                    }
                 }
             }
-        }
-    }
 
-    // forum_cache optimization (forumdisplay.php)
-    global $forum_cache, $google_seo_forum_cache;
+            // stats
+            global $google_seo_index_stats;
 
-    if($forum_cache !== $google_seo_forum_cache)
-    {
-        $GLOBALS['google_seo_forum_cache'] =& $forum_cache;
-
-        foreach($forum_cache as $f)
-        {
-            $google_seo_url_optimize["forums"][$f['fid']] = 0;
-            $google_seo_url_optimize["users"][$f['lastposteruid']] = 0;
-        }
-    }
-
-    // threadcache optimization (forumdisplay.php)
-    global $threadcache, $google_seo_threadcache;
-
-    if($threadcache !== $google_seo_threadcache)
-    {
-        $GLOBALS['google_seo_threadcache'] =& $threadcache;
-
-        foreach($threadcache as $t)
-        {
-            $google_seo_url_optimize["threads"][$t['tid']] = 0;
-            $google_seo_url_optimize["forums"][$t['fid']] = 0;
-            $google_seo_url_optimize["users"][$t['uid']] = 0;
-            $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
-        }
-    }
-
-    // thread_cache optimization (search.php)
-    global $thread_cache, $google_seo_thread_cache;
-
-    if($thread_cache !== $google_seo_thread_cache)
-    {
-        $GLOBALS['google_seo_thread_cache'] =& $thread_cache;
-
-        foreach($thread_cache as $t)
-        {
-            $google_seo_url_optimize["threads"][$t['tid']] = 0;
-            $google_seo_url_optimize["forums"][$t['fid']] = 0;
-            $google_seo_url_optimize["users"][$t['uid']] = 0;
-            $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
-        }
-    }
-
-    // events_cache (calendar.php)
-    global $events_cache, $google_seo_events_cache;
-
-    if($events_cache !== $google_seo_events_cache)
-    {
-        $GLOBALS['google_seo_events_cache'] =& $events_cache;
-
-        foreach($events_cache as $d)
-        {
-            foreach($d as $e)
+            if(!$google_seo_index_stats)
             {
-                $google_seo_url_optimize["users"][$e['uid']] = 0;
-                $google_seo_url_optimize["events"][$e['eid']] = 0;
-                $google_seo_url_optimize["calendars"][$e['cid']] = 0;
+                $google_seo_index_stats = true;
+
+                // last user
+                $stats = $cache->read("stats");
+                $google_seo_url_optimize["users"][$stats['lastuid']] = 0;
+
+                // who's online
+                if($mybb->settings['showwol'] != 0 && $mybb->usergroup['canviewonline'] != 0)
+                {
+                    $timesearch = TIME_NOW - $mybb->settings['wolcutoff'];
+                    $query = $db->query("SELECT uid FROM ".TABLE_PREFIX."sessions
+                                         WHERE uid != '0' AND time > '$timesearch'");
+
+                    while($user = $db->fetch_array($query))
+                    {
+                        $google_seo_url_optimize["users"][$user['uid']] = 0;
+                    }
+                }
             }
-        }
-    }
 
-    // Who's Online (online.php)
-    if($settings['google_seo_url_wol'])
-    {
-        global $uid_list, $aid_list, $eid_list, $fid_list, $tid_list;
+            break;
 
-        if(count($uid_list) && $uid_list !== $google_seo_uid_list)
-        {
-            $GLOBALS['google_seo_uid_list'] =& $uid_list;
+        case 'forumdisplay.php':
+            // forum_cache
+            global $forum_cache, $google_seo_forum_cache;
 
-            foreach($uid_list as $uid)
+            if($forum_cache !== $google_seo_forum_cache)
             {
-                $google_seo_url_optimize["users"][$uid] = 0;
+                $GLOBALS['google_seo_forum_cache'] =& $forum_cache;
+
+                foreach($forum_cache as $f)
+                {
+                    $google_seo_url_optimize["forums"][$f['fid']] = 0;
+                    $google_seo_url_optimize["users"][$f['lastposteruid']] = 0;
+                }
             }
-        }
 
-        if(count($aid_list) && $aid_list !== $google_seo_aid_list)
-        {
-            $GLOBALS['google_seo_aid_list'] =& $aid_list;
+            // threadcache optimization (forumdisplay.php)
+            global $threadcache, $google_seo_threadcache;
 
-            foreach($aid_list as $aid)
+            if($threadcache !== $google_seo_threadcache)
             {
-                $google_seo_url_optimize["announcements"][$aid] = 0;
+                $GLOBALS['google_seo_threadcache'] =& $threadcache;
+
+                foreach($threadcache as $t)
+                {
+                    $google_seo_url_optimize["threads"][$t['tid']] = 0;
+                    $google_seo_url_optimize["forums"][$t['fid']] = 0;
+                    $google_seo_url_optimize["users"][$t['uid']] = 0;
+                    $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+                }
             }
-        }
 
-        if(count($eid_list) && $eid_list !== $google_seo_eid_list)
-        {
-            $GLOBALS['google_seo_eid_list'] =& $eid_list;
+            break;
 
-            foreach($eid_list as $eid)
+        case 'search.php':
+            // thread_cache
+            global $thread_cache, $google_seo_thread_cache;
+
+            if($thread_cache !== $google_seo_thread_cache)
             {
-                $google_seo_url_optimize["events"][$eid] = 0;
+                $GLOBALS['google_seo_thread_cache'] =& $thread_cache;
+
+                foreach($thread_cache as $t)
+                {
+                    $google_seo_url_optimize["threads"][$t['tid']] = 0;
+                    $google_seo_url_optimize["forums"][$t['fid']] = 0;
+                    $google_seo_url_optimize["users"][$t['uid']] = 0;
+                    $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+                }
             }
-        }
 
-        if(count($fid_list) && $fid_list !== $google_seo_fid_list)
-        {
-            $GLOBALS['google_seo_fid_list'] =& $fid_list;
+            break;
 
-            foreach($fid_list as $fid)
+        case 'calendar.php':
+            // events_cache
+            global $events_cache, $google_seo_events_cache;
+
+            if($events_cache !== $google_seo_events_cache)
             {
-                $google_seo_url_optimize["forums"][$fid] = 0;
+                $GLOBALS['google_seo_events_cache'] =& $events_cache;
+
+                foreach($events_cache as $d)
+                {
+                    foreach($d as $e)
+                    {
+                        $google_seo_url_optimize["users"][$e['uid']] = 0;
+                        $google_seo_url_optimize["events"][$e['eid']] = 0;
+                        $google_seo_url_optimize["calendars"][$e['cid']] = 0;
+                    }
+                }
             }
-        }
 
-        if(count($tid_list) && $tid_list !== $google_seo_tid_list)
-        {
-            $GLOBALS['google_seo_tid_list'] =& $tid_list;
+            break;
 
-            foreach($tid_list as $tid)
+        case 'online.php':
+            if($settings['google_seo_url_wol'])
             {
-                $google_seo_url_optimize["threads"][$tid] = 0;
+                global $uid_list, $aid_list, $eid_list, $fid_list, $tid_list;
+
+                // uid_list
+                if(count($uid_list) && $uid_list !== $google_seo_uid_list)
+                {
+                    $GLOBALS['google_seo_uid_list'] =& $uid_list;
+
+                    foreach($uid_list as $uid)
+                    {
+                        $google_seo_url_optimize["users"][$uid] = 0;
+                    }
+                }
+
+                // aid_list
+                if(count($aid_list) && $aid_list !== $google_seo_aid_list)
+                {
+                    $GLOBALS['google_seo_aid_list'] =& $aid_list;
+
+                    foreach($aid_list as $aid)
+                    {
+                        $google_seo_url_optimize["announcements"][$aid] = 0;
+                    }
+                }
+
+                // eid_list
+                if(count($eid_list) && $eid_list !== $google_seo_eid_list)
+                {
+                    $GLOBALS['google_seo_eid_list'] =& $eid_list;
+
+                    foreach($eid_list as $eid)
+                    {
+                        $google_seo_url_optimize["events"][$eid] = 0;
+                    }
+                }
+
+                // fid_list
+                if(count($fid_list) && $fid_list !== $google_seo_fid_list)
+                {
+                    $GLOBALS['google_seo_fid_list'] =& $fid_list;
+
+                    foreach($fid_list as $fid)
+                    {
+                        $google_seo_url_optimize["forums"][$fid] = 0;
+                    }
+                }
+
+                // tid_list
+                if(count($tid_list) && $tid_list !== $google_seo_tid_list)
+                {
+                    $GLOBALS['google_seo_tid_list'] =& $tid_list;
+
+                    foreach($tid_list as $tid)
+                    {
+                        $google_seo_url_optimize["threads"][$tid] = 0;
+                    }
+                }
             }
-        }
+
+            break;
     }
 
     // Include the ID that was originally requested.

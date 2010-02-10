@@ -11,6 +11,7 @@
 3. Installation instructions
 4. Uninstalling instructions
 5. Additional comments
+6. List of files
 
 ---------------------------------------------------------------------------
 
@@ -59,7 +60,7 @@
      * replace standard id based URLs (e.g. showthread.php?tid=12345)
        with name based URLs (e.g. Thread-some-subject)
      * UTF-8 in URLs is supported
-     * uniquifier is applied for non-unique URLs (see 5. Advanced Usage)
+     * uniquifier is applied for non-unique URLs (see Additional Comments)
 
 ---------------------------------------------------------------------------
 
@@ -132,121 +133,137 @@
        function get_profile_link($uid=0)
        {
 
-     Append:
-       if(function_exists("google_seo_url_profile"))
+     Replace with:
+       function get_profile_link($uid=0)
        {
-           $link = google_seo_url_profile($uid);
-
-           if($link)
+           if(function_exists("google_seo_url_profile"))
            {
-               return $link;
+               $link = google_seo_url_profile($uid);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_announcement_link($aid=0)
        {
 
-     Append:
-       if(function_exists("google_seo_url_announcement"))
+     Replace with:
+       function get_announcement_link($aid=0)
        {
-           $link = google_seo_url_announcement($aid);
-
-           if($link)
+           if(function_exists("google_seo_url_announcement"))
            {
-               return $link;
+               $link = google_seo_url_announcement($aid);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_forum_link($fid, $page=0)
        {
 
-     Append:
-       if(function_exists("google_seo_url_forum"))
+     Replace with:
+       function get_forum_link($fid, $page=0)
        {
-          $link = google_seo_url_forum($fid, $page);
+           if(function_exists("google_seo_url_forum"))
+           {
+               $link = google_seo_url_forum($fid, $page);
 
-          if($link)
-          {
-              return $link;
-          }
-       }
+               if($link)
+               {
+                   return $link;
+               }
+           }
 
      Find:
        function get_thread_link($tid, $page=0, $action='')
        {
 
-     Append:
-       if(function_exists("google_seo_url_thread"))
+     Repace with:
+       function get_thread_link($tid, $page=0, $action='')
        {
-           $link = google_seo_url_thread($tid, $page, $action);
-
-           if($link)
+           if(function_exists("google_seo_url_thread"))
            {
-               return $link;
+               $link = google_seo_url_thread($tid, $page, $action);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_post_link($pid, $tid=0)
        {
 
-     Append:
-       if(function_exists("google_seo_url_post"))
+     Replace with:
+       function get_post_link($pid, $tid=0)
        {
-           $link = google_seo_url_post($pid, $tid);
-
-           if($link)
+           if(function_exists("google_seo_url_post"))
            {
-               return $link;
+               $link = google_seo_url_post($pid, $tid);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_event_link($eid)
        {
 
-     Append:
-       if(function_exists("google_seo_url_event"))
+     Replace with:
+       function get_event_link($eid)
        {
-           $link = google_seo_url_event($eid);
-
-           if($link)
+           if(function_exists("google_seo_url_event"))
            {
-               return $link;
+               $link = google_seo_url_event($eid);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_calendar_link($calendar, $year=0, $month=0, $day=0)
        {
 
-     Append:
-       if(function_exists("google_seo_url_calendar"))
+     Replace with:
+       function get_calendar_link($calendar, $year=0, $month=0, $day=0)
        {
-           $link = google_seo_url_calendar($calendar, $year, $month, $day);
-
-           if($link)
+           if(function_exists("google_seo_url_calendar"))
            {
-               return $link;
+               $link = google_seo_url_calendar($calendar, $year, $month, $day);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
      Find:
        function get_calendar_week_link($calendar, $week)
        {
 
-     Append:
-       if(function_exists("google_seo_url_calendar_week"))
+     Replace with:
+       function get_calendar_week_link($calendar, $week)
        {
-           $link = google_seo_url_calendar_week($calendar, $week);
-
-           if($link)
+           if(function_exists("google_seo_url_calendar_week"))
            {
-               return $link;
+               $link = google_seo_url_calendar_week($calendar, $week);
+
+               if($link)
+               {
+                   return $link;
+               }
            }
-       }
 
 ---------------------------------------------------------------------------
 
@@ -309,6 +326,19 @@
      If you use a custom uniquifier, make sure it fulfills the two
      criteria listed above. Be aware that special punctuation characters
      like :@/?& or space can break your URLs.
+
+   Character Translation:
+
+     Please note that translation of characters is not required (browsers
+     and Google handle them just fine), and it causes additional CPU cost.
+
+     You can do character translation in URLs if you so desire. For this
+     to work, you have to create a inc/plugins/google_seo/translate.php
+     that defines which characters you want translated. This plugin ships
+     with several example files, for example translate.php.german for
+     the translation of German umlauts.
+
+     The translate.php file must use the UTF-8 encoding.
 
    XML Sitemap:
 
@@ -373,5 +403,59 @@
      have a properly named domain you can even leave it out entirely.
      If you decide to keep it, make sure that your template puts it as
      last element in every page title.
+
+---------------------------------------------------------------------------
+
+6. List of files
+
+   This is a list of files you will find in the Google SEO zip archive.
+
+   - COPYING.txt:
+     GNU General Public License text.
+
+   - README.txt:
+     Empty file that points to inc/plugins/google_seo.txt
+
+   - functions.php.1.4.4-googleseo:
+     Ready to use functions.php for MyBB 1.4.4
+
+   - functions.php.patch:
+     Patch file that lists the changes made to functions.php.
+
+   - htaccess.txt.example:
+     Example .htaccess file with Google SEO URL rewrite rules.
+
+   - robots.txt.example:
+     Example robots.txt file with allow/deny rules for search engines.
+
+   - translate.php.german:
+     Example inc/plugins/google_seo/translate.php file for German umlauts
+
+   - translate.php.widelatin:
+     Example inc/plugins/google_seo/translate.php file for Wide latin.
+
+   - inc/plugins/google_seo.php:
+     Main plugin file.
+
+   - inc/plugins/google_seo.txt:
+     Main plugin documentation.
+
+   - inc/plugins/google_seo/404.php:
+     Google SEO 404 module.
+
+   - inc/plugins/google_seo/meta.php:
+     Google SEO Meta module.
+
+   - inc/plugins/google_seo/plugin.php:
+     Google SEO plugin module.
+
+   - inc/plugins/google_seo/redirect.php:
+     Google SEO Redirect module.
+
+   - inc/plugins/google_seo/sitemap.php:
+     Google SEO Sitemap module.
+
+   - inc/plugins/google_seo/url.php:
+     Google SEO URL module.
 
 ---------------------------------------------------------------------------

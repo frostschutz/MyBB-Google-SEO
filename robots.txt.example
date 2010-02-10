@@ -19,7 +19,5 @@ Disallow: /MyBB/task.php
 Disallow: /MyBB/usercp.php
 Disallow: /MyBB/usercp2.php
 Disallow: /MyBB/calendar.php
-Disallow: /MyBB/archive/
-Disallow: /MyBB/*action=*
-Disallow: /MyBB/*pid=*
+Disallow: /MyBB/*action=emailuser*
 Allow: /

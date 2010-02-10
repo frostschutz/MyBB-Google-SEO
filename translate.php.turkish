@@ -1,0 +1,25 @@
+<?php
+
+// Disallow direct access to this file for security reasons
+if(!defined("IN_MYBB"))
+{
+    die("Direct initialization of this file is not allowed.<br /><br />
+         Please make sure IN_MYBB is defined.");
+}
+
+// Türk kullanıcılar için ön tanımlı karakter dosyası
+$google_seo_translate = array(
+    "ç" => "c",
+    "Ç" => "C",
+    "ö" => "o",
+    "Ö" => "O",
+    "ı" => "i",
+    "İ" => "I",
+    "ş" => "s",
+    "Ş" => "S",
+    "ü" => "u",
+    "Ü" => "U",
+    "ğ" => "g",
+    "Ğ" => "G",
+    );
+?>

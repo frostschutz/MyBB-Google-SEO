@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.4",
+        "version"       => "1.0.5",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -672,7 +672,7 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_translate' => array(
                 'title' => "Character Translation",
-                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/translate.php</i> and then enable this option.",
+                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/google_seo/translate.php</i> and then enable this option. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.",
                 ),
             'google_seo_url_lowercase' => array(
                 'title' => "lowercase words",
