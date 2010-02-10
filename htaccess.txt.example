@@ -14,9 +14,6 @@ Options -MultiViews +FollowSymlinks -Indexes
 	SecFilterScanPOST Off
 </IfModule>
 
-# Google SEO 404:
-ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
-
 #
 # MyBB "search engine friendly" URL rewrites
 # - Note, for these to work with MyBB please make sure you have
@@ -28,7 +25,7 @@ ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
 
 	# Google SEO workaround for search.php highlights:
 	# Make this rule the first rewrite rule in your .htaccess!
-	RewriteRule ^([^&]*)&(.*)$ http://localhost/MyBB/1405/$1?$2 [L,QSA,R=301]
+	RewriteRule ^([^&]*)&(.*)$ http://yourhost/MyBB/$1?$2 [L,QSA,R=301]
 
 	# Google SEO Sitemap:
 	RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
@@ -90,3 +87,6 @@ ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
 <IfModule mod_deflate.c>
 	AddOutputFilterByType DEFLATE application/x-javascript text/css text/html text/xml
 </IfModule>
+
+# Google SEO 404:
+ErrorDocument 404 /MyBB/mybb_1408/misc.php?google_seo_error=404

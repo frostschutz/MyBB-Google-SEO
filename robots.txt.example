@@ -22,5 +22,12 @@ Disallow: /MyBB/calendar.php
 Disallow: /MyBB/*action=emailuser*
 Disallow: /MyBB/*action=nextnewest*
 Disallow: /MyBB/*action=nextoldest*
-Disallow: /MyBB/archive/
+Disallow: /MyBB/*action=emailuser*
+Disallow: /MyBB/*year=*
+Disallow: /MyBB/*action=weekview*
+Disallow: /MyBB/*action=nextnewest*
+Disallow: /MyBB/*action=nextoldest*
+Disallow: /MyBB/*sort=*
+Disallow: /MyBB/*order=*
+Disallow: /MyBB/*mode=*
 Allow: /

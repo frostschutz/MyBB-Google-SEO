@@ -43,21 +43,11 @@ function google_seo_redirect_current_url()
     if($_SERVER["HTTPS"] == "on")
     {
         $page_url = "https://".$_SERVER["HTTP_HOST"];
-
-        if($_SERVER["SERVER_PORT"] != "443")
-        {
-            $page_url .= ":".$_SERVER["SERVER_PORT"];
-        }
     }
 
     else
     {
         $page_url = "http://".$_SERVER["HTTP_HOST"];
-
-        if($_SERVER["SERVER_PORT"] != "80")
-        {
-            $page_url .= ":".$_SERVER["SERVER_PORT"];
-        }
     }
 
     $page_url .= $_SERVER["REQUEST_URI"];

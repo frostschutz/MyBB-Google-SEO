@@ -33,8 +33,32 @@ $plugins->add_hook("misc_start", "google_seo_sitemap_hook");
 // WOL extension for custom page:
 $plugins->add_hook("build_friendly_wol_location_end", "google_seo_sitemap_wol");
 
-/* --- Sitemap: --- */
+/* --- Helpers: --- */
 
+/**
+ * Get a list of calendar IDs the user is not allowed to view.
+ *
+ */
+function google_seo_get_unviewable_calendars()
+{
+    // Calendar specific permission check.
+    require_once MYBB_ROOT."inc/functions_calendar.php";
+
+    $calendars = get_calendar_permissions();
+    $unviewablecalendars = array();
+
+    foreach($calendars as $cid => $permissions)
+    {
+        if($permissions['canviewcalendar'] == 0)
+        {
+            $unviewablecalendars[] = $cid;
+        }
+    }
+
+    return implode(",", $unviewablecalendars);
+}
+
+/* --- Sitemap: --- */
 
 /**
  * Build and output a sitemap.
@@ -151,6 +175,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                     $perpage = 20;
                 }
             }
+
             break;
 
         case "threads":
@@ -194,15 +219,18 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'aid';
             $datename = 'startdate';
             $getlink = 'get_announcement_link';
+            $time = TIME_NOW;
+            $condition = "WHERE startdate <= '$time'
+                          AND (enddate >= '$time' OR enddate='0')";
+
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
+
             if($unviewableforums)
             {
-                $time = TIME_NOW;
-                $condition = "WHERE fid NOT IN ($unviewableforums)"
-                    ." AND startdate <= '$time'"
-                    ." AND (enddate >= '$time' OR enddate='0')";
+                $condition .= " AND fid NOT IN ($unviewableforums)";
             }
+
             break;
 
         case "calendars":
@@ -216,9 +244,19 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'cid';
             $datename = 'disporder';
             $getlink = 'get_calendar_link';
+
+            // Calendar permission check.
+            $unviewablecalendars = google_seo_get_unviewable_calendars();
+
+            if($unviewablecalendars)
+            {
+                $condition = "WHERE cid NOT IN ($unviewablecalendars)";
+            }
+
             break;
 
         case "events":
+            // Global permission check.
             if($mybb->settings['enablecalendar'] == 0
                || $mybb->usergroup['canviewcalendar'] == 0)
             {
@@ -229,6 +267,18 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname ='eid';
             $datename = 'dateline';
             $getlink = 'get_event_link';
+
+            // Event specific permission check.
+            $condition = "WHERE visible=1 AND private=0";
+
+            // Calendar permission check.
+            $unviewablecalendars = google_seo_get_unviewable_calendars();
+
+            if($unviewablecalendars)
+            {
+                $condition .= " AND cid NOT IN ($unviewablecalendars)";
+            }
+
             break;
     }
 

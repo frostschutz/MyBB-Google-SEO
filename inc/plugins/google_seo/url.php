@@ -437,12 +437,11 @@ function google_seo_url_optimize($type, $id)
                 }
             }
 
-            // stats
-            global $google_seo_index_stats;
+            global $google_seo_index;
 
-            if(!$google_seo_index_stats)
+            if(!$google_seo_index)
             {
-                $google_seo_index_stats = true;
+                $google_seo_index = true;
 
                 // last user
                 $stats = $cache->read("stats");
@@ -458,6 +457,59 @@ function google_seo_url_optimize($type, $id)
                     while($user = $db->fetch_array($query))
                     {
                         $google_seo_url_optimize["users"][$user['uid']] = 0;
+                    }
+                }
+            }
+
+            break;
+
+        case 'portal.php':
+            global $query, $google_seo_portal_query;
+
+            // Hack: Let's hijack queries made by MyBB. Do not try this at home!
+            if($query !== $google_seo_portal_query)
+            {
+                $GLOBALS['google_seo_portal_query'] &= $query;
+
+                if($query)
+                {
+                    $num_rows = $db->num_rows($query);
+                }
+
+                if($num_rows)
+                {
+                    // Loop from current pointer to end of query.
+                    $i = 0;
+
+                    while($row = $db->fetch_array($query))
+                    {
+                        $i++;
+
+                        $google_seo_url_optimize["users"][$row['uid']] = 0;
+                        $google_seo_url_optimize["users"][$row['lastposteruid']] = 0;
+                        $google_seo_url_optimize["threads"][$row['tid']] = 0;
+                        $google_seo_url_optimize["forums"][$row['fid']] = 0;
+                        $google_seo_url_optimize["announcements"][$row['aid']] = 0;
+                    }
+
+                    // Determine original pointer position.
+                    $pointer = $num_rows - $i;
+
+                    // Seek to beginning of query.
+                    $db->data_seek($query, 0);
+
+                    // Loop from beginning until we reach the original position.
+                    $i = 0;
+
+                    while($i < $pointer && $row = $db->fetch_array($query))
+                    {
+                        $i++;
+
+                        $google_seo_url_optimize["users"][$row['uid']] = 0;
+                        $google_seo_url_optimize["users"][$row['lastposteruid']] = 0;
+                        $google_seo_url_optimize["threads"][$row['tid']] = 0;
+                        $google_seo_url_optimize["forums"][$row['fid']] = 0;
+                        $google_seo_url_optimize["announcements"][$row['aid']] = 0;
                     }
                 }
             }
