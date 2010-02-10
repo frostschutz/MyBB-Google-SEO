@@ -15,7 +15,7 @@ Options -MultiViews +FollowSymlinks -Indexes
 </IfModule>
 
 # Google SEO 404:
-ErrorDocument 404 /MyBB/1405/misc.php?google_seo_error=404
+ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
 
 #
 # MyBB "search engine friendly" URL rewrites

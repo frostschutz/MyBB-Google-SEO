@@ -42,7 +42,7 @@ function google_seo_redirect_current_url()
     // Determine the current page URL.
     if($_SERVER["HTTPS"] == "on")
     {
-        $page_url = "https://".$_SERVER["SERVER_NAME"];
+        $page_url = "https://".$_SERVER["HTTP_HOST"];
 
         if($_SERVER["SERVER_PORT"] != "443")
         {
@@ -52,7 +52,7 @@ function google_seo_redirect_current_url()
 
     else
     {
-        $page_url = "http://".$_SERVER["SERVER_NAME"];
+        $page_url = "http://".$_SERVER["HTTP_HOST"];
 
         if($_SERVER["SERVER_PORT"] != "80")
         {
@@ -226,6 +226,13 @@ function google_seo_redirect_hook()
             // Query
             parse_str(htmlspecialchars_decode($target_parse[1]), $query_target);
             parse_str($current_parse[1], $query_current);
+
+            if(get_magic_quotes_gpc())
+            {
+                // Dear PHP, I don't need magic, thank you very much.
+                $mybb->strip_slashes_array($query_target);
+                $mybb->strip_slashes_array($query_current);
+            }
 
             $query = array_merge($query_current, $mybb->input);
 

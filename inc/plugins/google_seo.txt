@@ -410,11 +410,8 @@
    - README.txt:
      Empty file that points to inc/plugins/google_seo.txt
 
-   - functions.php.1.4.4-googleseo:
-     Ready to use functions.php for MyBB 1.4.4
-
-   - functions.php.1.4.5-googleseo:
-     Ready to use functions.php for MyBB 1.4.4
+   - functions.php.1.4.x-googleseo:
+     Ready to use functions.php for MyBB 1.4.x
 
    - functions.php.patch-googleseo:
      Patch file that lists the changes made to functions.php.

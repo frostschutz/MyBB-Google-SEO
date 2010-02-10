@@ -724,7 +724,12 @@ function google_seo_url_id($type, $url)
         $id = $db->fetch_field($query, "id");
     }
 
-    return $id;
+    if($id)
+    {
+        return $id;
+    }
+
+    return 0;
 }
 
 /**
@@ -878,6 +883,15 @@ function google_seo_url_hook()
                 if($url && !array_key_exists('calendar', $mybb->input))
                 {
                     $cid = google_seo_url_id("calendars", $url);
+
+                    // Hack to cause invalid calendar message to appear:
+                    // If cid is not set, the default calendar would be shown.
+                    // However in this case it means an invalid URL was given.
+                    if(!$cid)
+                    {
+                        $cid = -1;
+                    }
+
                     $mybb->input['calendar'] = $cid;
                     $location = get_current_location();
                     $location = str_replace("google_seo_calendar={$cid}", "calendar={$cid}", $location);
