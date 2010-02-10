@@ -8,9 +8,9 @@
 
 1. About this plugin
 2. Features
-3. Installation Instructions
-4. Uninstalling Instructions
-5. Advanced Usage
+3. Installation instructions
+4. Uninstalling instructions
+5. Additional comments
 
 ---------------------------------------------------------------------------
 
@@ -26,8 +26,8 @@
    friendly to both users and search engines.
 
    This plugin requires Apache with mod_rewrite, MySQL, PHP with mbstring,
-   and MyBB 1.4. MySQL 5, PHP 5 is highly recommended. Unfortunately, one
-   core file has to be modified to make SEO URLs work.
+   and MyBB 1.4 with UTF-8 encoding. MySQL 5, PHP 5 is highly recommended.
+   Unfortunately, one core file has to be modified to make SEO URLs work.
 
    This plugin is free open source software (GPL). This means that you can
    download the plugin for free, modify it to your liking, and you do not
@@ -63,7 +63,7 @@
 
 ---------------------------------------------------------------------------
 
-3. Installation Instructions
+3. Installation instructions
 
    Upload google_seo.php, google_seo.txt and the google_seo folder
    to inc/plugins of your MyBB installation.
@@ -250,7 +250,7 @@
 
 ---------------------------------------------------------------------------
 
-4. Uninstalling Instructions
+4. Uninstalling instructions
 
    If you want to redirect Google SEO URLs back to stock MyBB URLs,
    just upload the original, unmodified inc/functions.php, but make
@@ -273,7 +273,7 @@
 
 ---------------------------------------------------------------------------
 
-5. Advanced Usage
+5. Additional comments
 
    Uniquifier:
 
@@ -310,6 +310,38 @@
      criteria listed above. Be aware that special punctuation characters
      like :@/?& or space can break your URLs.
 
+   XML Sitemap:
+
+     The sitemap standard (or that what Google, Yahoo, Ask etc. are using)
+     is described here:
+
+       http://www.sitemaps.org/protocol.php
+
+     The sitemap-index.xml is an Sitemap index file as described there.
+     It links to the actual sitemap files (sitemap-threads.xml?page=1).
+
+     Google SEO Sitemaps are created dynamically. When you tell Google about
+     your XML Sitemap (in Google Webmaster Tools, or by specifying it in
+     your robots.txt file) it will download the index, and then browse through
+     the sitemaps listed in this index. So Google goes through your Sitemap
+     page by page similar to how a user goes through your forums page by page.
+
+     It's split into pages because creating a sitemap for tens of thousands of
+     threads, users and forums all at once would cause too much load.
+     Also, sitemaps have a limitation of 50000 items per sitemap.
+
+     The Sitemap is created dynamically in order to give Google and other
+     search engines the current up to date status of your forum whenever it
+     chooses to access your sitemap. This way Google gets up to date sitemaps
+     as early as possible which leads to google accessing your new content it
+     found via the sitemap as early as possible which leads to your new content
+     getting indexed by Google as early as possible.
+
+     Please note that the Sitemap displays only forums and threads that
+     the current user can actually read. So if you see private threads in
+     your sitemap, it may be because you're currently logged in as admin,
+     and does not mean that Google will see those threads too.
+
    robots.txt:
 
      It's a good idea to prevent robots from indexing parts of your page,
@@ -327,9 +359,15 @@
 
      Search for '<title>{$mybb->settings['bbname']} -' in your templates.
 
-     In all occurences, put the bbname last, for example:
+     In all occurences, put the bbname last.
 
-       <title>{$foobar} - {$mybb->settings['bbname']}</title>
+     Example:
+
+       <title>{$mybb->settings['bbname']} - {$foruminfo['name']} </title>
+
+     Should be:
+
+       <title>{$foruminfo['name']} - {$mybb->settings['bbname']}</title>
 
      Having the bbname in the title on every page is optional. If you
      have a properly named domain you can even leave it out entirely.

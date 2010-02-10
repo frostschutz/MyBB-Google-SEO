@@ -219,7 +219,7 @@ function google_seo_url_finalize($url, $scheme)
         return 0;
     }
 
-    return htmlspecialchars_uni($url);
+    return urlencode($url);
 }
 
 /* --- URL Creation: --- */

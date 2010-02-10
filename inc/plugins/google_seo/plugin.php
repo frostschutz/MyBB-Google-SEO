@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.0",
+        "version"       => "1.0.1",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -71,6 +71,12 @@ function google_seo_plugin_status()
     $error = array();
     $htaccess = array();
     $lines = array();
+
+    // UTF-8 is required:
+    if($mybb->config['database']['encoding'] != 'utf8')
+    {
+        $warning[] = "Your database encoding is '".$mybb->config['database']['encoding']."', should be 'utf8'. Please update your MyBB to use UTF-8 everywhere.";
+    }
 
     // Google SEO 404:
     if($settings['google_seo_404'])
@@ -275,6 +281,12 @@ function google_seo_plugin_status()
         if($rewrite && strstr($file, "RewriteEngine on") === false)
         {
             array_unshift($lines, "RewriteEngine on\n");
+        }
+
+        // Check if SEO_SUPPORT is set at all:
+        if($rewrite && $_SERVER['SEO_SUPPORT'] != 1)
+        {
+            $warning[] = "SEO_SUPPORT is not set. If your host does not support mod_rewrite, SEO URLs won't work.";
         }
 
         if(count($lines))

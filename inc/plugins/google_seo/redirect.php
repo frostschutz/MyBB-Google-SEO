@@ -62,7 +62,7 @@ function google_seo_redirect_current_url()
 
     $page_url .= $_SERVER["REQUEST_URI"];
 
-    return $page_url;
+    return urldecode($page_url);
 }
 
 /**
@@ -198,14 +198,14 @@ function google_seo_redirect_hook()
     // Verify that we are already at the target.
     if($target)
     {
-        $target = html_entity_decode($settings['bburl'].'/'.$target);
+        $target_decode = $settings['bburl'].'/'.html_entity_decode(urldecode($target));
         $current = google_seo_redirect_current_url();
 
         // Not identical (although it may only be the query string).
-        if($target != $current)
+        if($current != $target_decode)
         {
             // Parse current and target
-            $target_parse = split("\\?", $target, 2);
+            $target_parse = split("\\?", $target_decode, 2);
             $current_parse = split("\\?", $current, 2);
             $current_parse[0] = urldecode($current_parse[0]);
 
@@ -257,6 +257,10 @@ function google_seo_redirect_hook()
             // Definitely not identical?
             if($change || $target_parse[0] != $current_parse[0])
             {
+                // urlencode target
+                $redirect = split("\\?", $settings['bburl'].'/'.$target, 2);
+                $location_target = $redirect[0];
+
                 // Redirect but retain query.
                 foreach($query as $k=>$v)
                 {
