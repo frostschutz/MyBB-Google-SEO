@@ -1,4 +1,4 @@
-Sitemap: http://yoursite/yourMyBB/Sitemap-Index
+Sitemap: http://yoursite/yourMyBB/sitemap-index.xml
 
 User-Agent: *
 Disallow: /yourMyBB/captcha.php

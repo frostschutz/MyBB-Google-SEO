@@ -4,241 +4,263 @@
                    <Andreas.Klauer@metamorpher.de>
                             GPL version 3
 ---------------------------------------------------------------------------
-   THIS PLUGIN IS BETA SOFTWARE AND NOT RECOMMENDED FOR PRODUCTION USE!
-   Please help improving this plugin by testing and reporting any bugs
-   you come across here: http://community.mybboard.net/thread-41922.html
-   Thank you!
+
+      THIS PLUGIN IS STILL IN BETA STAGE. USE AT YOUR OWN RISK.
+
 ---------------------------------------------------------------------------
+
                                 README
 
-0. Official Google's SEO Starter Guide
 1. About this plugin
-2. Requirements
+2. Features
 3. Installation Instructions
-4. Upgrading Instructions
-5. Uninstalling Instructions
-6. Advanced Usage
-
----------------------------------------------------------------------------
-
-0. Official Google's SEO Starter Guide
-
-   Google released a Search Engine Optimization guide in November 2008.
-   You can find the document here:
-
-   http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf
-
-   The guide is targeted at "webmasters that are new to the topic of search
-   engine optimization and wish to improve their sites' interaction with
-   both users and search engines". It's a must read for webmasters.
+4. Uninstalling Instructions
+5. Advanced Usage
 
 ---------------------------------------------------------------------------
 
 1. About this plugin
+
+   The development of this plugin started when Google released a document
+   called "Google's Search Engine Optimization starter guide" in Nov 2008.
 
    The goal of this plugin is to implement SEO in MyBB according to the
-   aforementioned guide. Furthermore, it tries to improve the experience
-   of the site visitors.
+   guidelines presented in that document, to make MyBB more friendly to
+   both users and search engines.
 
-   The guide contains the following good practices:
+   This plugin requires Apache with mod_rewrite, MySQL, PHP with mbstring,
+   and MyBB 1.4. MySQL 5, PHP 5 is highly recommended. Unfortunately, some
+   core files have to be modified for the plugin to work.
 
-   - page title tags (Create unique, accurate page titles)
-
-     These are done very well by MyBB already, with minor exceptions.
-     See 'Advanced Usage' on how to improve title tags in your template.
-
-   - description meta tags (Make use of the "description" meta tag)
-
-     This plugin can create such tags for you, based on forum description,
-     or posting content.
-
-   - URL structure (Improve the structure of your URLs)
-
-     This plugin implements URLs that use keywords instead of IDs.
-
-     Example URLs:
-       http://yourhost/mybb/User-admin (member.php?uid=1)
-       http://yourhost/mybb/Forum-My-Category (forumdisplay.php?fid=1)
-       http://yourhost/mybb/Thread-Google-SEO-plugin (showthread.php?tid=1)
-
-     Other parameters, like page number, lastpost, etc. remain in the
-     query string (i.e. ?page=x) as to avoid offering the same content
-     under different names.
-
-   - site navigation (Make your site easier to navigate)
-
-     MyBB already does a good job here.
-
-     This plugin adds 404 error code to error pages, and makes 404 pages
-     useful by adding the Google 404 error widget to them. You can also
-     use the plugin as 404 error page, so you have error pages in the
-     appearance of your board with a helpful widget at all times.
-
-   - content (Offer quality content and services)
-
-     Unfortunately this is entirely up to you. There is only so much
-     any SEO plugin can do, without quality content or users, even a
-     perfect SEO won't help you, so don't expect too much.
-
-   - anchor text (Write better anchor text)
-   - heading tags (Use heading tags appropriately)
-   - images (Optimize your use of images)
-
-     MyBB already does a very good job here. No change.
-
-     Nevertheless these are things you have to be careful about when
-     developing your own custom theme.
-
-   - robots.txt (Make effective use of robots.txt)
-
-     See in 'Advanced Usage' an example robots.txt file for MyBB.
-     You may have to customize this file according to your needs.
-
-   - promoting your website (Promote your website in the right ways)
-
-     Most of this has to be done by you and your users.
-
-     Add your site to Open Directory and other projects.
-     Ask your users to put links to your board on their pages / blogs.
-     Exchange links with other forum communities.
-
-     This plugin can dynamically create XML Sitemaps which allow Google
-     and other search engines to easier crawl and find all content of
-     your board. Tell all search engines about your new XML Sitemap.
-
-   This plugin is:
-
-   - free (General Public License). No credit required on your forum page.
-   - customizeable. Change the behaviour of the plugin in >30 settings.
-   - international. It supports (and even requires) UTF-8.
-   - unobtrusive. The redirect feature allows fluent transition from stock
-     to Google SEO URLs and vice versa, so you can enable and disable SEO
-     whenever you like. It does not force you to use Google SEO forever.
-   - documented. I put in a lot of effort to write well formatted and
-     commented code, so others can understand and contribute more easily.
-   - modest. I will never claim that this is the best SEO plugin available.
-     You may not be happy with the results due to different requirements.
-     There is only so much any SEO plugin can do; even with a perfect SEO
-     you still need to have quality content and active users.
-
-   Please report bugs, issues, enhancement proposals, and other feedback,
-   either in the plugins forum http://community.mybboard.net/forum-72.html
-   (search for the existing Google SEO plugin thread there), or contact
-   me directly by E-Mail. Thank you.
+   This plugin is free open source software (GPL). This means that you can
+   download the plugin for free, modify it to your liking, and you do not
+   have to put any copyright or backlinks on your page.
 
 ---------------------------------------------------------------------------
 
-2. Requirements
+2. Features
 
-   - MyBB 1.4.x (tested with MyBB 1.4.4)
-   - Apache server with mod_rewrite (for Google SEO URLs)
-   - MySQL database (for Google SEO URLs)
-   - PHP 5 recommended. PHP 4 may or may not work, not tested in detail.
-   - mb_string extension for PHP (UTF-8 support)
-   - (Unfortunately) some modifications to MyBB files and templates.
-     These changes are not done automatically to avoid security issues.
+   The plugin currently supports the following features:
+
+   - Google SEO 404:
+     * error pages return 404 error code instead of 200
+     * add Google's 404 widget to 404 error pages
+     * custom 404 error pages
+
+   - Google SEO Meta:
+     * generate description meta tags for forums / threads / etc.
+
+   - Google SEO Redirect:
+     * redirect old URLs to new URLs
+     * this avoids URL breakage and double content
+
+   - Google SEO Sitemap:
+     * dynamic generation of XML Sitemaps
+     * lets search engines find your content without crawling
+
+   - Google SEO URL:
+     * replace standard id based URLs (e.g. showthread.php?tid=12345)
+       with name based URLs (e.g. Thread-some-subject)
+       that are usually id free (id is appended for non-unique URLs)
+     * UTF-8 in URLs is supported
 
 ---------------------------------------------------------------------------
 
 3. Installation Instructions
 
-   Upload google_seo.php to inc/plugins and activate the plugin.
-   Do this before making any of the following changes.
+   Upload google_seo.php, google_seo.txt and the google_seo folder
+   to inc/plugins of your MyBB installation.
 
-   headerinclude template: (required for Google SEO Meta)
+   You can then install and activate the plugin in your Admin CP,
+   and enable Google SEO features in the Google SEO setting groups.
 
-     Add this line to your headerinclude template:
+   Several features require you to make changes to MyBB. In a future
+   version of Google SEO several of these may be automatically done
+   for you when you install the plugin, but for now you have to do
+   it manually:
+
+   - Google SEO 404:
+
+     For custom errorpages to work, you have to add the following
+     to your .htaccess
+
+       ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
+
+     This will cause 404 errors outside of MyBB show up as MyBB
+     error messages, using your boards layout. Please note that
+     Google SEO 404 has to be enabled in your configuration first.
+
+   - Google SEO Meta:
+
+     Go to Admin CP, Templates & Style, and add the following line
+     to your headerinclude template:
 
        {$google_seo_meta}
 
-   .htaccess: (required for Google SEO URLs)
+   - Google SEO Sitemap:
 
-     If you haven't done so, rename the MyBB 'htaccess.txt' to '.htaccess'.
-     This is required for any kind of SEO URL to work (built in SEO too).
+     Add this rewrite rule to your .htaccess:
 
-     Add the following to the mod_rewrite section:
+       RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
 
-       # --- Google SEO begin ---
+     Tell search engines about your sitemap (e.g. Google Webmaster Tools).
+     You can also add this line to your robots.txt:
+
+       Sitemap: http://yoursite/mybb/sitemap-index.xml
+
+   - Google SEO URL:
+
+     Add these rewrite rules to your .htaccess:
+
        RewriteRule ^Forum-([^./]+)$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
        RewriteRule ^Thread-([^./]+)$ showthread.php?google_seo_thread=$1 [L,QSA,NC]
        RewriteRule ^Announcement-([^./]+)$ announcements.php?google_seo_announcement=$1 [L,QSA,NC]
        RewriteRule ^User-([^./]+)$ member.php?action=profile&google_seo_user=$1 [L,QSA,NC]
        RewriteRule ^Calendar-([^./]+)$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
-       RewriteRule ^Event-([^./]+)$ calendar.php?google_seo_event=$1 [L,QSA,NC]
+       RewriteRule ^Event-([^./]+)$ calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]
 
-       # If you intend to use Google SEO Sitemap, uncomment this:
-       # RewriteRule ^Sitemap-([^./]+)$ index.php?google_seo_sitemap=$1 [L,QSA,NC]
-       # Your Sitemap will then be called http://yourmybb/Sitemap-Index
+     You will also need modify inc/functions.php.
 
-       # If you need additional rules due to custom settings, use this as a model:
-       # RewriteRule ^{$prefix}([^./]+){$postfix}$ page.php?google_seo_type=$1 [L,QSA,NC]
-       # --- Google SEO end ---
+     For your convenience, the modified version of MyBB 1.4.4 functions.php
+     is included with this plugin. For other versions, please use the patch
+     or apply the following changes manually:
 
-     If you want Google SEO 404 error pages, you can also add this line:
-     (replace /yourMyBB/ with the folder that contains MyBB, or / if it's in root)
-
-       ErrorDocument 404 /yourMyBB/misc.php?google_seo_error=404
-
-   inc/functions.php: (required for Google SEO URLs)
-
-     Add a mybb_ prefix to the following function declarations:
-
+     Find:
        function get_profile_link($uid=0)
+       {
+
+     Append:
+           if(function_exists("google_seo_url_profile"))
+           {
+               $link = google_seo_url_profile($uid);
+
+               if($link)
+               {
+                   return $link;
+               }
+           }
+
+     Find:
        function get_announcement_link($aid=0)
+       {
+
+     Append:
+       if(function_exists("google_seo_url_announcement"))
+       {
+           $link = google_seo_url_announcement($aid);
+
+           if($link)
+           {
+               return $link;
+           }
+       }
+
+     Find:
        function get_forum_link($fid, $page=0)
+       {
+
+     Append:
+       if(function_exists("google_seo_url_forum"))
+       {
+          $link = google_seo_url_forum($fid, $page);
+
+          if($link)
+          {
+              return $link;
+          }
+       }
+
+     Find:
        function get_thread_link($tid, $page=0, $action='')
-       function get_post_link($pid, $tid=0)
-       function get_event_link($eid)
-       function get_calendar_link($calendar, $year=0, $month=0, $day=0)
-       function get_calendar_week_link($calendar, $week)
+       {
 
-     Afterwards the function declarations should look like this:
+     Append:
+       if(function_exists("google_seo_url_thread"))
+       {
+           $link = google_seo_url_thread($tid, $page, $action);
 
-       function mybb_get_profile_link($uid=0)
-       function mybb_get_announcement_link($aid=0)
-       function mybb_get_forum_link($fid, $page=0)
-       function mybb_get_thread_link($tid, $page=0, $action='')
-       function mybb_get_post_link($pid, $tid=0)
-       function mybb_get_event_link($eid)
-       function mybb_get_calendar_link($calendar, $year=0, $month=0, $day=0)
-       function mybb_get_calendar_week_link($calendar, $week)
+           if($link)
+           {
+               return $link;
+           }
+       }
 
-     On a Linux system, you can use this command to change the file:
+      Find:
+        function get_post_link($pid, $tid=0)
+        {
 
-       sed -i -r -e 's/function get_(.*)_link/function mybb_get_\1_link/' inc/functions.php
+      Append:
+        if(function_exists("google_seo_url_post"))
+        {
+            $link = google_seo_url_post($pid, $tid);
 
-   With these modifications, your plugin is ready to use. By default, all
-   Google SEO options are set to NO, so the plugin does not actually do
-   anything until you enable features in the 'Google SEO' settings group.
-   All settings are documented there.
+            if($link)
+            {
+                return $link;
+            }
+        }
+
+      Find:
+        function get_event_link($eid)
+        {
+
+      Append:
+        if(function_exists("google_seo_url_event"))
+        {
+            $link = google_seo_url_event($eid);
+
+            if($link)
+            {
+                return $link;
+            }
+        }
+
+      Find:
+        function get_calendar_link($calendar, $year=0, $month=0, $day=0)
+        {
+
+      Append:
+        if(function_exists("google_seo_url_calendar"))
+        {
+            $link = google_seo_url_calendar($calendar, $year, $month, $day);
+
+            if($link)
+            {
+                return $link;
+            }
+        }
+
+      Find:
+        function get_calendar_week_link($calendar, $week)
+        {
+
+      Append:
+        if(function_exists("google_seo_url_calendar_week"))
+        {
+            $link = google_seo_url_calendar_week($calendar, $week);
+
+            if($link)
+            {
+                return $link;
+            }
+        }
 
 ---------------------------------------------------------------------------
 
-4. Upgrading Instructions
-
-   If you already have Google SEO installed and want to upgrade,
-
-   - check the installation instructions above to find out if any
-     additional or different changes to the files are required
-     for the new version
-   - deactivate the old plugin, then upload and activate the new plugin
-   - check the Admin CP config for new or changed settings
-
----------------------------------------------------------------------------
-
-5. Uninstalling Instructions
+4. Uninstalling Instructions
 
    If you want to redirect Google SEO URLs back to stock MyBB URLs,
-   please only disable Google SEO URLs in the Admin CP Configuration,
-   and keep Google SEO Redirection enabled.
+   keep Google SEO installed and upload the original, unmodified
+   inc/functions.php for MyBB, undoing the URL related changes.
 
-   While technically the plugin stays installed, this is recommended
-   as it gives users and search engines time to adapt to the change.
-   You can uninstall Google SEO completely after some time has passed.
+   This way Google SEO stays installed and will continue to translate
+   page names to IDs. However because the URLs themselves are not
+   active, Google SEO Redirect can redirect the Google SEO URLs back
+   to stock MyBB URLs.
 
-   To uninstall completely, undo the changes you made, for example
-   by just uploading the stock MyBB .htaccess and inc/functions.php
-   and removing {$google_seo_meta} from the header template.
+   This gives users and search engines time to adapt to the change.
+
+   To uninstall completely, undo all the changes you made on install.
 
    Then go to Admin CP -> Plugins and click 'Deactivate'.
    This way the Google SEO URLs will end up in 404 error land.
@@ -249,17 +271,7 @@
 
 ---------------------------------------------------------------------------
 
-6. Advanced Usage
-
-   XML Sitemaps:
-
-     Enable XML Sitemaps in the Google SEO settings and uncomment the
-     Sitemaps rule in your .htaccess. The URL of your Sitemap will be:
-
-         http://www.yoursite.tld/yourMyBB/Sitemap-Index
-
-     You can add this Sitemap in Google's Webmaster tools.
-     You can also specify the Sitemap in your robots.txt (see below).
+5. Advanced Usage
 
    robots.txt:
 
@@ -270,12 +282,8 @@
      for search engines (rating threads, sending private messages, ...).
 
      This plugin comes with a robots.txt.example file that you can adapt
-     to your needs. You will have to modify this file before using it.
-     robots.txt must be located in the root directory of your (sub)domain.
-     Replace /yourMyBB/ with the folder MyBB is under (or / if it's
-     not in a folder but directly in the root).
-
-     Remove the Sitemap: line if you are not using the Sitemap.
+     to your needs. You will have to modify this file before using it if
+     your board does not reside in the root directory of your (sub)domain.
 
    Title tags:
 

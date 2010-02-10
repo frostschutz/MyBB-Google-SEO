@@ -1,0 +1,139 @@
+--- functions.php.1.4.4	2009-02-14 23:42:02.744733831 +0100
++++ functions.php.GSEO	2009-02-14 23:45:54.425733994 +0100
+@@ -4158,6 +4158,16 @@
+  */
+ function get_profile_link($uid=0)
+ {
++        if(function_exists("google_seo_url_profile"))
++        {
++            $link = google_seo_url_profile($uid);
++
++            if($link)
++            {
++                return $link;
++            }
++        }
++
+ 	$link = str_replace("{uid}", $uid, PROFILE_URL);
+ 	return htmlspecialchars_uni($link);
+ }
+@@ -4170,6 +4180,16 @@
+  */
+ function get_announcement_link($aid=0)
+ {
++    if(function_exists("google_seo_url_announcement"))
++    {
++        $link = google_seo_url_announcement($aid);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	$link = str_replace("{aid}", $aid, ANNOUNCEMENT_URL);
+ 	return htmlspecialchars_uni($link);
+ }
+@@ -4235,6 +4255,16 @@
+  */
+ function get_forum_link($fid, $page=0)
+ {
++    if(function_exists("google_seo_url_forum"))
++    {
++       $link = google_seo_url_forum($fid, $page);
++
++       if($link)
++       {
++           return $link;
++       }
++    }
++
+ 	if($page > 0)
+ 	{
+ 		$link = str_replace("{fid}", $fid, FORUM_URL_PAGED);
+@@ -4258,6 +4288,16 @@
+  */
+ function get_thread_link($tid, $page=0, $action='')
+ {
++    if(function_exists("google_seo_url_thread"))
++    {
++        $link = google_seo_url_thread($tid, $page, $action);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	if($page > 1)
+ 	{
+ 		if($action)
+@@ -4297,6 +4337,16 @@
+  */
+ function get_post_link($pid, $tid=0)
+ {
++    if(function_exists("google_seo_url_post"))
++    {
++        $link = google_seo_url_post($pid, $tid);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	if($tid > 0)
+ 	{
+ 		$link = str_replace("{tid}", $tid, THREAD_URL_POST);
+@@ -4318,6 +4368,16 @@
+  */
+ function get_event_link($eid)
+ {
++    if(function_exists("google_seo_url_event"))
++    {
++        $link = google_seo_url_event($eid);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	$link = str_replace("{eid}", $eid, EVENT_URL);
+ 	return htmlspecialchars_uni($link);
+ }
+@@ -4333,6 +4393,16 @@
+  */
+ function get_calendar_link($calendar, $year=0, $month=0, $day=0)
+ {
++    if(function_exists("google_seo_url_calendar"))
++    {
++        $link = google_seo_url_calendar($calendar, $year, $month, $day);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	if($day > 0)
+ 	{
+ 		$link = str_replace("{month}", $month, CALENDAR_URL_DAY);
+@@ -4371,6 +4441,16 @@
+  */
+ function get_calendar_week_link($calendar, $week)
+ {
++    if(function_exists("google_seo_url_calendar_week"))
++    {
++        $link = google_seo_url_calendar_week($calendar, $week);
++
++        if($link)
++        {
++            return $link;
++        }
++    }
++
+ 	if($week < 0)
+ 	{
+ 		$week = str_replace('-', "n", $week);
+
