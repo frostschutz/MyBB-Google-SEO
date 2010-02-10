@@ -1,6 +1,6 @@
 <?php
 /**
- * Google SEO plugin for MyBB.
+ * This file is part of Google SEO plugin for MyBB.
  * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
  * This program is free software: you can redistribute it and/or modify

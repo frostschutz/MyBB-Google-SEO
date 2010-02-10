@@ -17,4 +17,5 @@ Disallow: /yourMyBB/task.php
 Disallow: /yourMyBB/usercp.php
 Disallow: /yourMyBB/usercp2.php
 Disallow: /yourMyBB/calendar.php
+Disallow: /yourMyBB/archive/
 Allow: /

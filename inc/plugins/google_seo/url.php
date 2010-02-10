@@ -27,17 +27,73 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
-// URL -> ID lookups:
+// URL -> ID conversion:
 $plugins->add_hook("global_start", "google_seo_url_hook", 1);
 
-// Optimization for various pages:
-$plugins->add_hook("forumdisplay_start", "google_seo_url_hook_forumdisplay");
-$plugins->add_hook("forumdisplay_thread", "google_seo_url_hook_forumdisplay_thread");
-$plugins->add_hook("index_start", "google_seo_url_hook_index");
-$plugins->add_hook("build_forumbits_forum", "google_seo_url_hook_forumbits");
-$plugins->add_hook("showthread_start", "google_seo_url_hook_showthread");
+/* --- Global Variables: --- */
+
+// Required for database queries to the google_seo table.
+global $google_seo_url_idtype;
+
+$google_seo_url_idtype = array(
+    "users" => 1,
+    "announcements" => 2,
+    "forums" => 3,
+    "threads" => 4,
+    "events" => 5,
+    "calendars" => 6,
+    );
 
 /* --- URL processing: --- */
+
+/**
+ * Character translation callback.
+ *
+ * @param array matches
+ * @return string replace string
+ */
+function google_seo_url_translate_callback($matches)
+{
+    global $google_seo_translate;
+
+    $r = $google_seo_translate[$matches[0]];
+
+    if($r)
+    {
+        return $r;
+    }
+
+    return $matches[0];
+}
+
+/**
+ * Character translation for URLs (optional).
+ *
+ * @param string The input string
+ * @return string The output string
+ */
+function google_seo_url_translate($str)
+{
+    global $google_seo_translate_pat;
+
+    if(!$google_seo_translate_pat)
+    {
+        global $google_seo_translate;
+
+        require_once MYBB_ROOT."inc/plugins/google_seo/translate.php";
+
+        foreach($google_seo_translate as $k=>$v)
+        {
+            $google_seo_translate_pat[] = preg_quote($k, '/');
+        }
+
+        $google_seo_translate_pat = implode($google_seo_translate_pat, "|");
+    }
+
+    return preg_replace_callback("/$google_seo_translate_pat/u",
+                                 "google_seo_url_translate_callback",
+                                 $str);
+}
 
 /**
  * Separate a string by punctuation for use in URLs.
@@ -161,99 +217,26 @@ function google_seo_url_finalize($url, $scheme)
     return htmlspecialchars_uni($url);
 }
 
-/* --- URL Caching: --- */
-
-/**
- * Put ID numbers into the queue.
- * On the next query all IDs in the queue will be queried at once.
- */
-function google_seo_url_queue($type, $ids)
-{
-    global $google_seo_url_queue, $google_seo_url_cache;
-
-    foreach($ids as $id)
-    {
-        if($google_seo_url_cache[$type][$id] === NULL)
-        {
-            $google_seo_url_queue[$type][] = $id;
-        }
-    }
-}
-
-/**
- * Get the entry for $type, $id from the cache.
- *
- * If $id is not yet in the cache, the $id will be queried from the DB.
- * To keep number of total DB queries low, all $ids that have been queued
- * up to here will be fetched in the same query as well.
- *
- */
-function google_seo_url_cache($type, $id)
-{
-    global $db, $settings, $google_seo_url_cache, $google_seo_url_queue;
-
-    // If it's not in the cache, try loading the cache.
-    if($google_seo_url_cache[$type][$id] === NULL)
-    {
-        // Prepare database query.
-        $ids = $google_seo_url_queue[$type];
-
-        if($ids)
-        {
-            $where = "id IN ($id,".join($ids,",").")";
-            unset($google_seo_url_queue[$type]);
-        }
-
-        else
-        {
-            $where = "id=$id";
-        }
-
-        if($settings["google_seo_url_lowercase"])
-        {
-            $what = "LOWER(url) as url,id";
-        }
-
-        else
-        {
-            $what = "url,id";
-        }
-
-        // Run database query.
-        $query = $db->query("SELECT $what FROM ".TABLE_PREFIX."google_seo_$type
-                             WHERE rowid IN
-                               (SELECT MAX(rowid) FROM ".TABLE_PREFIX."google_seo_$type
-                                WHERE $where
-                                GROUP BY id)");
-
-        // Process the query results.
-        $scheme = $settings["google_seo_url_$type"];
-
-        while($row = $db->fetch_array($query))
-        {
-            $google_seo_url_cache[$type][$row['id']] =
-                google_seo_url_finalize($row['url'], $scheme);
-        }
-
-        // If it's still not in the cache, create an entry.
-        if($google_seo_url_cache[$type][$id] === NULL)
-        {
-            google_seo_url_create($type, $id);
-        }
-    }
-
-    // Return the cached entry.
-    return $google_seo_url_cache[$type][$id];
-}
-
 /* --- URL Creation: --- */
 
-function google_seo_url_create($type, $id)
+/**
+ * Create a unique URL in the database for a specific item type,id.
+ * First fetch the title of the item from the MyBB database,
+ * then process (translate, separate, truncate, uniquify) that title,
+ * then check for existing entries in the Google SEO database,
+ * finally insert it into the database if it's not already there.
+ *
+ * @param string Type of the item (forums, threads, etc.)
+ * @param array IDs of the item (fid for forums, tid for threads, etc.)
+ */
+function google_seo_url_create($type, $ids)
 {
-    global $db, $settings, $google_seo_url_cache;
+    global $db, $settings;
+    global $google_seo_url_idtype, $google_seo_url_cache;
 
     $scheme = $settings["google_seo_url_$type"];
 
+    // Is Google SEO URL enabled for this type?
     if($scheme)
     {
         // Prepare the query of the item title:
@@ -286,103 +269,294 @@ function google_seo_url_create($type, $id)
         }
 
         // Query the item title as base for our URL.
-        $query = $db->query("SELECT $titlename FROM ".TABLE_PREFIX."$type
-                         WHERE $idname=$id");
-        $url = $db->fetch_field($query, $titlename);
+        $titles = $db->query("SELECT $titlename,$idname
+                              FROM ".TABLE_PREFIX."$type
+                              WHERE $idname IN ("
+                             .implode((array)$ids, ",")
+                             .")");
 
-        if($url)
+        while($row = $db->fetch_array($titles))
         {
-            // Prepare the URL.
-            $url = google_seo_url_separate($url);
-            $url = google_seo_url_truncate($url);
+            $url = $row[$titlename];
+            $id = $row[$idname];
 
-            // Special case: nothing left (punctuation only titles etc)
-            if(!$url)
+            // Prepare the URL.
+            if($settings['google_seo_url_translate'])
             {
-                $url = google_seo_url_uniquify($url, $id);
+                $url = google_seo_url_translate($url);
             }
 
-            // Check for existing entry and possible collisions.
-            $query = $db->query(
-                "SELECT url,id FROM
-                   (SELECT url,id
-                    FROM ".TABLE_PREFIX."google_seo_$type
-                    WHERE id IN
-                      (SELECT id
-                       FROM ".TABLE_PREFIX."google_seo_$type
-                       WHERE url='".$db->escape_string($url)."'
-                       AND id<=$id)
-                    ORDER BY rowid DESC
-                    LIMIT 1) as top_row
-                 WHERE url='".$db->escape_string($url)."'
-                 ORDER BY id ASC
-                 LIMIT 1");
+            $url = google_seo_url_separate($url);
+            $url = google_seo_url_truncate($url);
+            $unique_url = google_seo_url_uniquify($url, $id);
 
-            $row = $db->fetch_array($query);
+            $idtype = $google_seo_url_idtype[$type];
+
+            // Check for existing entry and possible collisions.
+            $query = $db->query("SELECT url,id FROM ".TABLE_PREFIX."google_seo
+                                 WHERE idtype=$idtype
+                                 AND url IN ('"
+                                .$db->escape_string($url)."','"
+                                .$db->escape_string($unique_url)."')
+                                 AND active=1
+                                 AND id<=$id
+                                 ORDER BY id ASC");
+
+            $urlrow = $db->fetch_array($query);
+            $uniquerow = $db->fetch_array($query);
 
             // Check if the entry was not up to date anyway.
-            if(!($row && $row['id'] == $id && $row['url'] == $url))
+            if($uniquerow)
             {
-                // Uniquify in case of collision.
-                if($row && $row['id'] != $id)
+                $url = $unique_url;
+            }
+
+            else if(!($urlrow && $urlrow['id'] == $id && $urlrow['url'] == $url))
+            {
+                // Use unique URL if there was a row with a different URL.
+                if($urlrow)
                 {
-                    $url = google_seo_url_uniquify($url, $id);
+                    $url = $unique_url;
                 }
 
-                // Delete old entries in favour of the new one.
-                $db->delete_query("google_seo_$type",
-                                  "url='".$db->escape_string($url)."'");
+                // Set old entries for us to not active.
+                $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
+                                  SET active=NULL
+                                  WHERE active=1
+                                  AND idtype=$idtype
+                                  AND id=$id");
 
-                // Insert the new URL into the database.
-                $db->write_query("INSERT INTO ".TABLE_PREFIX."google_seo_$type
-                                  (id,url)
-                                  VALUES('$id','".$db->escape_string($url)."')");
+                // Insert new entry (while possibly replacing old ones).
+                $db->write_query("REPLACE INTO ".TABLE_PREFIX."google_seo
+                                  VALUES (active,idtype,id,url),
+                                  ('1','$idtype','$id','".$db->escape_string($url)."')");
             }
 
             // Finalize URL.
-            if($settings['google_seo_lowercase'])
+            if($settings['google_seo_url_lowercase'])
             {
                 $url = my_strtolower($url);
             }
 
             $url = google_seo_url_finalize($url, $scheme);
 
-            // Put into cache.
             $google_seo_url_cache[$type][$id] = $url;
-
-            return $url;
         }
     }
+}
+
+/* --- URL Cache: --- */
+
+/**
+ * Optimize queries by collecting as many IDs as possible before sending
+ * a request off to a database. This is done in a relatively dirty way
+ * by accessing global data structures of whatever called get_*_link()
+ * to get at their list of IDs.
+ *
+ * @param string Type of the item that caused the query.
+ * @param int ID of the item that caused the query.
+ * @return array IDs (ID as index, value 0) to be merged into the cache.
+ */
+function google_seo_url_optimize($type, $id)
+{
+    global $google_seo_url_optimize, $google_seo_url_cache;
+
+    // fcache optimization (index.php)
+    global $fcache, $google_seo_fcache;
+
+    if($fcache !== $google_seo_fcache)
+    {
+        $GLOBALS['google_seo_fcache'] =& $fcache;
+
+        foreach($fcache as $a)
+        {
+            foreach($a as $b)
+            {
+                foreach($b as $c)
+                {
+                    $google_seo_url_optimize["forums"][$c['fid']] = 0;
+                    $google_seo_url_optimize["users"][$c['lastposteruid']] = 0;
+                    $google_seo_url_optimize["threads"][$c['lastposttid']] = 0;
+                }
+            }
+        }
+    }
+
+    // forum_cache optimization (forumdisplay.php)
+    global $forum_cache, $google_seo_forum_cache;
+
+    if($forum_cache !== $google_seo_forum_cache)
+    {
+        $GLOBALS['google_seo_forum_cache'] =& $forum_cache;
+
+        foreach($forum_cache as $f)
+        {
+            $google_seo_url_optimize["forums"][$f['fid']] = 0;
+            $google_seo_url_optimize["users"][$f['lastposteruid']] = 0;
+        }
+    }
+
+    // threadcache optimization (forumdisplay.php)
+    global $threadcache, $google_seo_threadcache;
+
+    if($threadcache !== $google_seo_threadcache)
+    {
+        $GLOBALS['google_seo_threadcache'] =& $threadcache;
+
+        foreach($threadcache as $t)
+        {
+            $google_seo_url_optimize["threads"][$t['tid']] = 0;
+            $google_seo_url_optimize["forums"][$t['fid']] = 0;
+            $google_seo_url_optimize["users"][$t['uid']] = 0;
+            $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+        }
+    }
+
+    // thread_cache optimization (search.php)
+    global $thread_cache, $google_seo_thread_cache;
+
+    if($thread_cache !== $google_seo_thread_cache)
+    {
+        $GLOBALS['google_seo_thread_cache'] =& $thread_cache;
+
+        foreach($thread_cache as $t)
+        {
+            $google_seo_url_optimize["threads"][$t['tid']] = 0;
+            $google_seo_url_optimize["forums"][$t['fid']] = 0;
+            $google_seo_url_optimize["users"][$t['uid']] = 0;
+            $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+        }
+    }
+
+    // events_cache (calendar.php)
+    global $events_cache, $google_seo_events_cache;
+
+    if($events_cache !== $google_seo_events_cache)
+    {
+        $GLOBALS['google_seo_events_cache'] =& $events_cache;
+
+        foreach($events_cache as $d)
+        {
+            foreach($d as $e)
+            {
+                $google_seo_url_optimize["users"][$e['uid']] = 0;
+                $google_seo_url_optimize["events"][$e['eid']] = 0;
+                $google_seo_url_optimize["calendars"][$e['cid']] = 0;
+            }
+        }
+    }
+
+    // Include the ID that was originally requested.
+    $google_seo_url_optimize[$type][$id] = 0;
+
+    // Extract and return IDs for this type.
+    $ids = $google_seo_url_optimize[$type];
+    unset($google_seo_url_optimize[$type]);
+
+    return $ids;
+}
+
+/**
+ * Get the entry for $type, $id from the cache.
+ *
+ * If $id is not yet in the cache, the $id will be queried from the DB.
+ * To keep number of total DB queries low, all $ids that have been queued
+ * up to here will be fetched in the same query as well.
+ *
+ */
+function google_seo_url_cache($type, $id)
+{
+    global $db, $settings, $google_seo_url_cache, $google_seo_url_idtype;
+
+    // If it's not in the cache, try loading the cache.
+    if($google_seo_url_cache[$type][$id] === NULL)
+    {
+        // Prepare database query.
+        $idtype = $google_seo_url_idtype[$type];
+
+        if($settings["google_seo_url_lowercase"])
+        {
+            $what = "LOWER(url) AS url,id";
+        }
+
+        else
+        {
+            $what = "url,id";
+        }
+
+        // Optimize by collecting more IDs for this query.
+        $ids = google_seo_url_optimize($type, $id);
+
+        // Run database query.
+        $query = $db->query("SELECT $what
+                             FROM ".TABLE_PREFIX."google_seo
+                             WHERE active=1
+                             AND idtype=$idtype
+                             AND id IN ('"
+                            .implode(array_keys($ids),"','")
+                            ."')");
+
+        // Process the query results.
+        $scheme = $settings["google_seo_url_$type"];
+
+        while($row = $db->fetch_array($query))
+        {
+            $rowid = $row['id'];
+            $google_seo_url_cache[$type][$rowid] =
+                google_seo_url_finalize($row['url'], $scheme);
+            unset($ids[$rowid]);
+        }
+
+        // Create URLs for the remaining IDs.
+        if(count($ids))
+        {
+            google_seo_url_create($type, array_keys($ids));
+        }
+    }
+
+    // Return the cached entry.
+    return $google_seo_url_cache[$type][$id];
 }
 
 /* --- URL Lookup: --- */
 
 /**
- * Convert URL to ID.
+ * Convert a given URL to ID.
  *
- * @param string Name of the Google SEO database table.
- * @param string Name of the ID column of that table.
- * @param string Name of the requested URL.
- * @return int ID of the requested item.
+ * @param string Type of the item
+ * @param string Given URL of the item
+ * @return int ID of the requested item if found.
  */
-function google_seo_url_id($tablename, $idname, $url)
+function google_seo_url_id($type, $url)
 {
-    global $db;
+    global $db, $settings, $google_seo_url_idtype;
+
+    $idtype = $google_seo_url_idtype[$type];
 
     $query = $db->query("SELECT id
-                         FROM ".TABLE_PREFIX."google_seo_$tablename
-                         WHERE url='".$db->escape_string($url)."'");
+                         FROM ".TABLE_PREFIX."google_seo
+                         WHERE idtype=$idtype
+                         AND url='".$db->escape_string($url)."'");
 
     $id = $db->fetch_field($query, "id");
 
     if(!$id)
     {
-        // Something went wrong. Maybe user added some punctuation?
-        $url = google_seo_url_separate($url);
+        // Fallback for wrong punctuation, character translation:
+        $urls[0] = $db->escape_string(google_seo_url_separate($url));
+
+        if($settings['google_seo_url_translate'])
+        {
+            $urls[1] = $db->escape_string(google_seo_url_translate($url));
+            $urls[2] = $db->escape_string(google_seo_url_separate($urls[1]));
+        }
 
         $query = $db->query("SELECT id
-                             FROM ".TABLE_PREFIX."google_seo_$tablename
-                             WHERE url='".$db->escape_string($url)."'");
+                             FROM ".TABLE_PREFIX."google_seo
+                             WHERE idtype=$idtype
+                             AND url IN ('".implode($urls,"','")."')
+                             ORDER BY id ASC
+                             LIMIT 1");
 
         $id = $db->fetch_field($query, "id");
     }
@@ -413,7 +587,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('fid', $mybb->input))
             {
-                $fid = google_seo_url_id("forums", "fid", $url);
+                $fid = google_seo_url_id("forums", $url);
                 $mybb->input['fid'] = $fid;
             }
 
@@ -433,7 +607,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('tid', $mybb->input))
             {
-                $tid = google_seo_url_id("threads", "tid", $url);
+                $tid = google_seo_url_id("threads", $url);
                 $mybb->input['tid'] = $tid;
             }
 
@@ -455,7 +629,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('aid', $mybb->input))
             {
-                $aid = google_seo_url_id("announcements", "aid", $url);
+                $aid = google_seo_url_id("announcements", $url);
                 $mybb->input['aid'] = $aid;
             }
 
@@ -475,7 +649,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('uid', $mybb->input))
             {
-                $uid = google_seo_url_id("users", "uid", $url);
+                $uid = google_seo_url_id("users", $url);
                 $mybb->input['uid'] = $uid;
             }
 
@@ -495,7 +669,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('eid', $mybb->input))
             {
-                $eid = google_seo_url_id("events", "eid", $url);
+                $eid = google_seo_url_id("events", $url);
                 $mybb->input['eid'] = $eid;
             }
 
@@ -513,7 +687,7 @@ function google_seo_url_hook()
 
                 if($url && !array_key_exists('calendar', $mybb->input))
                 {
-                    $cid = google_seo_url_id("calendars", "cid", $url);
+                    $cid = google_seo_url_id("calendars", $url);
                     $mybb->input['calendar'] = $cid;
                 }
 
@@ -528,96 +702,6 @@ function google_seo_url_hook()
 
             break;
     }
-}
-
-/* --- Optimization: --- */
-
-function google_seo_url_hook_forumdisplay()
-{
-    global $forum_cache;
-
-    if(!is_array($forum_cache))
-    {
-        cache_forums();
-    }
-
-    foreach($forum_cache as $v)
-    {
-        $fids[] = $v['fid'];
-        $uids[] = $v['lastposteruid'];
-    }
-
-    google_seo_url_queue("forums", $fids);
-    google_seo_url_queue("users", $uids);
-}
-
-function google_seo_url_hook_forumdisplay_thread()
-{
-    global $threadcache, $plugins;
-
-    // We are only interested in the first call.
-    $plugins->remove_hook("forumdisplay_thread",
-                          "google_seo_url_hook_forumdisplay_thread");
-
-    foreach($threadcache as $thread)
-    {
-        $tids[] = $thread['tid'];
-        $fids[] = $thread['fid'];
-        $uids[] = $thread['uid'];
-        $uids[] = $thread['lastposteruid'];
-    }
-
-    google_seo_url_queue("threads", $tids);
-    google_seo_url_queue("forums", $fids);
-    google_seo_url_queue("users", $uids);
-}
-
-function google_seo_url_hook_index()
-{
-    global $mybb;
-
-    $uids[] = $mybb->user['uid'];
-
-    google_seo_url_queue("users", $uids);
-}
-
-function google_seo_url_hook_forumbits()
-{
-    global $fcache, $plugins;
-
-    $plugins->remove_hook("build_forumbits_forum",
-                          "google_seo_url_hook_forumbits");
-
-    foreach($fcache as $p)
-    {
-        foreach($p as $c)
-        {
-            foreach($c as $f)
-            {
-                $fids[] = $f['fid'];
-                $uids[] = $f['lastposteruid'];
-                $tids[] = $f['lastposttid'];
-            }
-        }
-    }
-
-    google_seo_url_queue("forums", $fids);
-    google_seo_url_queue("users", $uids);
-    google_seo_url_queue("threads", $tids);
-}
-
-function google_seo_url_hook_showthread()
-{
-    global $thread;
-
-    $tids[] = $thread['tid'];
-    $fids[] = $thread['fid'];
-    $uids[] = $thread['uid'];
-    $uids[] = $thread['lastposteruid'];
-
-    google_seo_url_queue("threads", $tids);
-    google_seo_url_queue("forums", $fids);
-    google_seo_url_queue("uids", $uids);
 }
 
 /* --- URL API: --- */

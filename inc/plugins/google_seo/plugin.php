@@ -1,6 +1,6 @@
 <?php
 /**
- * Google SEO plugin for MyBB.
+ * This file is part of Google SEO plugin for MyBB.
  * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.<br><b>This plugin is still in beta stage. Use at your own risk.</b>",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.6",
+        "version"       => "0.7",
     );
 
 
@@ -53,8 +53,6 @@ function google_seo_plugin_info()
 
     return $info;
 }
-
-/* --- Plugin Helpers: --- */
 
 /**
  * Additional status information about the plugin.
@@ -260,6 +258,8 @@ function google_seo_plugin_status()
     return '<ul>'.$status.'</ul>';
 }
 
+/* --- Plugin Helpers: --- */
+
 /**
  * Take care of inserting / updating settings.
  * Names and settings must be unique (i.e. use the google_seo_ prefix).
@@ -371,13 +371,7 @@ function google_seo_plugin_is_installed()
 {
     global $db;
 
-    return $db->table_exists("google_seo_forums")
-        && $db->table_exists("google_seo_threads")
-        && $db->table_exists("google_seo_announcements")
-        && $db->table_exists("google_seo_users")
-        && $db->table_exists("google_seo_calendars")
-        && $db->table_exists("google_seo_events");
-
+    return $db->table_exists("google_seo");
 }
 
 /**
@@ -387,66 +381,18 @@ function google_seo_plugin_install()
 {
     global $db;
 
-    // Create the Google SEO tables.
+    // Create the Google SEO table.
     $collation = $db->build_create_table_collation();
 
-    if(!$db->table_exists("google_seo_forums"))
+    if(!$db->table_exists("google_seo_id"))
     {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_forums(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
-                          ) TYPE=MyISAM{$collation};");
-    }
-
-    if(!$db->table_exists("google_seo_threads"))
-    {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_threads(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
-                          ) TYPE=MyISAM{$collation};");
-    }
-
-    if(!$db->table_exists("google_seo_announcements"))
-    {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_announcements(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
-                          ) TYPE=MyISAM{$collation};");
-    }
-
-    if(!$db->table_exists("google_seo_users"))
-    {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_users(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
-                          ) TYPE=MyISAM{$collation};");
-    }
-
-    if(!$db->table_exists("google_seo_calendars"))
-    {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_calendars(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
-                          ) TYPE=MyISAM{$collation};");
-    }
-
-    if(!$db->table_exists("google_seo_events"))
-    {
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_events(
-                              rowid int unsigned NOT NULL auto_increment,
-                              id int unsigned NOT NULL,
-                              url varchar(120) UNIQUE NOT NULL,
-                              PRIMARY KEY(rowid)
+        $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo(
+                              active TINYINT UNSIGNED,
+                              idtype TINYINT UNSIGNED NOT NULL,
+                              id INT UNSIGNED NOT NULL,
+                              url VARCHAR(120) NOT NULL,
+                              UNIQUE KEY (idtype, url),
+                              UNIQUE KEY (active, idtype, id)
                           ) TYPE=MyISAM{$collation};");
     }
 }
@@ -458,21 +404,14 @@ function google_seo_plugin_uninstall()
 {
     global $db;
 
-    // Drop the Google SEO tables.
-    $db->drop_table("google_seo_forums");
-    $db->drop_table("google_seo_threads");
-    $db->drop_table("google_seo_announcements");
-    $db->drop_table("google_seo_users");
-    $db->drop_table("google_seo_calendars");
-    $db->drop_table("google_seo_events");
+    // Drop the Google SEO table.
+    $db->drop_table("google_seo");
 
     // Remove the Google SEO setting groups.
     $query = $db->query("SELECT name,gid FROM ".TABLE_PREFIX."settinggroups WHERE name LIKE 'google_seo_%'");
 
-    while($group = $db->fetch_array($query))
+    while($gid = $db->fetch_field($query, 'gid'))
     {
-        $gid = $group['gid'];
-
         $db->delete_query("settinggroups", "gid='$gid'");
         $db->delete_query("settings", "gid='$gid'");
     }
@@ -636,6 +575,10 @@ function google_seo_plugin_activate()
                 'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
                 'value' => '{$url}{$separator}{$separator}{$id}',
+                ),
+            'google_seo_url_translate' => array(
+                'title' => "Character Translation",
+                'description' => "This feature is <i>optional</i>. Google SEO is fine with UTF-8 in URLs so there is no need for character translation. However, if you absolutely want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/translate.php</i> and then say YES to this option. Please note that this will increase CPU load.",
                 ),
             'google_seo_url_lowercase' => array(
                 'title' => "lowercase words",

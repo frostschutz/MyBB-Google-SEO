@@ -111,7 +111,7 @@ function google_seo_sitemap($tag, $items)
 // Generate the sitemap.
 function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 {
-    global $db, $mybb, $settings;
+    global $db, $mybb, $settings, $google_seo_url_optimize;
 
     if(!$settings["google_seo_sitemap_$type"])
     {
@@ -236,14 +236,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
     while($row = $db->fetch_array($query))
     {
-        $ids[] = $row[$idname];
-        $dates[$row[$idname]] = $row[$datename];
-    }
+        $id = $row[$idname];
+        $ids[] = $id;
+        $dates[$id] = $row[$datename];
 
-    // Google SEO URL optimization.
-    if(function_exists("google_seo_url_cache"))
-    {
-        google_seo_url_queue($table, $ids);
+        // Google SEO URL Optimization:
+        $google_seo_url_optimize[$type][$id] = 0;
     }
 
     foreach($ids as $id)
