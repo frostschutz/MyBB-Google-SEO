@@ -132,11 +132,11 @@ function google_seo_redirect_hook()
             {
                 $target = get_profile_link($mybb->input['uid']);
                 $kill['uid'] = '';
+                $kill['google_seo_user'] = '';
 
                 if($mybb->input['action'] == 'profile')
                 {
                     $kill['action'] = '';
-                    $kill['google_seo_user'] = '';
                 }
             }
 

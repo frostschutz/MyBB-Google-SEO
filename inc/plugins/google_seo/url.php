@@ -30,6 +30,9 @@ if(!defined("IN_MYBB"))
 // URL -> ID conversion:
 $plugins->add_hook("global_start", "google_seo_url_hook", 1);
 
+// WOL extension for showing specific forums / threads:
+$plugins->add_hook("fetch_wol_activity_end", "google_seo_url_wol");
+
 /* --- Global Variables: --- */
 
 // Required for database queries to the google_seo table.
@@ -361,7 +364,7 @@ function google_seo_url_create($type, $ids)
  */
 function google_seo_url_optimize($type, $id)
 {
-    global $google_seo_url_optimize, $google_seo_url_cache;
+    global $settings, $google_seo_url_optimize, $google_seo_url_cache;
 
     // fcache optimization (index.php)
     global $fcache, $google_seo_fcache;
@@ -444,6 +447,62 @@ function google_seo_url_optimize($type, $id)
                 $google_seo_url_optimize["users"][$e['uid']] = 0;
                 $google_seo_url_optimize["events"][$e['eid']] = 0;
                 $google_seo_url_optimize["calendars"][$e['cid']] = 0;
+            }
+        }
+    }
+
+    // Who's Online (online.php)
+    if($settings['google_seo_url_wol'])
+    {
+        global $uid_list, $aid_list, $eid_list, $fid_list, $tid_list;
+
+        if(count($uid_list) && $uid_list !== $google_seo_uid_list)
+        {
+            $GLOBALS['google_seo_uid_list'] =& $uid_list;
+
+            foreach($uid_list as $uid)
+            {
+                $google_seo_url_optimize["users"][$uid] = 0;
+            }
+        }
+
+        if(count($aid_list) && $aid_list !== $google_seo_aid_list)
+        {
+            $GLOBALS['google_seo_aid_list'] =& $aid_list;
+
+            foreach($aid_list as $aid)
+            {
+                $google_seo_url_optimize["announcements"][$aid] = 0;
+            }
+        }
+
+        if(count($eid_list) && $eid_list !== $google_seo_eid_list)
+        {
+            $GLOBALS['google_seo_eid_list'] =& $eid_list;
+
+            foreach($eid_list as $eid)
+            {
+                $google_seo_url_optimize["events"][$eid] = 0;
+            }
+        }
+
+        if(count($fid_list) && $fid_list !== $google_seo_fid_list)
+        {
+            $GLOBALS['google_seo_fid_list'] =& $fid_list;
+
+            foreach($fid_list as $fid)
+            {
+                $google_seo_url_optimize["forums"][$fid] = 0;
+            }
+        }
+
+        if(count($tid_list) && $tid_list !== $google_seo_tid_list)
+        {
+            $GLOBALS['google_seo_tid_list'] =& $tid_list;
+
+            foreach($tid_list as $tid)
+            {
+                $google_seo_url_optimize["threads"][$tid] = 0;
             }
         }
     }
@@ -704,6 +763,65 @@ function google_seo_url_hook()
             }
 
             break;
+    }
+}
+
+/* --- WOL: --- */
+
+/**
+ * Add information the WOL needs for specific forum / thread / etc display.
+ *
+ */
+function google_seo_url_wol($user_activity)
+{
+    global $settings;
+
+    if($settings['google_seo_url_wol'])
+    {
+        $google_seo_location = strstr($user_activity['location'], "google_seo_");
+
+        if($google_seo_location)
+        {
+            $google_seo_location = split("[=&]", $google_seo_location);
+
+            switch($google_seo_location[0])
+            {
+                case "google_seo_forum":
+                    global $fid_list;
+                    $fid = google_seo_url_id("forums", $google_seo_location[1]);
+                    $fid_list[] = $fid;
+                    $user_activity['fid'] = $fid;
+                    break;
+
+                case "google_seo_thread":
+                    global $tid_list;
+                    $tid = google_seo_url_id("threads", $google_seo_location[1]);
+                    $tid_list[] = $tid;
+                    $user_activity['tid'] = $tid;
+                    break;
+
+                case "google_seo_announcement":
+                    global $aid_list;
+                    $aid = google_seo_url_id("announcements", $google_seo_location[1]);
+                    $aid_list[] = $aid;
+                    $user_activity['aid'] = $aid;
+                    break;
+
+                case "google_seo_event":
+                    global $eid_list;
+                    $eid = google_seo_url_id("events", $google_seo_location[1]);
+                    $eid_list[] = $eid;
+                    $user_activity['eid'] = $eid;
+                    break;
+
+                case "google_seo_user":
+                    global $uid_list;
+                    $uid = google_seo_url_id("users", $google_seo_location[1]);
+                    $uid_list[] = $uid;
+                    $user_activity['uid'] = $uid;
+                    break;
+            }
+        }
     }
 }
 

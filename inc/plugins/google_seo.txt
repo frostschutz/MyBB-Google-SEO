@@ -4,11 +4,6 @@
                    <Andreas.Klauer@metamorpher.de>
                             GPL version 3
 ---------------------------------------------------------------------------
-
-      THIS PLUGIN IS STILL IN BETA STAGE. USE AT YOUR OWN RISK.
-
----------------------------------------------------------------------------
-
                                 README
 
 1. About this plugin
@@ -23,14 +18,16 @@
 
    The development of this plugin started when Google released a document
    called "Google's Search Engine Optimization starter guide" in Nov 2008.
+   After a long public beta phase the plugin finally reached stable status
+   in March 2009.
 
    The goal of this plugin is to implement SEO in MyBB according to the
-   guidelines presented in that document, to make MyBB more friendly to
-   both users and search engines.
+   guidelines presented in Google's SEO starter guide, to make MyBB more
+   friendly to both users and search engines.
 
    This plugin requires Apache with mod_rewrite, MySQL, PHP with mbstring,
-   and MyBB 1.4. MySQL 5, PHP 5 is highly recommended. Unfortunately, some
-   core files have to be modified for the plugin to work.
+   and MyBB 1.4. MySQL 5, PHP 5 is highly recommended. Unfortunately, one
+   core file has to be modified to make SEO URLs work.
 
    This plugin is free open source software (GPL). This means that you can
    download the plugin for free, modify it to your liking, and you do not
@@ -56,7 +53,7 @@
 
    - Google SEO Sitemap:
      * dynamic generation of XML Sitemaps
-     * lets search engines find your content without crawling
+     * search engines find your content without crawling
 
    - Google SEO URL:
      * replace standard id based URLs (e.g. showthread.php?tid=12345)
@@ -71,9 +68,15 @@
    Upload google_seo.php, google_seo.txt and the google_seo folder
    to inc/plugins of your MyBB installation.
 
-   You can then install and activate the plugin in your Admin CP.
-   The plugin will display a status information on the plugins page.
-   You can enable Google SEO features in the Google SEO setting groups.
+   If you are a new user, you can then install and activate the plugin
+   in your Admin CP. If you are upgrading from an old version, do not
+   uninstall (Google SEO would lose its data and settings), instead just
+   deactivate and activate the plugin once.
+
+   The plugin will display a status information on the plugins page,
+   informing you about changes you have to make or potential problems.
+   You can enable Google SEO features in the Google SEO setting groups,
+   and then check if everything is all right on the plugins page.
 
    Several features require you to make changes to MyBB. The status
    information on the plugins page will notify you of these, once you
@@ -122,8 +125,8 @@
      You will also need modify inc/functions.php.
 
      For your convenience, the modified version of MyBB 1.4.4 functions.php
-     is included with this plugin. For other versions, please use the patch
-     or apply the following changes manually:
+     as well as a patch file which may also work for future versions is included
+     with this plugin. If you prefer, you can also apply the changes manually:
 
      Find:
        function get_profile_link($uid=0)
@@ -295,7 +298,7 @@
 
      Thread 3 collides with Thread 1 (both are called Unique), so the
      uniquifier is applied. This results in Unique-3. However, there
-     already happens to be a thread called Unique 3. Doesn't work.
+     already happens to be a thread called Unique-3. Doesn't work.
 
      With the new uniquifier {$url}{$separator}{$separator}{$id},
      the uniquified URL will be Thread-Unique--3. Because the id is
@@ -305,7 +308,7 @@
 
      If you use a custom uniquifier, make sure it fulfills the two
      criteria listed above. Be aware that special punctuation characters
-     like : or @ or / or space can break your URLs.
+     like :@/?& or space can break your URLs.
 
    robots.txt:
 
@@ -316,24 +319,19 @@
      for search engines (rating threads, sending private messages, ...).
 
      This plugin comes with a robots.txt.example file that you can adapt
-     to your needs. You will have to modify this file before using it if
-     your board does not reside in the root directory of your (sub)domain.
+     to your needs. You will have to modify this file before using it.
 
    Title tags:
 
      Make sure that your template gives a unique title to each page.
-     MyBB does this well by default, except for forum display pages.
 
-     In Admin CP -> Templates & Style -> Templates, open the 'forumdisplay'
-     template and find this line:
+     Search for '<title>{$mybb->settings['bbname']} -' in your templates.
 
-       <title>{$mybb->settings['bbname']} - {$foruminfo['name']}</title>
+     In all occurences, put the bbname last, for example:
 
-     Change it to:
+       <title>{$foobar} - {$mybb->settings['bbname']}</title>
 
-       <title>{$foruminfo['name']} - {$mybb->settings['bbname']}</title>
-
-     Having the bbname in the title on every page is optional, if you
+     Having the bbname in the title on every page is optional. If you
      have a properly named domain you can even leave it out entirely.
      If you decide to keep it, make sure that your template puts it as
      last element in every page title.

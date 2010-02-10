@@ -33,6 +33,9 @@ $plugins->add_hook("error", "google_seo_404");
 // Custom 404 error page:
 $plugins->add_hook("misc_start", "google_seo_404_page");
 
+// WOL extension for custom page:
+$plugins->add_hook("build_friendly_wol_location_end", "google_seo_404_wol");
+
 /* --- 404 error handling: --- */
 
 /**
@@ -74,18 +77,53 @@ function google_seo_404($error)
 
 /* ---  Custom 404 error page --- */
 
-
 /**
  * Create a custom 404 error page for errors that occur outside of MyBB.
  *
  */
 function google_seo_404_page()
 {
-    global $mybb;
+    global $mybb, $db, $session;
 
     if($mybb->input['google_seo_error'] == 404)
     {
+        if($mybb->user['uid'] == 0 && $mybb->settings['google_seo_404_wol_hide'])
+        {
+            // Hide this guest by removing his session.
+            $db->delete_query("sessions", "sid='".$session->sid."'");
+        }
+
         error("404 Not Found");
+    }
+}
+
+/* --- WOL --- */
+
+/**
+ * Extend WOL for users on the 404 page.
+ *
+ */
+function google_seo_404_wol($plugin_array)
+{
+    global $user, $settings;
+
+    // Check if this user is on a 404 page.
+    if(strstr($plugin_array['user_activity']['location'], "google_seo_error") !== false)
+    {
+        $plugin_array['user_activity']['activity'] = 'google_seo_404';
+        $location = $plugin_array['user_activity']['location'];
+        $location = str_replace("&amp;", "&", $location); // MyBB 1.4.4 Bug workaround
+        $location_name = $settings['google_seo_404_wol'];
+        $location_name = str_replace("[location]", "<a href=\"$location\">", $location_name);
+        $location_name = str_replace("[/location]", "</a>", $location_name);
+
+        // Hide guests on 404 pages
+        if($settings['google_seo_404_wol_hide'] && $user['uid'] == 0)
+        {
+            $user['invisible'] = 1;
+        }
+
+        $plugin_array['location_name'] = $location_name;
     }
 }
 

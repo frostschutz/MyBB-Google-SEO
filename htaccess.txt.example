@@ -22,6 +22,10 @@ Options -MultiViews +FollowSymlinks -Indexes
 #
 <IfModule mod_rewrite.c>
 	RewriteEngine on
+
+	# As first rewrite rule, Google SEO workaround for search.php highlights:
+	RewriteRule ^([^&]*)&(.*)$ http://localhost/MyBB/$1?$2 [R=301,QSA]
+
 	RewriteRule ^forum-([0-9]+).html forumdisplay.php?fid=$1 [L,QSA]
 	RewriteRule ^forum-([0-9]+)-page-([0-9]+).html forumdisplay.php?fid=$1&page=$2 [L,QSA]
 
@@ -47,18 +51,16 @@ Options -MultiViews +FollowSymlinks -Indexes
 
 	RewriteRule ^event-([0-9]+).html calendar.php?action=event&eid=$1 [L,QSA]
 
-        # Google SEO URL begin
+        # Google SEO URL:
         RewriteRule ^Forum-([^./]+)$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
         RewriteRule ^Thread-([^./]+)$ showthread.php?google_seo_thread=$1 [L,QSA,NC]
         RewriteRule ^Announcement-([^./]+)$ announcements.php?google_seo_announcement=$1 [L,QSA,NC]
         RewriteRule ^User-([^./]+)$ member.php?action=profile&google_seo_user=$1 [L,QSA,NC]
         RewriteRule ^Calendar-([^./]+)$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
         RewriteRule ^Event-([^./]+)$ calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]
-        # Google SEO URL end
 
-        # Google SEO Sitemap begin
+        # Google SEO Sitemap:
         RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
-        # Google SEO Sitemap end
 
 	<IfModule mod_env.c>
 		SetEnv SEO_SUPPORT 1
@@ -74,6 +76,5 @@ Options -MultiViews +FollowSymlinks -Indexes
 	AddOutputFilterByType DEFLATE application/x-javascript text/css text/html text/xml
 </IfModule>
 
-# Google SEO 404 begin
+# Google SEO 404:
 ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
-# Google SEO 404 end

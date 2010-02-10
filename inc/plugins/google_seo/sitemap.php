@@ -30,6 +30,9 @@ if(!defined("IN_MYBB"))
 // Hijack misc.php for XML Sitemap output.
 $plugins->add_hook("misc_start", "google_seo_sitemap_hook");
 
+// WOL extension for custom page:
+$plugins->add_hook("build_friendly_wol_location_end", "google_seo_sitemap_wol");
+
 /* --- Sitemap: --- */
 
 
@@ -128,6 +131,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'fid';
             $datename = 'lastpost';
             $getlink = 'get_forum_link';
+            // Additional permission check.
+            $unviewableforums = get_unviewable_forums();
+            if($unviewableforums)
+            {
+                $condition = "WHERE fid NOT IN ($unviewableforums)";
+            }
             break;
 
         case "threads":
@@ -136,6 +145,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $datename = 'dateline';
             $getlink = 'get_thread_link';
             $condition = "WHERE visible>0 AND closed NOT LIKE 'moved|%'";
+            // Additional permission check.
+            $unviewableforums = get_unviewable_forums(true);
+            if($unviewableforums)
+            {
+                $condition .= " AND fid NOT IN ($unviewableforums)";
+            }
             break;
 
         case "users":
@@ -150,6 +165,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'aid';
             $datename = 'startdate';
             $getlink = 'get_announcement_link';
+            // Additional permission check.
+            $unviewableforums = get_unviewable_forums(true);
+            if($unviewableforums)
+            {
+                $condition = "WHERE fid NOT IN ($unviewableforums)";
+            }
             break;
 
         case "calendars":
@@ -247,6 +268,11 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         $google_seo_url_optimize[$type][$id] = 0;
     }
 
+    if(!sizeof($ids))
+    {
+        error("Sitemap empty or invalid page.");
+    }
+
     foreach($ids as $id)
     {
         $item = array();
@@ -258,11 +284,6 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         }
 
         $items[] = $item;
-    }
-
-    if(!sizeof($items))
-    {
-        error("Sitemap empty or invalid page.");
     }
 
     google_seo_sitemap("url", $items);
@@ -378,7 +399,7 @@ function google_seo_sitemap_hook()
 
     else if(!$page)
     {
-        error("Sitemap invalid page.");
+        error("Sitemap page invalid.");
     }
 
     else
@@ -387,6 +408,29 @@ function google_seo_sitemap_hook()
     }
 
     exit;
+}
+
+/* --- WOL --- */
+
+/**
+ * Extend WOL for users on the Sitemap page.
+ *
+ */
+function google_seo_sitemap_wol($plugin_array)
+{
+    global $user, $settings;
+
+    // Check if this user is on a sitemap page.
+    if(strstr($plugin_array['user_activity']['location'], "google_seo_sitemap") !== false)
+    {
+        $plugin_array['user_activity']['activity'] = 'google_seo_sitemap';
+        $location = $plugin_array['user_activity']['location'];
+        $location = str_replace("&amp;", "&", $location); // MyBB 1.4.4 Bug workaround
+        $location_name = $settings['google_seo_sitemap_wol'];
+        $location_name = str_replace("[location]", "<a href=\"$location\">", $location_name);
+        $location_name = str_replace("[/location]", "</a>", $location_name);
+        $plugin_array['location_name'] = $location_name;
+    }
 }
 
 /* --- End of file. --- */

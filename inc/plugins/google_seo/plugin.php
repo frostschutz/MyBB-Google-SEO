@@ -37,11 +37,13 @@ function google_seo_plugin_info()
     global $settings, $plugins_cache;
 
     $info = array(
-        "name"          => "Google SEO <b>BETA</b>",
-        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.<br><b>This plugin is still in beta stage. Use at your own risk only!</b>",
+        "name"          => "Google SEO",
+        "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.8",
+        "version"       => "1.0.0",
+        "guid"          => "8d12371391e1c95392dd567617e40f7f",
+        "compatibility" => "14*",
     );
 
 
@@ -136,7 +138,8 @@ function google_seo_plugin_status()
     {
         $success[] = 'Sitemap is enabled.';
         $htaccess[] = array($settings['google_seo_sitemap_url'],
-                            'misc.php?google_seo_sitemap=$1 [L,QSA,NC]');
+                            'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
+                            'Google SEO Sitemap');
     }
 
     else
@@ -157,18 +160,47 @@ function google_seo_plugin_status()
             $warning[] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
         }
 
-        $htaccess[] = array($settings['google_seo_url_forums'],
-                            'forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]');
-        $htaccess[] = array($settings['google_seo_url_threads'],
-                            'showthread.php?google_seo_thread=$1 [L,QSA,NC]');
-        $htaccess[] = array($settings['google_seo_url_announcements'],
-                            'announcements.php?google_seo_announcement=$1 [L,QSA,NC]');
-        $htaccess[] = array($settings['google_seo_url_users'],
-                            'member.php?action=profile&google_seo_user=$1 [L,QSA,NC]');
-        $htaccess[] = array($settings['google_seo_url_calendars'],
-                            'calendar.php?google_seo_calendar=$1 [L,QSA,NC]');
-        $htaccess[] = array($settings['google_seo_url_events'],
-                            'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]');
+        if($settings['google_seo_url_forums'])
+        {
+            $htaccess[] = array($settings['google_seo_url_forums'],
+                                'forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]',
+                                'Google SEO URL Forums');
+        }
+
+        if($settings['google_seo_url_threads'])
+        {
+            $htaccess[] = array($settings['google_seo_url_threads'],
+                                'showthread.php?google_seo_thread=$1 [L,QSA,NC]',
+                                'Google SEO URL Threads');
+        }
+
+        if($settings['google_seo_url_announcements'])
+        {
+            $htaccess[] = array($settings['google_seo_url_announcements'],
+                                'announcements.php?google_seo_announcement=$1 [L,QSA,NC]',
+                                'Google SEO URL Announcements');
+        }
+
+        if($settings['google_seo_url_users'])
+        {
+            $htaccess[] = array($settings['google_seo_url_users'],
+                                'member.php?action=profile&google_seo_user=$1 [L,QSA,NC]',
+                                'Google SEO URL Users');
+        }
+
+        if($settings['google_seo_url_calendars'])
+        {
+            $htaccess[] = array($settings['google_seo_url_calendars'],
+                                'calendar.php?google_seo_calendar=$1 [L,QSA,NC]',
+                                'Google SEO URL Calendars');
+        }
+
+        if($settings['google_seo_url_events'])
+        {
+            $htaccess[] = array($settings['google_seo_url_events'],
+                                'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]',
+                                'Google SEO URL Events');
+        }
     }
 
     else
@@ -181,7 +213,9 @@ function google_seo_plugin_status()
     {
         $url = $settings['bburl'];
         $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
-        $htaccess[] = array(0, 0, "ErrorDocument 404 $url/misc.php?google_seo_error=404");
+        $htaccess[] = array("ErrorDocument 404 $url/misc.php?google_seo_error=404",
+                            0,
+                            'Google SEO 404');
     }
 
     if(count($htaccess))
@@ -195,26 +229,28 @@ function google_seo_plugin_status()
 
         foreach($htaccess as $v)
         {
-            if($v[0])
+            if($v[1])
             {
                 $rewrite = 1;
                 $rule = preg_quote($v[0]);
                 $rule = preg_replace('/\\\\{\\\\\\$url\\\\}/', '{$url}', $rule);
                 $url = "([^./]+)";
                 eval("\$rule = \"^{$rule}$\";");
+
+
                 $rule = "RewriteRule $rule {$v[1]}";
 
                 if(strstr($file, $rule) === false)
                 {
-                    $line = $rule;
+                    $line = "# {$v[2]}:\n{$rule}\n";
                 }
             }
 
-            else if($v[2])
+            else
             {
-                if(strstr($file, $v[2]) === false)
+                if(strstr($file, $v[0]) === false)
                 {
-                    $line = $v[2];
+                    $line = "# {$v[2]}:\n{$v[0]}\n";
                 }
             }
 
@@ -225,9 +261,20 @@ function google_seo_plugin_status()
             }
         }
 
+        // Special case: search.php workaround must be the first rewrite rule.
+        $workaround = 'RewriteRule ^([^&]*)&(.*)$ '.$mybb->settings['bburl'].'/$1?$2 [R=301,QSA]';
+        $pos = strstr($file, $workaround);
+
+        if($rewrite && ($pos === false || $pos != strstr($file, "RewriteRule")))
+        {
+            array_unshift($lines,
+                          "# As first rewrite rule, Google SEO workaround for search.php highlights:\n"
+                          .$workaround."\n");
+        }
+
         if($rewrite && strstr($file, "RewriteEngine on") === false)
         {
-            array_unshift($lines, "RewriteEngine on");
+            array_unshift($lines, "RewriteEngine on\n");
         }
 
         if(count($lines))
@@ -454,6 +501,16 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => "en",
                 ),
+            'google_seo_404_wol' => array(
+                'title' => "404 Who's Online",
+                'description' => "Define here how you want users on the 404 page to show up in the Who Is Online user list. Use [location]link[/location] to make a link to the location of the user.",
+                'optionscode' => "text",
+                'value' => 'Seeing an [location]Error Page[/location]'
+                ),
+            'google_seo_404_wol_hide' => array(
+                'title' => "Hide guests in 404 Who's Online",
+                'description' => "Say yes if you want to hide guests who are currently seeing a 404 page from the detailed Who's Online list. This is useful if you have a lot of guests (usually spambots) hitting 404 error pages on your site.",
+                ),
             )
         );
 
@@ -547,6 +604,12 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => "1000",
                 ),
+            'google_seo_sitemap_wol' => array(
+                'title' => "XML Sitemap Who's Online",
+                'description' => "Define here how you want users (usually search engines) on the XML Sitemap to show up in the Who's Online list. Use [location]link[/location] to make a link to the location of the user.",
+                'optionscode' => 'text',
+                'value' => 'Fetching the [location]XML Sitemap[/location]'
+                ),
             )
         );
 
@@ -633,6 +696,10 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
                 'value' => 'Event-{$url}',
+                ),
+            'google_seo_url_wol' => array(
+                'title' => "Who's Online Google SEO URL",
+                'description' => "If you want a link to the specific forum or thread a user is reading on the Who's Online list while using Google SEO URLs, say yes here. This will cause several additional SQL queries on the Who's Online page.",
                 ),
             )
         );
