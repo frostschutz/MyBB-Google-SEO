@@ -33,6 +33,7 @@ $plugins->add_hook("global_start", "google_seo_url_hook", 1);
 /* --- Global Variables: --- */
 
 // Required for database queries to the google_seo table.
+// Do not change.
 global $google_seo_url_idtype;
 
 $google_seo_url_idtype = array(
@@ -43,6 +44,8 @@ $google_seo_url_idtype = array(
     "events" => 5,
     "calendars" => 6,
     );
+
+// There are several more global variables defined in functions below.
 
 /* --- URL processing: --- */
 
@@ -110,6 +113,7 @@ function google_seo_url_separate($str)
     if($pattern)
     {
         // Escape the pattern.
+        // (preg_quote breaks UTF-8 and doesn't escape -)
         $pattern = preg_replace("/[\\\\\\^\\-\\[\\]\\/]/u",
                                 "\\\\\\0",
                                 $pattern);
@@ -217,11 +221,6 @@ function google_seo_url_finalize($url, $scheme)
     }
 
     $url = rawurlencode($url);
-
-    if($settings['google_seo_url_slash'])
-    {
-        $url = str_replace("%2F", "/", $url);
-    }
 
     return $url;
 }

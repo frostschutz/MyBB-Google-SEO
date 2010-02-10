@@ -31,7 +31,10 @@ if(!defined("IN_MYBB"))
  * MyBB does not set up mb charset in global_start hook.
  * So we have to do it ourselves.
  */
-mb_internal_encoding("UTF-8");
+if(function_exists("mb_internal_encoding"))
+{
+    mb_internal_encoding("UTF-8");
+}
 
 /* --- Plugin API: --- */
 

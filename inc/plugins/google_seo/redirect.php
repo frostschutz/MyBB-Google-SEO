@@ -223,7 +223,7 @@ function google_seo_redirect_hook()
             }
 
             // Query
-            parse_str($target_parse[1], &$query_target);
+            parse_str(htmlspecialchars_decode($target_parse[1]), &$query_target);
             parse_str($current_parse[1], &$query_current);
 
             $query = array_merge($query_current, $mybb->input);

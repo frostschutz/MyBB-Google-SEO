@@ -41,7 +41,7 @@ function google_seo_plugin_info()
         "description"   => "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"{$settings['bburl']}/inc/plugins/google_seo.txt\">documentation</a> for details.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.0.3",
+        "version"       => "1.0.4",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -186,11 +186,6 @@ function google_seo_plugin_status()
                                 'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]',
                                 'Google SEO URL Events');
         }
-
-        if($settings['google_seo_url_slash'])
-        {
-            $headerinclude["<base href=\"{\$settings['bburl']}/\" />"] = array();
-        }
     }
 
     else
@@ -296,10 +291,10 @@ function google_seo_plugin_status()
             array_unshift($lines, "RewriteEngine on\n");
         }
 
-        // Check if SEO_SUPPORT is set at all:
-        if($rewrite && $_SERVER['SEO_SUPPORT'] != 1)
+        // Check if mbstring is available:
+        if($rewrite && !function_exists("mb_internal_encoding"))
         {
-            $warning[] = "SEO_SUPPORT is not set. If your host does not support mod_rewrite, SEO URLs won't work.";
+            $warning[] = "Your host does not seem to support mbstring. This may cause problems with UTF-8 in URLs.";
         }
 
         if(count($lines))
@@ -730,10 +725,6 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
                 'value' => 'Event-{$url}',
-                ),
-            'google_seo_url_slash' => array(
-                'title' => "Support fake directory structure in URLs",
-                'description' => "MyBB does not support subdirectories, so using the slash '/' character in URLs is not recommended. If however you want to be able to use slashes in URLs anyway, say yes here, add &lt;base href=&quot;{\$settings['bburl']}/&quot; /&gt; to your headerinclude template, and adapt your URL scheme settings and .htaccess rules accordingly.",
                 ),
             )
         );
