@@ -1,0 +1,9 @@
+In order to update this plugin,
+
+- deactivate the plugin (do not uninstall)
+- upload the new files
+- activate the plugin
+
+Your settings and data will be kept as long as you don't uninstall.
+
+If the update added any new settings, you can find them in Configuration.

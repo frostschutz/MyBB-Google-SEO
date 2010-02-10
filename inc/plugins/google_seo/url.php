@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Google SEO plugin for MyBB.
- * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
+ * Copyright (C) 2008, 2009, 2010 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -966,6 +966,8 @@ function google_seo_url_hook()
     // Update translated location in the sessions table.
     if($updatesession)
     {
+        $updatesession = array_map(array($db, 'escape_string'), $updatesession);
+
         $db->update_query('sessions', $updatesession,
                           "sid='".$db->escape_string($session->sid)."'");
     }

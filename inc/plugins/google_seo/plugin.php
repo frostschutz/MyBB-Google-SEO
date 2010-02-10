@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Google SEO plugin for MyBB.
- * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
+ * Copyright (C) 2008, 2009, 2010 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ function google_seo_plugin_info()
         "description"   => $lang->googleseo_plugin_description,
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.1.9",
+        "version"       => "1.1.10",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -346,9 +346,9 @@ function google_seo_plugin_settings($name, $title, $description, $list)
                          FROM ".TABLE_PREFIX."settinggroups");
     $row = $db->fetch_array($query);
 
-    $group = array('name' => "$name",
-                   'title' => $title,
-                   'description' => $description,
+    $group = array('name' => $name,
+                   'title' => $db->escape_string($title),
+                   'description' => $db->escape_string($description),
                    'disporder' => $row['disporder']+1);
 
     if(defined("GOOGLESEO_GENERATE_LANG"))
@@ -397,10 +397,7 @@ function google_seo_plugin_settings($name, $title, $description, $list)
         }
 
         // Set default values for value:
-        foreach($value as $a => $b)
-        {
-            $value[$a] = $db->escape_string($b);
-        }
+        $value = array_map(array($db, 'escape_string'), $value);
 
         $disporder += 1;
 

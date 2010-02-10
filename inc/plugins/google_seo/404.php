@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Google SEO plugin for MyBB.
- * Copyright (C) 2008, 2009 Andreas Klauer <Andreas.Klauer@metamorpher.de>
+ * Copyright (C) 2008, 2009, 2010 Andreas Klauer <Andreas.Klauer@metamorpher.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ function google_seo_404($error)
  */
 function google_seo_404_page()
 {
-    global $lang, $mybb, $db, $session;
+    global $lang, $mybb, $session;
 
     if($mybb->input['google_seo_error'] == 404)
     {
