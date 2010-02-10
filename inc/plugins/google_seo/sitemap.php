@@ -337,6 +337,10 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                 $item['lastmod'] = $dates[$id];
             }
 
+            // Give pages of items a lower priority.
+            // TODO: Temporary solution until I make this a setting.
+            $item['priority'] = '0.2';
+
             $items[] = $item;
         }
     }

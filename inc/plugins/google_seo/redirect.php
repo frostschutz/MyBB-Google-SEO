@@ -315,7 +315,8 @@ function google_seo_redirect_hook()
                    THIS_SCRIPT != "member.php")
                 {
                     // Leave permission checks to the current page.
-                    // Issue the redirect in a later hook.
+
+                    // Add hooks to issue redirect later on.
                     $plugins->add_hook("forumdisplay_end", "google_seo_redirect_header", 2);
                     $plugins->add_hook("postbit", "google_seo_redirect_header", 2);
                     $plugins->add_hook("postbit_announcement", "google_seo_redirect_header", 2);
@@ -336,18 +337,26 @@ function google_seo_redirect_header()
 {
     global $plugins, $google_seo_redirect;
 
+    // Issue the redirect.
     header("Location: $google_seo_redirect", true, 301);
 
     // Only exit if the headers haven't been sent yet.
     // (i.e. if the headers will be sent on exit).
     if(!headers_sent())
     {
+        // Hack to prevent any unnecessary queries.
+        // (Fixes thread views increase by 2 on redirect issue.)
+        global $shutdown_queries;
+        $shutdown_queries = array();
+
+        // Exit here, see you at the redirect target.
         exit;
     }
 
     // Otherwise let the page load normally, but the above
     // call to header will also display a warning message.
 
+    // Remove hooks to prevent getting called again.
     $plugins->remove_hook("forumdisplay_end", "google_seo_redirect_header", "", 2);
     $plugins->remove_hook("postbit", "google_seo_redirect_header", "", 2);
     $plugins->remove_hook("postbit_announcement", "google_seo_redirect_header", "", 2);

@@ -20,4 +20,7 @@ Disallow: /MyBB/usercp.php
 Disallow: /MyBB/usercp2.php
 Disallow: /MyBB/calendar.php
 Disallow: /MyBB/*action=emailuser*
+Disallow: /MyBB/*action=nextnewest*
+Disallow: /MyBB/*action=nextoldest*
+Disallow: /MyBB/archive/
 Allow: /

@@ -29,11 +29,10 @@ if(!defined("IN_MYBB"))
 
 /*
  * Unfortunately global.php sets mb_internal_encoding only after running
- * the global_start hook (or maybe even not at all). We need it set in
- * the global_start hook however, so we do it ourselves.
+ * the global_start hook (or maybe even not at all). We need it set it,
+ * so we do it ourselves.
  */
 
-// code taken from global.php
 if(function_exists('mb_internal_encoding'))
 {
     @mb_internal_encoding('UTF-8');
@@ -44,19 +43,24 @@ if(function_exists('mb_internal_encoding'))
  *
  */
 
-global $lang, $plugins;
+global $plugins;
 
-$lang->load("googleseo");
+$plugins->add_hook("global_start", "google_seo_lang");
+
+function google_seo_lang()
+{
+    global $lang;
+    $lang->load("googleseo");
+}
 
 if(defined("IN_ADMINCP"))
 {
-    $plugins->add_hook("admin_load", "google_seo_admin_load");
+    $plugins->add_hook("admin_config_settings_begin", "google_seo_lang_settings");
 
-    function google_seo_admin_load()
+    function google_seo_lang_settings()
     {
         global $lang;
         $lang->load("googleseo_settings");
-        $lang->load("googleseo_plugin");
     }
 }
 

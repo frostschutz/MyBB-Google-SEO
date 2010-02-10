@@ -47,7 +47,7 @@ function google_seo_plugin_info()
         "description"   => $lang->googleseo_plugin_description,
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.1.0",
+        "version"       => "1.1.1",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "14*",
     );
@@ -279,7 +279,7 @@ function google_seo_plugin_status()
 
         if($rewrite && ($pos === false || $pos != strstr($file, "RewriteRule")))
         {
-            array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n{$workaround}\n");
+            array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n# {$lang->googleseo_plugin_htaccess_search_first}\n{$workaround}\n");
         }
 
         if($rewrite && strstr($file, "RewriteEngine on") === false)
