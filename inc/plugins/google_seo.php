@@ -26,7 +26,7 @@
  * of problems like high server load, stability problems, and data loss.
  *
  * You are welcome to test this plugin and report any bugs and issues.
- * It is NOT RECOMMENDED to use this plugin in a production forum.
+ * It is NOT RECOMMENDED to use this plugin in a production forum yet.
  *
  * INSTALLATION INSTRUCTIONS
  *
@@ -117,7 +117,8 @@ if(!defined("IN_MYBB"))
 // We have to use global_start, because not every subpage
 // has a start hook we can use (member.php, calendar.php, ...).
 // And anyway, better to set parameters correctly or redirect asap.
-$plugins->add_hook("global_start", "mybb_seo_global_start");
+$plugins->add_hook("global_start", "google_seo_global_start");
+$plugins->add_hook("error", "google_seo_error");
 
 /* --- Cache: --- */
 
@@ -136,6 +137,43 @@ if(!$google_seo_cache)
     );
 }
 
+/* --- Debug: --- */
+
+define("GOOGLE_SEO_DEBUG", 1);
+
+global $google_seo_debug_str;
+
+if(defined("GOOGLE_SEO_DEBUG"))
+{
+    $plugins->add_hook("pre_output_page", "google_seo_pre_output_page");
+
+    function google_seo_debug($desc, $arg=false, $now=false)
+    {
+        global $google_seo_debug_str;
+
+        $str = "<blockquote style=\"text-align: left\">"
+            ."<h4>$desc</h4><pre>"
+            .print_r($arg, true)
+            ."</pre></blockquote>";
+
+        if($now) echo $str;
+
+        else $google_seo_debug_str .= $str;
+    }
+
+    function google_seo_pre_output_page($contents)
+    {
+        global $google_seo_debug_str;
+
+        return $google_seo_debug_str.$contents;
+    }
+}
+
+else
+{
+    function google_seo_debug($desc, $arg) {}
+}
+
 /* --- Module initialization: --- */
 
 // The information that shows up on the plugin manager
@@ -146,7 +184,7 @@ function google_seo_info()
         "description"   => "Search engine optimization as described in Google's SEO starter guide.",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "0.1",
+        "version"       => "0.2",
     );
 }
 
@@ -233,7 +271,7 @@ function google_seo_activate()
                                 "description" => "When set to YES, the Google SEO URLs are verified every time a link is made to them, so it catches name / title changes of forums, threads, users etc. as early as possible. When you set this to NO, lazy verification will be used instead (the URL will be updated once the page gets actually accessed). Verification will cost you several additional SQL queries per page view, and it\'s not really necessary as the next time Google crawls your page it will verify everything anyway. However if you\'re not concerned about load or your users complain about not up to date links, set this to YES.",
                                 "optionscode" => "yesno",
                                 "value" => 0,
-                                "disporder" => 2,
+                                "disporder" => 4,
                                 "gid" => $gid));
     }
 
@@ -252,7 +290,7 @@ function google_seo_activate()
                                 "description" => "Google SEO URLs are case insensitive (the user gets redirected to the correct page when he confuses upper and lower case), so it\'s fine to keep the original uppercase letters (as they make a difference in many languages). If however for some reason you prefer lower case URLs, you can set this to YES. This will not affect the way URLs are stored in the database so you can go back to the original case letters any time. Please note that if you set this to YES, you will also have to make sure that your forum URL, as well as Google SEO prefixes, postfixes, and stinky fish are all lowercase too.",
                                 "optionscode" => "yesno",
                                 "value" => 0,
-                                "disporder" => 3,
+                                "disporder" => 5,
                                 "gid" => $gid));
     }
 
@@ -271,7 +309,7 @@ function google_seo_activate()
                                 "description" => "Enter the separator that should be used to separate words in the URLs. By default this is <i>-</i> which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like : or @ or / or space could render your URLs unuseable or hard to work with.",
                                 "optionscode" => "text",
                                 "value" => "-",
-                                "disporder" => 4,
+                                "disporder" => 6,
                                 "gid" => $gid));
     }
 
@@ -286,10 +324,10 @@ function google_seo_activate()
                           array("sid" => "NULL",
                                 "name" => "google_seo_punctuation",
                                 "title" => "Punctuation characters",
-                                "description" => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters <i>!&quot;#\$%&amp;\\'(&nbsp;)*+,-./:;&lt;=&gt;?@[\\\\]^_\\`{|}~</i> (including space). If you are running an international forum with non-ascii script, you should may want to add characters of those scripts here, for example Japanese <i>。、「　」：？！</i>.",
+                                "description" => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters <i>!&quot;#\$%&amp;\\'(&nbsp;)*+,-./:;&lt;=&gt;?@[\\\\]^_\\`{|}~</i> (including space). If you are running an international forum with non-ascii script, you might want to add characters of those scripts here, for example Japanese <i>。、「　」：？！</i>.",
                                 "optionscode" => "text",
                                 "value" => "!\"#\$%&\\'( )*+,-./:;<=>?@[\\\\]^_\\`{|}~",
-                                "disporder" => 5,
+                                "disporder" => 7,
                                 "gid" => $gid));
     }
 
@@ -309,7 +347,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for Forum URLs. By default this is <i>Forum-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "Forum-",
-                                "disporder" => 6,
+                                "disporder" => 8,
                                 "gid" => $gid));
     }
 
@@ -328,7 +366,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for Thread URLs. By default this is <i>Thread-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "Thread-",
-                                "disporder" => 7,
+                                "disporder" => 9,
                                 "gid" => $gid));
     }
 
@@ -347,7 +385,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for Announcement URLs. By default this is <i>Announcement-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "Announcement-",
-                                "disporder" => 8,
+                                "disporder" => 10,
                                 "gid" => $gid));
     }
 
@@ -364,7 +402,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for User URLs. By default this is <i>User-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "User-",
-                                "disporder" => 9,
+                                "disporder" => 11,
                                 "gid" => $gid));
     }
 
@@ -381,7 +419,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for Calendar URLs. By default this is <i>Calendar-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "Calendar-",
-                                "disporder" => 10,
+                                "disporder" => 12,
                                 "gid" => $gid));
     }
 
@@ -400,7 +438,7 @@ function google_seo_activate()
                                 "description" => "Enter the prefix that should be used for Event URLs. By default this is <i>Event-</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "Event-",
-                                "disporder" => 11,
+                                "disporder" => 13,
                                 "gid" => $gid));
     }
 
@@ -419,7 +457,7 @@ function google_seo_activate()
                                 "description" => "Enter the postfix that should be used for all URLs. By default this is empty. If you absolutely want your URLs to end with .html, you could put <i>.html</i> here. However, this will clash with stock MyBB SEO URLs and you will also need to add new rewrite rules in your .htaccess file.",
                                 "optionscode" => "text",
                                 "value" => "",
-                                "disporder" => 12,
+                                "disporder" => 14,
                                 "gid" => $gid));
     }
 
@@ -438,7 +476,26 @@ function google_seo_activate()
                                 "description" => "Google SEO tries to make URLs that do not contain hard to remember ID numbers. However at the same time, URLs <i>must be unique</i>. For the case where the URL cannot be unique (such as two forum threads with the same title) or would be empty (user name that is made up of punctuation only), the URL has to be forced unique. In that case, a <i>stinky fish</i> string is appended to make the URL unique. By default this is url-(id). The string has to contain a punctuation character that could otherwise not be in the URL (to differentiate between \'Hello\' with id 1234 and a thread that is actually named \'Hello-1234\'), as well as the id itself. You can put in any PHP code you like here, as long as it gives a unique string that does not break your .htacess rewrite rules.",
                                 "optionscode" => "text",
                                 "value" => '"{$url}-({$id})"',
-                                "disporder" => 13,
+                                "disporder" => 15,
+                                "gid" => $gid));
+    }
+
+    // Create 404 error setting if it does not exist.
+    $query = $db->query("SELECT sid FROM ".TABLE_PREFIX."settings
+                         WHERE gid='$gid'
+                         AND name='google_seo_404error'");
+
+    if($db->num_rows($query) == 0)
+    {
+        // It does not exist, create it.
+        $db->insert_query("settings",
+                          array("sid" => "NULL",
+                                "name" => "google_seo_404error",
+                                "title" => "404 error",
+                                "description" => "When set to YES, send a HTTP 404 error response header for invalid thread / forum / etc error pages. When set to NO, stick with MyBB default behaviour.",
+                                "optionscode" => "yesno",
+                                "value" => 0,
+                                "disporder" => 16,
                                 "gid" => $gid));
     }
 
@@ -459,6 +516,8 @@ function google_seo_install()
     global $db;
 
     // Create the Google SEO tables.
+    $collation = $db->build_create_table_collation();
+
     if(!$db->table_exists("google_seo_forums"))
     {
         $db->write_query("CREATE TABLE ".TABLE_PREFIX."google_seo_forums(
@@ -466,7 +525,7 @@ function google_seo_install()
                               fid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 
     if(!$db->table_exists("google_seo_threads"))
@@ -476,7 +535,7 @@ function google_seo_install()
                               tid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 
     if(!$db->table_exists("google_seo_announcements"))
@@ -486,7 +545,7 @@ function google_seo_install()
                               aid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 
     if(!$db->table_exists("google_seo_users"))
@@ -496,7 +555,7 @@ function google_seo_install()
                               uid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 
     if(!$db->table_exists("google_seo_calendars"))
@@ -506,7 +565,7 @@ function google_seo_install()
                               cid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 
     if(!$db->table_exists("google_seo_events"))
@@ -516,7 +575,7 @@ function google_seo_install()
                               eid int unsigned NOT NULL,
                               url varchar(120) UNIQUE NOT NULL,
                               PRIMARY KEY(rowid)
-                          )");
+                          ) TYPE=MyISAM{$collation};");
     }
 }
 
@@ -619,6 +678,12 @@ function google_seo_separate($str)
 function google_seo_unique($tablename, $idname, $id, $oldurl, $url)
 {
     global $db, $settings, $google_seo_cache;
+
+    if(!$id)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return '';
+    }
 
     if($oldurl && $oldurl == $url)
     {
@@ -723,10 +788,17 @@ function google_seo_update($tablename, $idname, $titlename, $id, $verify=0)
         $query = $db->query("SELECT $titlename FROM ".TABLE_PREFIX."$tablename
                              WHERE $idname='$id'
                              LIMIT 1");
+
         $title = $db->fetch_array($query);
+
+        if(!$title)
+        {
+            // Invalid id. This can happen when a user enters random URLs.
+            return;
+        }
+
         $title = $title[$titlename];
         $title = google_seo_separate($title);
-
         $url = google_seo_unique($tablename, $idname, $id, $url, $title);
     }
 
@@ -775,6 +847,12 @@ function google_seo_get_profile_link($uid=0)
     $url = google_seo_update("users", "uid", "username",
                              $uid, $settings['google_seo_verify']);
 
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
+
     $link = $settings['google_seo_prefix_user']
         . $url
         . $settings['google_seo_postfix'];
@@ -804,6 +882,12 @@ function google_seo_get_announcement_link($aid=0)
 
     $url = google_seo_update("announcements", "aid", "subject",
                              $aid, $settings['google_seo_verify']);
+
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
 
     $link = $settings['google_seo_prefix_announcement']
         . $url
@@ -835,6 +919,12 @@ function google_seo_get_forum_link($fid, $page=0)
 
     $url = google_seo_update("forums", "fid", "name",
                              $fid, $settings['google_seo_verify']);
+
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
 
     $link = $settings['google_seo_prefix_forum']
         . $url
@@ -870,6 +960,12 @@ function google_seo_get_thread_link($tid, $page=0, $action='')
 
     $url = google_seo_update("threads", "tid", "subject",
                              $tid, $settings['google_seo_verify']);
+
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
 
     $link = $settings['google_seo_prefix_thread']
         . $url
@@ -939,6 +1035,12 @@ function google_seo_get_post_link($pid, $tid=0)
     $url = google_seo_update("threads", "tid", "subject",
                              $tid, $settings['google_seo_verify']);
 
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
+
     $link = $settings['google_seo_prefix_thread']
         . $url
         . $settings['google_seo_postfix_thread']
@@ -970,6 +1072,12 @@ function google_seo_get_event_link($eid)
     $url = google_seo_update("events", "eid", "name",
                              $eid, $settings['google_seo_verify']);
 
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
+
     $link = $settings['google_seo_prefix_event']
         . $url
         . $settings['google_seo_postfix'];
@@ -999,6 +1107,12 @@ function google_seo_get_calendar_link($cid, $year=0, $month=0, $day=0)
 
     $url = google_seo_update("calendars", "cid", "name",
                              $cid, $settings['google_seo_verify']);
+
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
 
     $link = $settings['google_seo_prefix_calendar']
         . $url
@@ -1045,6 +1159,12 @@ function google_seo_get_calendar_week_link($cid, $week)
     $url = google_seo_update("calendars", "cid", "name",
                              $cid, $settings['google_seo_verify']);
 
+    if(!$url)
+    {
+        // Invalid id. This can happen when a user enters random URLs.
+        return;
+    }
+
     $link = $settings['google_seo_prefix_calendar']
         . $url
         . $settings['google_seo_postfix']
@@ -1087,8 +1207,37 @@ function google_seo_url_id($tablename, $idname, $url)
     return $id;
 }
 
+// Obtain the current URL.
+function google_seo_current_url()
+{
+    // Determine the current page URL.
+    if($_SERVER["HTTPS"] == "on")
+    {
+        $page_url = "https://".$_SERVER["SERVER_NAME"];
+
+        if($_SERVER["SERVER_PORT"] != "443")
+        {
+            $page_url .= ":".$_SERVER["SERVER_PORT"];
+        }
+    }
+
+    else
+    {
+        $page_url = "http://".$_SERVER["SERVER_NAME"];
+
+        if($_SERVER["SERVER_PORT"] != "80")
+        {
+            $page_url .= ":".$_SERVER["SERVER_PORT"];
+        }
+    }
+
+    $page_url .= $_SERVER["REQUEST_URI"];
+
+    return urldecode($page_url);
+}
+
 // Look up pages, verify and redirect if necessary.
-function mybb_seo_global_start()
+function google_seo_global_start()
 {
     global $db, $settings, $mybb;
 
@@ -1096,9 +1245,10 @@ function mybb_seo_global_start()
     switch(THIS_SCRIPT)
     {
         case 'forumdisplay.php':
+            // Translation.
             $url = $mybb->input['google_seo_forum'];
 
-            if($url)
+            if($url && !array_key_exists('fid', $mybb->input))
             {
                 $fid = google_seo_url_id("forums", "fid", $url);
                 $mybb->input['fid'] = $fid;
@@ -1116,9 +1266,10 @@ function mybb_seo_global_start()
             break;
 
         case 'showthread.php':
+            // Translation.
             $url = $mybb->input['google_seo_thread'];
 
-            if($url)
+            if($url && !array_key_exists('tid', $mybb->input))
             {
                 $tid = google_seo_url_id("threads", "tid", $url);
                 $mybb->input['tid'] = $tid;
@@ -1133,12 +1284,15 @@ function mybb_seo_global_start()
                                   $tid, 1);
             }
 
+            $pid = $mybb->input['pid'];
+
             break;
 
         case 'announcement.php':
+            // Translation.
             $url = $mybb->input['google_seo_announcement'];
 
-            if($url)
+            if($url && !array_key_exists('aid', $mybb->input))
             {
                 $aid = google_seo_url_id("announcements", "aid", $url);
                 $mybb->input['aid'] = $aid;
@@ -1156,9 +1310,10 @@ function mybb_seo_global_start()
             break;
 
         case 'member.php':
+            // Translation.
             $url = $mybb->input['google_seo_user'];
 
-            if($url)
+            if($url && !array_key_exists('uid', $mybb->input))
             {
                 $uid = google_seo_url_id("users", "uid", $url);
                 $mybb->input['uid'] = $uid;
@@ -1177,9 +1332,10 @@ function mybb_seo_global_start()
             break;
 
         case 'calendar.php':
+            // Translation.
             $url = $mybb->input['google_seo_event'];
 
-            if($url)
+            if($url && !array_key_exists('eid', $mybb->input))
             {
                 $eid = google_seo_url_id("events", "eid", $url);
                 $mybb->input['eid'] = $eid;
@@ -1198,7 +1354,7 @@ function mybb_seo_global_start()
             {
                 $url = $mybb->input['google_seo_calendar'];
 
-                if($url)
+                if($url && !array_key_exists('calendar', $mybb->input))
                 {
                     $cid = google_seo_url_id("calendars", "cid", $url);
                     $mybb->input['calendar'] = $cid;
@@ -1227,6 +1383,14 @@ function mybb_seo_global_start()
         if($fid)
         {
             $target = get_forum_link($fid, $mybb->input['page']);
+        }
+
+        else if($pid)
+        {
+            // Don't pass $tid here to verify that the thread was not split.
+            // Rare case and costs us a query but it's cool to be redirected
+            // from Thread-oldthreadname?pid=x to Thread-newthreadname?pid=x
+            $target = get_post_link($pid);
         }
 
         else if($tid)
@@ -1261,67 +1425,86 @@ function mybb_seo_global_start()
                 $target = get_calendar_link($cid, $mybb->input['year'], $mybb->input['month'], $mybb->input['day']);
             }
         }
+
+        if(isset($target) && !$target)
+        {
+            // Target was set to nothing.
+            google_seo_404();
+        }
     }
 
     if($target)
     {
-        $target = $settings['bburl'].'/'.$target;
+        $target_location = $settings['bburl'].'/'.$target;
+        $target = urldecode($target_location);
+        $current = google_seo_current_url();
 
-        $parse = parse_url(urldecode($target));
-
-        if(!$parse['port'])
+        // Case 1: identical. don't do anything.
+        if($target == $current)
         {
-            $parse['port'] = ($parse['scheme'] == "https" ? 443 : 80);
+            return;
         }
 
-        // PHP is stupid.
-        $server_request_uri = split('\\?', $_SERVER['REQUEST_URI'], 2);
-
-        $server = array(
-            "scheme" => ($_SERVER['HTTPS'] == "on" ? "https" : "http"),
-            "host" => urldecode($_SERVER['HTTP_HOST']
-                                ? $_SERVER['HTTP_HOST']
-                                : $_SERVER['SERVER_NAME']),
-            "port" => $_SERVER['SERVER_PORT'],
-            "path" => urldecode($server_request_uri[0])
-        );
-
-        // Redirect when the URLs don't match.
-        // This is dangerous so we prefer to be extra careful.
-        // Don't redirect if not quite sure about the location on both sides.
-        if(($server['scheme'] && $parse['scheme'] && $server['scheme'] != $parse['scheme'])
-           || ($server['host'] && $parse['host'] && $server['host'] != $parse['host'])
-           || ($server['port'] && $parse['port'] && $server['port'] != $parse['port'])
-           || ($server['path'] && $parse['path'] && $server['path'] != $parse['path']))
+        // parse_url unfortunately can make a mess out of UTF-8 on some hosts.
+        // So we split the query string by ourselves.
+        if(function_exists('mb_split'))
         {
-            // Redirect but retain query.
-            $query = array();
-            $querystr = array();
+            // MyBB unfortunately does not set up the encoding for us.
+            mb_internal_encoding('UTF-8');
+            mb_regex_encoding('UTF-8');
 
-            if($server_request_uri[1])
-            {
-                parse_str($server_request_uri[1], &$query);
-            }
-
-            if($parse['query'])
-            {
-                parse_str($parse['query'], &$query);
-            }
-
-            foreach($query as $k=>$v)
-            {
-                $querystr[] = "$k=$v";
-            }
-
-            if(sizeof($querystr))
-            {
-                $request_uri = split('\\?', $target, 2);
-                $target = $request_uri[0] . '?' . implode("&", $querystr);
-            }
-
-            header("Location: $target");
-            exit;
+            $target_location = mb_split("\\?", $target_location, 2);
+            $target_location = $target_location[0];
+            $target_parse = mb_split("\\?", $target, 2);
+            $current_parse = mb_split("\\?", $current, 2);
         }
+
+        else
+        {
+            // No multibyte support in this day and age? Good luck.
+            $target_location = split("\\?", $target_location, 2);
+            $target_location = $target_location[0];
+            $target_parse = split("\\?", $target, 2);
+            $current_parse = split("\\?", $current, 2);
+        }
+
+        // Case 2: identical except for query. don't do anything.
+        if($target_parse[0] == $current_parse[0])
+        {
+            return;
+        }
+
+        // Case 3: Different. Redirect but retain query.
+        $query = array();
+        parse_str($target_parse[1], &$query);
+        parse_str($current_parse[1], &$query);
+
+        foreach($query as $k=>$v)
+        {
+            $querystr[] = "$k=".urlencode($v);
+        }
+
+        if(sizeof($querystr))
+        {
+            $target_location .= "?" . implode("&", $querystr);
+        }
+
+        header("Location: $target_location", true, 301);
+        exit;
+    }
+}
+
+/* --- Error handling: --- */
+
+// Throw a 404 error if the user wants those.
+function google_seo_error($error)
+{
+    global $settings, $mybb;
+
+    if($settings['google_seo_404error']
+       && !$mybb->input['ajax'])
+    {
+        @header("HTTP/1.1 404 Not Found");
     }
 }
 
