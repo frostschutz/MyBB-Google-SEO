@@ -1,0 +1,35 @@
+A tutorial for getting rewrite rules (MyBB SEF style) work with lighttpd:
+
+    http://community.mybboard.net/thread-51759.html
+
+The same method can be applied for Google SEO rewrite rules, but you 
+have to create those rules manually. Google SEO can not detect that 
+you are not using Apache, and will only generate .htaccess rules.
+
+Here is an example of what lighttpd rules for Google SEO look like:
+
+url.redirect:
+	"^/MyBB/([^&?]*)&([^?]*)$" => "http://yourhost/MyBB/$1?$2",
+	"^/MyBB/([^&?]*)&([^?]*)\?(.*)$" => "http://yourhost/MyBB/$1?$2&$3",
+
+url.rewrite:
+	# Google SEO Sitemap:
+	"^/MyBB/((?i)sitemap-([^./?]+)\.xml)(\?(.*)|)$" => "/MyBB/misc.php?google_seo_sitemap=$2&$4",
+
+	# Google SEO URL Forums:
+	"^/MyBB/((?i)Forum-([^./?]+))(\?(.*)|)$" => "/MyBB/forumdisplay.php?google_seo_forum=$2&$4",
+
+	# Google SEO URL Threads:
+	"^/MyBB/((?i)Thread-([^./?]+))(\?(.*)|)$" => "/MyBB/showthread.php?google_seo_thread=$2&$4",
+
+	# Google SEO URL Announcements:
+	"^/MyBB/((?i)Announcement-([^./?]+))(\?(.*)|)$" => "/MyBB/announcements.php?google_seo_announcement=$2&$4",
+
+	# Google SEO URL Users:
+	"^/MyBB/((?i)User-([^./?]+))(\?(.*)|)$" => "/MyBB/member.php?action=profile&google_seo_user=$2&$4",
+
+	# Google SEO URL Calendars:
+	"^/MyBB/((?i)Calendar-([^./?]+))(\?(.*)|)$" => "/MyBB/calendar.php?google_seo_calendar=$2&$4",
+
+	# Google SEO URL Events:
+	"^/MyBB/((?i)Event-([^./?]+))(\?(.*)|)$" => "/MyBB/calendar.php?action=event&google_seo_event=$2&$4",

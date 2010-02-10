@@ -1,0 +1,34 @@
+A tutorial for getting rewrite rules (MyBB SEF style) work with nginx:
+
+    http://community.mybboard.net/thread-51764.html
+
+The same method can be applied for Google SEO rewrite rules, but you 
+have to create those rules manually. Google SEO can not detect that 
+you are not using Apache, and will only generate .htaccess rules.
+
+Here is an example of what nginx rules for Google SEO look like:
+
+  # Google SEO workaround for search.php highlights:
+  # Make this rule the first rewrite rule in your .htaccess!
+  rewrite ^/MyBB/([^&]*)&(.*)$ http://yourhost/MyBB/$1?$2 permanent;
+
+  # Google SEO Sitemap:
+  rewrite ^/MyBB/((?i)sitemap-([^./]+)\.xml)$ /MyBB/misc.php?google_seo_sitemap=$2;
+
+  # Google SEO URL Forums:
+  rewrite ^/MyBB/((?i)Forum-([^./]+))$ /MyBB/forumdisplay.php?google_seo_forum=$2;
+
+  # Google SEO URL Threads:
+  rewrite ^/MyBB/((?i)Thread-([^./]+))$ /MyBB/showthread.php?google_seo_thread=$2;
+
+  # Google SEO URL Announcements:
+  rewrite ^/MyBB/((?i)Announcement-([^./]+))$ /MyBB/announcements.php?google_seo_announcement=$2;
+
+  # Google SEO URL Users:
+  rewrite ^/MyBB/((?i)User-([^./]+))$ /MyBB/member.php?action=profile&google_seo_user=$2;
+
+  # Google SEO URL Calendars:
+  rewrite ^/MyBB/((?i)Calendar-([^./]+))$ /MyBB/calendar.php?google_seo_calendar=$2;
+
+  # Google SEO URL Events:
+  rewrite ^/MyBB/((?i)Event-([^./]+))$ /MyBB/calendar.php?action=event&google_seo_event=$2;

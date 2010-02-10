@@ -210,8 +210,8 @@ function google_seo_redirect_hook()
         if($current != $target)
         {
             // Parse current and target
-            $target_parse = split("\\?", $target, 2);
-            $current_parse = split("\\?", $current, 2);
+            $target_parse = explode("?", $target, 2);
+            $current_parse = explode("?", $current, 2);
 
             // Location
             $location_target = $target_parse[0];

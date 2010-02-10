@@ -67,18 +67,18 @@
 
 3. Installation instructions
 
-   Upload google_seo.php, google_seo.txt and the google_seo folder
-   to inc/plugins of your MyBB installation.
+   Upload the inc folder to your MyBB installation. It contains the plugin
+   and language files. For languages other than English you will also have 
+   to upload the language files to your own language dir.
 
    If you are a new user, you can then install and activate the plugin
    in your Admin CP. If you are upgrading from an old version, do not
    uninstall (Google SEO would lose its data and settings), instead just
    deactivate and activate the plugin once.
 
-   The plugin will display a status information on the plugins page,
-   informing you about changes you have to make or potential problems.
-   You can enable Google SEO features in the Google SEO setting groups,
-   and then check if everything is all right on the plugins page.
+   On the plugins page you will find a status information telling you which
+   portions of Google SEO are currently active. By default, all features
+   are disabled. Enable the features you want in the MyBB settings.
 
    Several features require you to make changes to MyBB. The status
    information on the plugins page will notify you of these, once you
@@ -431,14 +431,24 @@
    - functions.php.1.4.x-googleseo:
      Ready to use functions.php for MyBB 1.4.x
 
-   - functions.php.patch-googleseo:
-     Patch file that lists the changes made to functions.php.
+   - functions.php.patch-googleseo: (advanced users only)
+     For the use with GNU diff / patch utils on a Linux shell.
+     * apply: patch functions.php functions.php.patch-googleseo
+     * revert: patch -R functions.php functions.php.patch-googleseo
 
    - htaccess.txt.example:
      Example .htaccess file with Google SEO URL rewrite rules.
+     You have to adapt this for your needs.
+
+   - rewrite-nginx.txt:
+     Example rewrite rules for nginx.
+
+   - rewrite-lighttpd.txt:
+     Example rewrite rules for lighttpd.
 
    - robots.txt.example:
      Example robots.txt file with allow/deny rules for search engines.
+     You have to adapt this for your needs.
 
    - translate.php.german:
      Example inc/plugins/google_seo/translate.php file for German umlauts
