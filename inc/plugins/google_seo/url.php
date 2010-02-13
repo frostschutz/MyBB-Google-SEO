@@ -822,7 +822,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $fid = $mybb->input['fid'];
+            $fid = (int)$mybb->input['fid'];
 
             if($fid)
             {
@@ -851,7 +851,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $tid = $mybb->input['tid'];
+            $tid = (int)$mybb->input['tid'];
 
             if($tid)
             {
@@ -876,7 +876,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $aid = $mybb->input['aid'];
+            $aid = (int)$mybb->input['aid'];
 
             if($aid)
             {
@@ -899,7 +899,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $uid = $mybb->input['uid'];
+            $uid = (int)$mybb->input['uid'];
 
             if($uid && $mybb->input['action'] == 'profile')
             {
@@ -922,7 +922,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $eid = $mybb->input['eid'];
+            $eid = (int)$mybb->input['eid'];
 
             if($eid)
             {
@@ -952,7 +952,7 @@ function google_seo_url_hook()
                 }
 
                 // Verification.
-                $cid = $mybb->input['calendar'];
+                $cid = (int)$mybb->input['calendar'];
 
                 if($cid)
                 {
