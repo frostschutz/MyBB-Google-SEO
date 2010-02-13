@@ -58,7 +58,7 @@ function google_seo_plugin_info()
        is_array($plugins_cache['active']) &&
        $plugins_cache['active']['google_seo'])
     {
-        $info['description'] .= @google_seo_plugin_status();
+        $info['description'] .= google_seo_plugin_status();
     }
 
     return $info;
@@ -89,29 +89,29 @@ function google_seo_plugin_status()
     // Google SEO 404:
     if($settings['google_seo_404'])
     {
-        $success[] = $lang->googleseo_plugin_404_success;
+        $success[] = $lang->googleseo_plugin_404;
     }
 
     else
     {
-        $error[] = $lang->googleseo_plugin_404_error;
+        $error[] = $lang->googleseo_plugin_404;
     }
 
     // Google SEO Meta:
     if($settings['google_seo_meta'])
     {
-        $success[] = $lang->googleseo_plugin_meta_success;
+        $success[] = $lang->googleseo_plugin_meta;
     }
 
     else
     {
-        $error[] = $lang->googleseo_plugin_meta_error;
+        $error[] = $lang->googleseo_plugin_meta;
     }
 
     // Google SEO Redirect:
     if($settings['google_seo_redirect'])
     {
-        $success[] = $lang->googleseo_plugin_redirect_success;
+        $success[] = $lang->googleseo_plugin_redirect;
 
         if(!$settings['google_seo_url'])
         {
@@ -137,13 +137,13 @@ function google_seo_plugin_status()
 
     else
     {
-        $error[] = $lang->googleseo_plugin_redirect_error;
+        $error[] = $lang->googleseo_plugin_redirect;
     }
 
     // Google SEO Sitemap:
     if($settings['google_seo_sitemap'])
     {
-        $success[] = $lang->googleseo_plugin_sitemap_success;
+        $success[] = $lang->googleseo_plugin_sitemap;
         $htaccess[] = array($settings['google_seo_sitemap_url'],
                             'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
                             'Google SEO Sitemap');
@@ -151,13 +151,13 @@ function google_seo_plugin_status()
 
     else
     {
-        $error[] = $lang->googleseo_plugin_sitemap_error;
+        $error[] = $lang->googleseo_plugin_sitemap;
     }
 
     // Google SEO URL:
     if($settings['google_seo_url'])
     {
-        $success[] = $lang->googleseo_plugin_url_success;
+        $success[] = $lang->googleseo_plugin_url;
 
         $file = @file_get_contents(MYBB_ROOT."inc/functions.php");
 
@@ -217,7 +217,7 @@ function google_seo_plugin_status()
 
     else
     {
-        $error[] = $lang->googleseo_plugin_url_error;
+        $error[] = $lang->googleseo_plugin_url;
     }
 
     // Check htaccess.
@@ -303,8 +303,20 @@ function google_seo_plugin_status()
     }
 
     // Build a list with success, warnings, errors:
-    foreach($error as $e)
+    if(count($error))
     {
+        $list = google_seo_plugin_list($error);
+
+        if(count($error) > 1)
+        {
+            $e = $lang->sprintf($lang->googleseo_plugin_error_plural, $list);
+        }
+
+        else
+        {
+            $e = $lang->sprintf($lang->googleseo_plugin_error, $list);
+        }
+
         $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/error.gif)\">"
             .$e
             ."</li>\n";
@@ -317,8 +329,20 @@ function google_seo_plugin_status()
             ."</li>\n";
     }
 
-    foreach($success as $s)
+    if(count($success))
     {
+        $list = google_seo_plugin_list($success);
+
+        if(count($success) > 1)
+        {
+            $s = $lang->sprintf($lang->googleseo_plugin_success_plural, $list);
+        }
+
+        else
+        {
+            $s = $lang->sprintf($lang->googleseo_plugin_success, $list);
+        }
+
         $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.gif)\">"
             .$s
             ."</li>\n";
@@ -328,6 +352,43 @@ function google_seo_plugin_status()
 }
 
 /* --- Plugin Helpers: --- */
+
+/**
+ * Make a human readable list out of a string array.
+ * Used by plugin status.
+ *
+ * @param array List of strings
+ * @return string Human readable list
+ */
+function google_seo_plugin_list($strarr)
+{
+    global $lang;
+
+    $result = "";
+
+    // Don't do anything if it's empty.
+    if(!count($strarr))
+    {
+        return;
+    }
+
+    // y
+    $result = array_pop($strarr);
+
+    // x and y
+    if(count($strarr))
+    {
+        $result = $lang->sprintf($lang->googleseo_plugin_list_final, array_pop($strarr), $result);
+    }
+
+    // a, b, c, x and y
+    while(count($strarr))
+    {
+        $result = $lang->sprintf($lang->googleseo_plugin_list, array_pop($strarr), $result);
+    }
+
+    return $result;
+}
 
 /**
  * Take care of inserting / updating settings.
