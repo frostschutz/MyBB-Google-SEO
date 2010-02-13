@@ -28,7 +28,7 @@ if(!defined("IN_MYBB"))
 /* --- Hooks: --- */
 
 // Hijack misc.php for XML Sitemap output.
-$plugins->add_hook("misc_start", "google_seo_sitemap_hook");
+$plugins->add_hook("misc_start", "google_seo_sitemap_hook", 5);
 
 // WOL extension for custom page:
 $plugins->add_hook("build_friendly_wol_location_end", "google_seo_sitemap_wol");
