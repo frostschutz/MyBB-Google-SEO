@@ -143,7 +143,7 @@ function google_seo_lang()
 function google_seo_expand($string, $array)
 {
     $search = array();
-    $replace = $array();
+    $replace = array();
 
     foreach($array as $key => $value)
     {
