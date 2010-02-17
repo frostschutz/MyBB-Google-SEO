@@ -135,6 +135,29 @@ function google_seo_lang()
     $lang->load("googleseo");
 }
 
+/*
+ * Expand a string using values from an associative array.
+ * This function is required by several submodules.
+ *
+ */
+function google_seo_expand($string, $array)
+{
+    $search = array();
+    $replace = $array();
+
+    foreach($array as $key => $value)
+    {
+        $search[] = "{{$key}}";
+        $replace[] = $value;
+
+        // Backwards compatibility: understand with $ too.
+        $search[] = "{\${$key}}";
+        $replace[] = $value;
+    }
+
+    return str_replace($search, $replace, $string);
+}
+
 /* --- Submodules: --- */
 
 /**
