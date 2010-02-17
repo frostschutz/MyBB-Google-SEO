@@ -245,11 +245,11 @@ function google_seo_plugin_status()
             {
                 $rewrite = 1;
                 $rule = preg_quote($v[0]);
-                $rule = preg_replace('/\\\\{\\\\\\$url\\\\}/', '{$url}', $rule);
+                $rule = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $rule);
                 $url = "([^./]+)";
                 $rule = google_seo_expand($rule, array('url' => $url));
 
-                $rule = "RewriteRule $rule {$v[1]}";
+                $rule = "RewriteRule ^{$rule}$ {$v[1]}";
 
                 if(strstr($file, $rule) === false)
                 {
