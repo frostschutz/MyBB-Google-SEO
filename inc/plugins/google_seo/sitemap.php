@@ -322,7 +322,9 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             if($scheme)
             {
-                $item['loc'] = $scheme."?page=".$page;
+                $scheme = google_seo_expand($scheme, array('url' => $url));
+
+                $item['loc'] = "{$scheme}?page={$page}";
             }
 
             else
@@ -472,11 +474,11 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 
     if($settings['google_seo_sitemap_additional'])
     {
-        $url = "index";
-
         if($scheme)
         {
-            $loc = $scheme."?page=1";
+            $scheme = google_seo_expand($scheme, array('url' => 'index'));
+
+            $loc = "{$scheme}?page=1";
         }
 
         else

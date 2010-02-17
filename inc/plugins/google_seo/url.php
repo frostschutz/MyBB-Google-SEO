@@ -200,7 +200,11 @@ function google_seo_url_uniquify($url, $id)
     global $settings;
 
     $separator = $settings['google_seo_url_separator'];
-    $str = {$settings['google_seo_url_uniquifier']};
+    $str = $settings['google_seo_url_uniquifier'];
+
+    $str = google_seo_expand($str, array('url' => $url,
+                                         'id' => $id,
+                                         'separator' => $separator));
 
     return $str;
 }
@@ -216,7 +220,7 @@ function google_seo_url_finalize($url, $scheme)
 {
     global $settings;
 
-    $url = $scheme;
+    $url = google_seo_expand($scheme, array('url' => $url));
 
     if(strlen($url) >= 256)
     {
