@@ -55,7 +55,7 @@ $l['setting_group_google_seo_sitemap_desc'] = "Sitemap settings for the Google S
 $l['setting_google_seo_sitemap'] = "Google SEO Sitemap";
 $l['setting_google_seo_sitemap_desc'] = "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.";
 $l['setting_google_seo_sitemap_url'] = "XML Sitemap URL scheme";
-$l['setting_google_seo_sitemap_url_desc'] = "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{\$url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.";
+$l['setting_google_seo_sitemap_url_desc'] = "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.";
 $l['setting_google_seo_sitemap_forums'] = "XML Sitemap Forums";
 $l['setting_google_seo_sitemap_forums_desc'] = "Include Forums in the XML Sitemap.";
 $l['setting_google_seo_sitemap_threads'] = "XML Sitemap Threads";
@@ -93,16 +93,16 @@ $l['setting_google_seo_url_length_soft_desc'] = "URLs can be shortened after a s
 $l['setting_google_seo_url_length_hard'] = "URL length hard limit";
 $l['setting_google_seo_url_length_hard_desc'] = "URLs can be shortened after a hard limit by truncating it regardless of word separators. Set to 0 to disable.";
 $l['setting_google_seo_url_forums'] = "Forum URL scheme";
-$l['setting_google_seo_url_forums_desc'] = "Enter the Forum URL scheme. By default this is <i>Forum-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.";
+$l['setting_google_seo_url_forums_desc'] = "Enter the Forum URL scheme. By default this is <i>Forum-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.";
 $l['setting_google_seo_url_threads'] = "Thread URL scheme";
-$l['setting_google_seo_url_threads_desc'] = "Enter the Thread URL scheme. By default this is <i>Thread-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.";
+$l['setting_google_seo_url_threads_desc'] = "Enter the Thread URL scheme. By default this is <i>Thread-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.";
 $l['setting_google_seo_url_announcements'] = "Announcement URL scheme";
-$l['setting_google_seo_url_announcements_desc'] = "Enter the Announcement URL scheme. By default this is <i>Announcement-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.";
+$l['setting_google_seo_url_announcements_desc'] = "Enter the Announcement URL scheme. By default this is <i>Announcement-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.";
 $l['setting_google_seo_url_users'] = "User URL scheme";
-$l['setting_google_seo_url_users_desc'] = "Enter the User URL scheme. By default this is <i>User-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Users.";
+$l['setting_google_seo_url_users_desc'] = "Enter the User URL scheme. By default this is <i>User-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Users.";
 $l['setting_google_seo_url_calendars'] = "Calendar URL scheme";
-$l['setting_google_seo_url_calendars_desc'] = "Enter the Calendar URL scheme. By default this is <i>Calendar-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Calendars.";
+$l['setting_google_seo_url_calendars_desc'] = "Enter the Calendar URL scheme. By default this is <i>Calendar-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Calendars.";
 $l['setting_google_seo_url_events'] = "Event URL scheme";
-$l['setting_google_seo_url_events_desc'] = "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.";
+$l['setting_google_seo_url_events_desc'] = "Enter the Event URL scheme. By default this is <i>Event-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.";
 
 ?>
