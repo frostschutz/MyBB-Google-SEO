@@ -658,9 +658,9 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_sitemap_url' => array(
                 'title' => "XML Sitemap URL scheme",
-                'description' => "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{\$url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.",
+                'description' => "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.",
                 'optionscode' => "text",
-                'value' => "sitemap-{\$url}.xml",
+                'value' => "sitemap-{url}.xml",
                 ),
             'google_seo_sitemap_forums' => array(
                 'title' => "XML Sitemap Forums",
@@ -735,7 +735,7 @@ function google_seo_plugin_activate()
                 'title' => "URL uniquifier",
                 'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
-                'value' => '{$url}{$separator}{$separator}{$id}',
+                'value' => '{url}{separator}{separator}{id}',
                 ),
             'google_seo_url_uniquifier_force' => array(
                 'title' => "URL uniquifier enforcer",
@@ -763,39 +763,39 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_forums' => array(
                 'title' => "Forum URL scheme",
-                'description' => "Enter the Forum URL scheme. By default this is <i>Forum-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.",
+                'description' => "Enter the Forum URL scheme. By default this is <i>Forum-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.",
                 'optionscode' => "text",
-                'value' => 'Forum-{$url}',
+                'value' => 'Forum-{url}',
                 ),
             'google_seo_url_threads' => array(
                 'title' => "Thread URL scheme",
-                'description' => "Enter the Thread URL scheme. By default this is <i>Thread-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.",
+                'description' => "Enter the Thread URL scheme. By default this is <i>Thread-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.",
                 'optionscode' => "text",
-                'value' => 'Thread-{$url}',
+                'value' => 'Thread-{url}',
                 ),
             'google_seo_url_announcements' => array(
                 'title' => "Announcement URL scheme",
-                'description' => "Enter the Announcement URL scheme. By default this is <i>Announcement-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.",
+                'description' => "Enter the Announcement URL scheme. By default this is <i>Announcement-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.",
                 'optionscode' => "text",
-                'value' => 'Announcement-{$url}',
+                'value' => 'Announcement-{url}',
                 ),
             'google_seo_url_users' => array(
                 'title' => "User URL scheme",
-                'description' => "Enter the User URL scheme. By default this is <i>User-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Users.",
+                'description' => "Enter the User URL scheme. By default this is <i>User-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Users.",
                 'optionscode' => "text",
-                'value' => 'User-{$url}',
+                'value' => 'User-{url}',
                 ),
             'google_seo_url_calendars' => array(
                 'title' => "Calendar URL scheme",
-                'description' => "Enter the Calendar URL scheme. By default this is <i>Calendar-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Calendars.",
+                'description' => "Enter the Calendar URL scheme. By default this is <i>Calendar-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Calendars.",
                 'optionscode' => "text",
-                'value' => 'Calendar-{$url}',
+                'value' => 'Calendar-{url}',
                 ),
             'google_seo_url_events' => array(
                 'title' => "Event URL scheme",
-                'description' => "Enter the Event URL scheme. By default this is <i>Event-{\$url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
+                'description' => "Enter the Event URL scheme. By default this is <i>Event-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
-                'value' => 'Event-{$url}',
+                'value' => 'Event-{url}',
                 ),
             )
         );
