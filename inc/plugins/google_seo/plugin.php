@@ -247,7 +247,7 @@ function google_seo_plugin_status()
                 $rule = preg_quote($v[0]);
                 $rule = preg_replace('/\\\\{\\\\\\$url\\\\}/', '{$url}', $rule);
                 $url = "([^./]+)";
-                eval("\$rule = \"^{$rule}$\";");
+                $rule = $rule;
 
 
                 $rule = "RewriteRule $rule {$v[1]}";
