@@ -49,7 +49,7 @@ function google_seo_plugin_info()
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
         "version"       => "1.1.11",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
-        "compatibility" => "14*",
+        "compatibility" => "14*,16*",
     );
 
     // Provide some additional status information, if the plugin is enabled.
