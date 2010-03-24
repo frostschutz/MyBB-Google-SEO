@@ -992,14 +992,16 @@ function google_seo_url_merge_hook()
 
     if($regexp)
     {
-        $regexp = explode('{$url}', $regexp);
-        $regexp = array_map('preg_quote', $regexp, array("/"));
-        $regexp = implode('(.*)', $regexp);
-        $regexp = "/^{$regexp}$/u";
+        $regexp = preg_quote($regexp, '#');
+        $regexp = str_replace('\\{\\$url\\}', '([^./]+)', $regexp);
+        $regexp = str_replace('\\{url\\}', '([^./]+)', $regexp);
+        $regexp = "#^{$regexp}$#u";
     }
 
     // Fetch the (presumably) Google SEO URL:
     $url = $mybb->input['threadurl'];
+
+    // $url can be either 'http://host/Thread-foobar' or just 'foobar'.
 
     // Kill anchors and parameters.
     $url = preg_replace('/^([^#?]*)[#?].*$/u', '\\1', $url);
@@ -1009,6 +1011,8 @@ function google_seo_url_merge_hook()
 
     // Unquote the URL.
     $url = urldecode($url);
+
+    // If $url was 'http://host/Thread-foobar', it is just 'foobar' now.
 
     // Look up the ID for this item.
     $tid = google_seo_url_id('threads', $url);
