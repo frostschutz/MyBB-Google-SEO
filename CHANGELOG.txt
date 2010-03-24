@@ -1,3 +1,17 @@
+2010-03-24: stable release 1.1.12
+
+    * add compatiblity flag for MyBB 1.6 Beta
+    * stop using eval() which is a pandora's box of security issues
+    * variables are now expanded using str_replace, syntax changed from {$var} to {var} (but {$var} is still supported for backwards compatibility)
+    * enhance merge thread support by merging SEO URLs as well, allowing redirects for the thread that was removed during the merge
+
+2010-02-13: stable release 1.1.11
+
+    * Google SEO is now on GitHub: http://github.com/frostschutz/Google-SEO
+    * fix lastposter parameter issue
+    * workaround Sitemap blocked by other plugins
+    * make the plugin status shorter by combining lines
+
 2010-01-03: stable release 1.1.10
 
     * security update: fix possible SQL injection
