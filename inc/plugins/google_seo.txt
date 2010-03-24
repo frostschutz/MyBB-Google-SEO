@@ -314,10 +314,10 @@
 
      A good uniquifier needs to fulfill these two criteria:
 
-       1) contain the items unique {$id}
+       1) contain the items unique {id}
        2) contain punctuation that cannot occur in non-uniquified URLs
 
-     Early versions of Google SEO used {$url}-{$id} as uniquifier and
+     Early versions of Google SEO used {url}-{id} as uniquifier and
      therefore did not fulfill criteria 2). This could lead to collisions
      in rare cases, for example:
 
@@ -329,7 +329,7 @@
      uniquifier is applied. This results in Unique-3. However, there
      already happens to be a thread called Unique-3. Doesn't work.
 
-     With the new uniquifier {$url}{$separator}{$separator}{$id},
+     With the new uniquifier {url}{separator}{separator}{id},
      the uniquified URL will be Thread-Unique--3. Because the id is
      already unique, and other URLs can't contain -- (title punctuation
      is reduced to one single separator, not two), that makes the URL
