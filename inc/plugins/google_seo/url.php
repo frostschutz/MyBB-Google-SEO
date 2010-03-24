@@ -30,6 +30,7 @@ if(!defined("IN_MYBB"))
 // URL -> ID conversion:
 $plugins->add_hook("global_start", "google_seo_url_hook", 1);
 $plugins->add_hook("moderation_do_merge", "google_seo_url_merge_hook", 1);
+$plugins->add_hook("class_moderation_merge_threads", "google_seo_url_after_merge_hook");
 
 /* --- Global Variables: --- */
 
@@ -1022,6 +1023,32 @@ function google_seo_url_merge_hook()
     {
         $mybb->input['threadurl'] = "{$mybb->settings['bburl']}/showthread.php?tid={$tid}";
     }
+}
+
+/**
+ *
+ * Google SEO After Merge hook.
+ *
+ * When two threads are merged, one of them is actually deleted.
+ * As a result, all URLs pointing to the old thread would be lost.
+ *
+ * However if we merge the URL entries in the google_seo table as well,
+ * Google SEO Redirect can redirect URLs of the old thread to the new thread.
+ *
+ */
+function google_seo_url_after_merge_hook($arguments)
+{
+    global $db, $google_seo_url_idtype;
+
+    $mergetid = intval($arguments['mergetid']);
+    $tid = intval($arguments['tid']);
+    $idtype = $google_seo_url_idtype['threads'];
+
+    // Integrate mergetid into tid:
+
+    $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
+                      SET active=NULL, id={$tid}
+                      WHERE idtype={$idtype} AND id={$mergetid}");
 }
 
 /* --- URL API: --- */
