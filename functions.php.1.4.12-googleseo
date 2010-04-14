@@ -5732,20 +5732,29 @@ function secure_seed_rng($count=8)
 function my_rand($min=null, $max=null, $force_seed=false)
 {
 	static $seeded = false;
+	static $obfuscator = 0;
 	
 	if($seeded == false || $force_seed == true)
 	{
 		mt_srand(secure_seed_rng());
+
+		//  Just call it again here instead of saving extra bytes... 
+		$obfuscator = secure_seed_rng();
+
 		$seeded = true;
 	}
 	
 	if($min !== null && $max !== null)
 	{
-		return mt_rand($min, $max);
+		$val = mt_rand($min, $max) + $obfuscator;
+		$val = $min + (($val - $min) % ($max+1-$min));
+		return $val;
 	}
 	else
 	{
-		return mt_rand();
+		$val = mt_rand() + $obfuscator;
+		$val %= mt_getrandmax() + 1;
+		return $val;
 	}
 }
 
