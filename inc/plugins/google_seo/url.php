@@ -868,6 +868,11 @@ function google_seo_url_hook()
             break;
 
         case 'announcement.php':
+            // This was renamed to 'announcements.php' in MyBB 1.4.12.
+            // Kept for backwards compatibility.
+            /* Fallthrough */
+
+        case 'announcements.php':
             // Translation.
             $url = $mybb->input['google_seo_announcement'];
 
