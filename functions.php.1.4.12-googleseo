@@ -5688,16 +5688,6 @@ function secure_seed_rng($count=8)
 			$output = @fread($handle, $count);
 			@fclose($handle);
 		}
-		
-		// Then try the Microsoft method
-		if(class_exists('COM'))
-		{
-			try {
-				$util = new COM('CAPICOM.Utilities.1');
-				$output = base64_decode($util->GetRandom($count, 0));
-			}
-			catch(Exception $ex) { }
-		}
 	}
 	
 	// Didn't work? Do we still not have enough bytes? Use our own (less secure) rng generator
@@ -5706,7 +5696,7 @@ function secure_seed_rng($count=8)
 		$output = '';
 		
 		// Close to what PHP basically uses internally to seed, but not quite.
-		$unique_state = microtime().getmypid();
+		$unique_state = microtime().@getmypid();
 		
 		for($i = 0; $i < $count; $i += 16)
 		{
@@ -5732,29 +5722,20 @@ function secure_seed_rng($count=8)
 function my_rand($min=null, $max=null, $force_seed=false)
 {
 	static $seeded = false;
-	static $obfuscator = 0;
 	
 	if($seeded == false || $force_seed == true)
 	{
 		mt_srand(secure_seed_rng());
-
-		//  Just call it again here instead of saving extra bytes... 
-		$obfuscator = secure_seed_rng();
-
 		$seeded = true;
 	}
 	
 	if($min !== null && $max !== null)
 	{
-		$val = mt_rand($min, $max) + $obfuscator;
-		$val = $min + (($val - $min) % ($max+1-$min));
-		return $val;
+		return mt_rand($min, $max);
 	}
 	else
 	{
-		$val = mt_rand() + $obfuscator;
-		$val %= mt_getrandmax() + 1;
-		return $val;
+		return mt_rand();
 	}
 }
 
