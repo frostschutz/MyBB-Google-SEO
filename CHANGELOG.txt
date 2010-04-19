@@ -1,3 +1,9 @@
+2010-04-19: stable release 1.1.13
+
+    * compatibility update for MyBB 1.4.12/1.4.13 (several regressions)
+    * fix plugin status displaying bogus message when using Sitemap without mod_rewrite
+    * include search.php in robots.txt.example
+
 2010-03-24: stable release 1.1.12
 
     * add compatiblity flag for MyBB 1.6 Beta
