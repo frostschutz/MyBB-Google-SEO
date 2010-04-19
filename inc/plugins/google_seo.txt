@@ -97,7 +97,10 @@
 
    - Google SEO Sitemap:
 
-     Add this rewrite rule to your .htaccess:
+     By default, the sitemap uses mod_rewrite. This is optional and can
+     be disabled in the Google SEO sitemap settings (Sitemap URL scheme).
+
+     You have to add this rewrite rule to your .htaccess:
 
        RewriteRule ^sitemap-([^./]+)\.xml$ misc.php?google_seo_sitemap=$1 [L,QSA,NC]
 
@@ -105,6 +108,10 @@
      You can also add this line to your robots.txt:
 
        Sitemap: http://yoursite/mybb/sitemap-index.xml
+
+     With Sitemap URL scheme disasbled, the sitemap URL will be:
+
+       Sitemap: http://yoursite/mybb/misc.php?google_seo_sitemap=index
 
    - Google SEO URL:
 
