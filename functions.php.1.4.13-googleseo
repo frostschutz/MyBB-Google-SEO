@@ -6,7 +6,7 @@
  * Website: http://www.mybboard.net
  * License: http://www.mybboard.net/about/license
  *
- * $Id: functions.php 4868 2010-04-11 05:15:23Z RyanGordon $
+ * $Id: functions.php 4889 2010-04-19 09:42:52Z RyanGordon $
  */
 
 /**
@@ -5668,26 +5668,22 @@ function subforums_count($array)
 function secure_seed_rng($count=8)
 {
 	$output = '';
-		
-	// Try the OpenSSL method first. This is the strongest.
-	if(function_exists('openssl_random_pseudo_bytes'))
+	
+	// Try the unix/linux method
+	if(@is_readable('/dev/urandom') && ($handle = @fopen('/dev/urandom', 'rb')))
 	{
-		$output = openssl_random_pseudo_bytes($count, $strong);
-		
-		if($strong !== true)
-		{
-			$output = '';
-		}
+		$output = @fread($handle, $count);
+		@fclose($handle);
 	}
 	
-	if($output == '')
+	// Then try the Microsoft method
+	if(version_compare(PHP_VERSION, '5.0.0', '>=') && class_exists('COM'))
 	{
-		// Then try the unix/linux method
-		if(@is_readable('/dev/urandom') && ($handle = @fopen('/dev/urandom', 'rb')))
-		{
-			$output = @fread($handle, $count);
-			@fclose($handle);
+		try {
+			$util = new COM('CAPICOM.Utilities.1');
+			$output = base64_decode($util->GetRandom($count, 0));
 		}
+		catch(Exception $ex) { }
 	}
 	
 	// Didn't work? Do we still not have enough bytes? Use our own (less secure) rng generator
@@ -5722,20 +5718,38 @@ function secure_seed_rng($count=8)
 function my_rand($min=null, $max=null, $force_seed=false)
 {
 	static $seeded = false;
-	
+	static $obfuscator = 0;
+
 	if($seeded == false || $force_seed == true)
 	{
 		mt_srand(secure_seed_rng());
 		$seeded = true;
+
+		$obfuscator = abs((int) secure_seed_rng());
+		
+		// Ensure that $obfuscator is <= mt_getrandmax() for 64 bit systems.
+		if($obfuscator > mt_getrandmax())
+		{
+			$obfuscator -= mt_getrandmax();
+		}
 	}
-	
+
 	if($min !== null && $max !== null)
 	{
-		return mt_rand($min, $max);
+		$distance = $max - $min;
+		if ($distance > 0)
+		{
+			return $min + (int)((float)($distance + 1) * (float)(mt_rand() ^ $obfuscator) / (mt_getrandmax() + 1));
+		}
+		else
+		{
+			return mt_rand($min, $max);
+		}
 	}
 	else
 	{
-		return mt_rand();
+		$val = mt_rand() ^ $obfuscator;
+		return $val;
 	}
 }
 
