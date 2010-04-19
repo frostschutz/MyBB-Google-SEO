@@ -144,9 +144,13 @@ function google_seo_plugin_status()
     if($settings['google_seo_sitemap'])
     {
         $success[] = $lang->googleseo_plugin_sitemap;
-        $htaccess[] = array($settings['google_seo_sitemap_url'],
-                            'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
-                            'Google SEO Sitemap');
+
+        if($settings['google_seo_sitemap_url'])
+        {
+            $htaccess[] = array($settings['google_seo_sitemap_url'],
+                                'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
+                                'Google SEO Sitemap');
+        }
     }
 
     else
