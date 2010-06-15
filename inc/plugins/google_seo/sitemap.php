@@ -192,7 +192,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         case "threads":
             $table = 'threads';
             $idname = 'tid';
-            $datename = 'dateline';
+            $datename = 'lastpost';
             $getlink = 'get_thread_link';
             $condition = "WHERE visible>0 AND closed NOT LIKE 'moved|%'";
 
