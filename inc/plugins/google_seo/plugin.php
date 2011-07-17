@@ -365,7 +365,13 @@ function google_seo_plugin_status()
  */
 function google_seo_plugin_dependency()
 {
-    global $lang;
+    global $mybb, $lang;
+
+    if($mybb->version_code < 1604)
+    {
+        flash_message($lang->googleseo_plugin_mybb_old, "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
 
     if(!file_exists(PLUGINLIBRARY))
     {

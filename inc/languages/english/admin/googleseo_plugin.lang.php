@@ -34,6 +34,7 @@ $l['googleseo_plugin_htaccess_users'] = "Google SEO URL Users";
 $l['googleseo_plugin_list'] = "{1}, {2}";
 $l['googleseo_plugin_list_final'] = "{1} and {2}";
 $l['googleseo_plugin_meta'] = "Meta";
+$l['googleseo_plugin_mybb_old'] = "Your copy of MyBB is too old for this version of Google SEO. Please update MyBB!";
 $l['googleseo_plugin_pl_missing'] = 'Google SEO requires <a href="http://mods.mybb.com/view/pluginlibrary">PluginLibrary</a>. Please download and install it.';
 $l['googleseo_plugin_pl_old'] = 'Your <a href="http://mods.mybb.com/view/pluginlibrary">PluginLibrary</a> is too old. Please download and install the new version.';
 $l['googleseo_plugin_redirect'] = "Redirect";
