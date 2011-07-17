@@ -508,7 +508,7 @@ function google_seo_plugin_activate()
         array(
             'google_seo_404' => array(
                 'title' => "Google SEO 404",
-                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
                 ),
             'google_seo_404_widget' => array(
                 'title' => "404 widget",
@@ -530,7 +530,7 @@ function google_seo_plugin_activate()
         array(
             'google_seo_meta' => array(
                 'title' => 'Google SEO Meta',
-                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
+                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
                 ),
             'google_seo_meta_length' => array(
                 'title' => 'Meta description',
@@ -558,7 +558,7 @@ function google_seo_plugin_activate()
         array(
             'google_seo_redirect' => array(
                 'title' => "Google SEO Redirect",
-                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
                 ),
             'google_seo_redirect_permission' => array(
                 'title' => "Permission Checks",
@@ -583,7 +583,7 @@ function google_seo_plugin_activate()
         array(
             'google_seo_sitemap' => array(
                 'title' => "Google SEO Sitemap",
-                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
                 ),
             'google_seo_sitemap_url' => array(
                 'title' => "XML Sitemap URL scheme",
@@ -646,7 +646,7 @@ function google_seo_plugin_activate()
         array(
             'google_seo_url' => array(
                 'title' => "Enable Google SEO URLs",
-                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
                 ),
             'google_seo_url_punctuation' => array(
                 'title' => "Punctuation characters",
@@ -662,7 +662,7 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_uniquifier' => array(
                 'title' => "URL uniquifier",
-                'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for examples of good and bad uniquifiers.",
+                'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
                 'value' => '{url}{separator}{separator}{id}',
                 ),
@@ -672,7 +672,7 @@ function google_seo_plugin_activate()
                 ),
             'google_seo_url_translate' => array(
                 'title' => "Character Translation",
-                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/google_seo/translate.php</i> and then enable this option. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.",
+                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/google_seo/translate.php</i> and then enable this option. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.",
                 ),
             'google_seo_url_lowercase' => array(
                 'title' => "lowercase words",
