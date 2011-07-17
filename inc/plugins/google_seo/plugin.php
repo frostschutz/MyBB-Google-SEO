@@ -30,10 +30,6 @@ if(!defined("PLUGINLIBRARY"))
     define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
 }
 
-// This define triggers code to generate new language file for settings.
-// (Activate the plugin, Copy&Paste the output to googleseo_settings.lang.php)
-// define("GOOGLESEO_GENERATE_LANG", 1);
-
 global $lang;
 $lang->load("googleseo_plugin");
 
@@ -424,115 +420,6 @@ function google_seo_plugin_list($strarr)
     return $result;
 }
 
-/**
- * Take care of inserting / updating settings.
- * Names and settings must be unique (i.e. use the google_seo_ prefix).
- *
- * @param string Internal group name.
- * @param string Group title that will be shown to the admin.
- * @param string Group description that will show up in the group overview.
- * @param array The list of settings to be added to that group.
- */
-function google_seo_plugin_settings($name, $title, $description, $list)
-{
-    global $db;
-
-    $query = $db->query("SELECT MAX(disporder) as disporder
-                         FROM ".TABLE_PREFIX."settinggroups");
-    $row = $db->fetch_array($query);
-
-    $group = array('name' => $name,
-                   'title' => $db->escape_string($title),
-                   'description' => $db->escape_string($description),
-                   'disporder' => $row['disporder']+1);
-
-    if(defined("GOOGLESEO_GENERATE_LANG"))
-    {
-        echo htmlspecialchars("\$l['setting_group_{$group['name']}'] = \"".addcslashes($title, '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
-        echo htmlspecialchars("\$l['setting_group_{$group['name']}_desc'] = \"".addcslashes($description, '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
-    }
-
-    // Create settings group if it does not exist.
-    $query = $db->query("SELECT gid
-                         FROM ".TABLE_PREFIX."settinggroups
-                         WHERE name='$name'");
-
-    if($row = $db->fetch_array($query))
-    {
-        // It exists, get the gid.
-        $gid = $row['gid'];
-
-        // Update title and description.
-        $db->update_query("settinggroups",
-                          $group,
-                          "gid='$gid'");
-    }
-
-    else
-    {
-        // It does not exist, create it and get the gid.
-        $db->insert_query("settinggroups",
-                          $group);
-
-        $gid = $db->insert_id();
-    }
-
-    // Deprecate all the old entries.
-    $db->update_query("settings",
-                      array("description" => "DELETEMARKER"),
-                      "gid='$gid'");
-
-    // Create and/or update settings.
-    foreach($list as $key => $value)
-    {
-        if(defined("GOOGLESEO_GENERATE_LANG"))
-        {
-            echo htmlspecialchars("\$l['setting_{$key}'] = \"".addcslashes($value['title'], '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
-            echo htmlspecialchars("\$l['setting_{$key}_desc'] = \"".addcslashes($value['description'], '\"$')."\";", ENT_COMPAT, "UTF-8")."<br>";
-        }
-
-        // Set default values for value:
-        $value = array_map(array($db, 'escape_string'), $value);
-
-        $disporder += 1;
-
-        $value = array_merge(
-            array('optionscode' => 'yesno',
-                  'value' => '0',
-                  'disporder' => $disporder),
-            $value);
-
-        $value['name'] = "$key";
-        $value['gid'] = $gid;
-
-        $query = $db->query("SELECT sid FROM ".TABLE_PREFIX."settings
-                             WHERE gid='$gid'
-                             AND name='{$value['name']}'");
-
-        if($row = $db->fetch_array($query))
-        {
-            // It exists, update it, but keep value intact.
-            unset($value['value']);
-            $db->update_query("settings",
-                              $value,
-                              "gid='$gid' AND name='{$value['name']}'");
-        }
-
-        else
-        {
-            // It doesn't exist, create it.
-            $db->insert_query("settings", $value);
-        }
-    }
-
-    // Delete deprecated entries.
-    $db->delete_query("settings",
-                      "gid='$gid' AND description='DELETEMARKER'");
-
-    // Rebuild the settings file.
-    rebuild_settings();
-}
-
 /* --- Plugin Installation: --- */
 
 /**
@@ -580,20 +467,14 @@ function google_seo_plugin_uninstall()
     google_seo_plugin_dependency();
 
     global $db;
+    global $PL;
+    $PL or require_once(PLUGINLIBRARY);
 
     // Drop the Google SEO table.
     $db->drop_table("google_seo");
 
     // Remove the Google SEO setting groups.
-    $query = $db->query("SELECT name,gid FROM ".TABLE_PREFIX."settinggroups WHERE name LIKE 'google_seo_%'");
-
-    while($gid = $db->fetch_field($query, 'gid'))
-    {
-        $db->delete_query("settinggroups", "gid='$gid'");
-        $db->delete_query("settings", "gid='$gid'");
-    }
-
-    rebuild_settings();
+    $PL->settings_delete("google_seo", True);
 }
 
 /* --- Plugin Activation: --- */
@@ -607,12 +488,14 @@ function google_seo_plugin_activate()
     google_seo_plugin_dependency();
 
     global $db;
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
 
     /* Bugfix: Empty URLs */
     $db->delete_query("google_seo", "url=''");
 
     /* Settings for Google SEO 404 */
-    google_seo_plugin_settings(
+    $PL->settings(
         "google_seo_404",
         "Google SEO 404",
         "404 error page settings for the Google Search Engine Optimization plugin.",
@@ -634,7 +517,7 @@ function google_seo_plugin_activate()
         );
 
     /* Settings for Google SEO Meta */
-    google_seo_plugin_settings(
+    $PL->settings(
         "google_seo_meta",
         "Google SEO Meta",
         "Meta tag settings for the Google Search Engine Optimization plugin.",
@@ -662,7 +545,7 @@ function google_seo_plugin_activate()
         );
 
     /* Settings for Google SEO Redirect */
-    google_seo_plugin_settings(
+    $PL->settings(
         "google_seo_redirect",
         "Google SEO Redirect",
         "Redirection settings for the Google Search Engine Optimization plugin.",
@@ -687,7 +570,7 @@ function google_seo_plugin_activate()
         );
 
     /* Settings for Google SEO Sitemap */
-    google_seo_plugin_settings(
+    $PL->settings(
         "google_seo_sitemap",
         "Google SEO Sitemap",
         "Sitemap settings for the Google Search Engine Optimization plugin.",
@@ -750,7 +633,7 @@ function google_seo_plugin_activate()
         );
 
     /* Settings for Google SEO URLs */
-    google_seo_plugin_settings(
+    $PL->settings(
         "google_seo_url",
         "Google SEO URL",
         "URL settings for the Google Search Engine Optimization plugin.",
@@ -839,11 +722,6 @@ function google_seo_plugin_activate()
                 ),
             )
         );
-
-    if(defined("GOOGLESEO_GENERATE_LANG"))
-    {
-        exit;
-    }
 }
 
 /**
