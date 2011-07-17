@@ -461,7 +461,7 @@ function google_seo_plugin_install()
                               url VARCHAR(120) NOT NULL,
                               UNIQUE KEY (idtype, url),
                               UNIQUE KEY (active, idtype, id)
-                          ) TYPE=MyISAM{$collation};");
+                          ) ENGINE=MyISAM{$collation};");
     }
 }
 
