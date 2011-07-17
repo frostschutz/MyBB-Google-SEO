@@ -91,7 +91,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO 404:
-    if($settings['google_seo_404'])
+    if($settings['google_seo_404_enabled'])
     {
         $success[] = $lang->googleseo_plugin_404;
     }
@@ -102,7 +102,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Meta:
-    if($settings['google_seo_meta'])
+    if($settings['google_seo_meta_enabled'])
     {
         $success[] = $lang->googleseo_plugin_meta;
     }
@@ -113,11 +113,11 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Redirect:
-    if($settings['google_seo_redirect'])
+    if($settings['google_seo_redirect_enabled'])
     {
         $success[] = $lang->googleseo_plugin_redirect;
 
-        if(!$settings['google_seo_url'])
+        if(!$settings['google_seo_url_enabled'])
         {
             $warning[] = $lang->googleseo_plugin_redirect_warn_url;
         }
@@ -145,7 +145,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Sitemap:
-    if($settings['google_seo_sitemap'])
+    if($settings['google_seo_sitemap_enabled'])
     {
         $success[] = $lang->googleseo_plugin_sitemap;
 
@@ -163,7 +163,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO URL:
-    if($settings['google_seo_url'])
+    if($settings['google_seo_url_enabled'])
     {
         $success[] = $lang->googleseo_plugin_url;
 
@@ -229,7 +229,7 @@ function google_seo_plugin_status()
     }
 
     // Check htaccess.
-    if($settings['google_seo_404'])
+    if($settings['google_seo_404_enabled'])
     {
         $url = $settings['bburl'];
         $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
@@ -506,16 +506,16 @@ function google_seo_plugin_activate()
         "Google SEO 404",
         "404 error page settings for the Google Search Engine Optimization plugin.",
         array(
-            'google_seo_404' => array(
+            'enabled' => array(
                 'title' => "Google SEO 404",
                 'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
                 ),
-            'google_seo_404_widget' => array(
+            'widget' => array(
                 'title' => "404 widget",
                 'description' => "Add the Google 404 widget for invalid thread / forum / etc error pages.",
                 'value' => 1,
                 ),
-            'google_seo_404_wol_show' => array(
+            'wol_show' => array(
                 'title' => "Show 404 errors in Who's Online",
                 'description' => "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.",
                 ),
@@ -528,22 +528,22 @@ function google_seo_plugin_activate()
         "Google SEO Meta",
         "Meta tag settings for the Google Search Engine Optimization plugin.",
         array(
-            'google_seo_meta' => array(
+            'enabled' => array(
                 'title' => 'Google SEO Meta',
                 'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
                 ),
-            'google_seo_meta_length' => array(
+            'length' => array(
                 'title' => 'Meta description',
                 'description' => "Generate Meta description tags based on the contents of the current page (description of a forum, first posting of a thread, ...). Set to the maximum description length you want to allow or to 0 to disable.",
                 'optionscode' => "text",
                 'value' => "200",
                 ),
-            'google_seo_meta_canonical' => array(
+            'canonical' => array(
                 'title' => "Canonical Page",
                 'description' => "Specify a canonical page. This helps avoid Google indexing the same page under several different names. Please see <a href=\"http://www.google.com/support/webmasters/bin/answer.py?hl=en&amp;answer=139394\">About rel=\"canonical\"</a> for details.",
                 'value' => 1,
                 ),
-            'google_seo_meta_archive' => array(
+            'archive' => array(
                 'title' => "Add tags to Archive",
                 'description' => "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages by using unconventional methods.",
                 ),
@@ -556,19 +556,19 @@ function google_seo_plugin_activate()
         "Google SEO Redirect",
         "Redirection settings for the Google Search Engine Optimization plugin.",
         array(
-            'google_seo_redirect' => array(
+            'enabled' => array(
                 'title' => "Google SEO Redirect",
                 'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
                 ),
-            'google_seo_redirect_permission' => array(
+            'permission' => array(
                 'title' => "Permission Checks",
                 'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
                 ),
-            'google_seo_redirect_litespeed' => array(
+            'litespeed' => array(
                 'title' => "LiteSpeed Bug workaround",
                 'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",
                 ),
-            'google_seo_redirect_debug' => array(
+            'debug' => array(
                 'title' => "Debug Redirect",
                 'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",
                 ),
@@ -581,55 +581,55 @@ function google_seo_plugin_activate()
         "Google SEO Sitemap",
         "Sitemap settings for the Google Search Engine Optimization plugin.",
         array(
-            'google_seo_sitemap' => array(
+            'enabled' => array(
                 'title' => "Google SEO Sitemap",
                 'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
                 ),
-            'google_seo_sitemap_url' => array(
+            'url' => array(
                 'title' => "XML Sitemap URL scheme",
                 'description' => "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.",
                 'optionscode' => "text",
                 'value' => "sitemap-{url}.xml",
                 ),
-            'google_seo_sitemap_forums' => array(
+            'forums' => array(
                 'title' => "XML Sitemap Forums",
                 'description' => "Include Forums in the XML Sitemap.",
                 'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including forum pages",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_threads' => array(
+            'threads' => array(
                 'title' => "XML Sitemap Threads",
                 'description' => "Include Threads in the XML Sitemap.",
                 'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including thread pages",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_users' => array(
+            'users' => array(
                 'title' => "XML Sitemap Users",
                 'description' => "Include Users in the XML Sitemap.",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_announcements' => array(
+            'announcements' => array(
                 'title' => "XML Sitemap Announcements",
                 'description' => "Include Announcements in the XML Sitemap.",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_calendars' => array(
+            'calendars' => array(
                 'title' => "XML Sitemap Calendars",
                 'description' => "Include Calendars in the XML Sitemap.",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_events' => array(
+            'events' => array(
                 'title' => "XML Sitemap Events",
                 'description' => "Include Events in the XML Sitemap.",
                 'value' => 1,
                 ),
-            'google_seo_sitemap_additional' => array(
+            'additional' => array(
                 'title' => "XML Sitemap additional pages",
                 'description' => "List of additional URLs relative to your site that should be included in the XML Sitemap. If you have any custom pages you can include them here, one page per line. Entries must be relative to your site, i.e. they must not contain http://, and must not start with .. or /.",
                 'optionscode' => "textarea",
                 'value' => "index.php\nportal.php",
                 ),
-            'google_seo_sitemap_pagination' => array(
+            'pagination' => array(
                 'title' => "XML Sitemap pagination",
                 'description' => "Set the maximum number of items that may appear in a single XML Sitemap before it is split (not counting optional forum/thread pages). Setting it too low will result in too many sitemaps, setting it too high may cause server load every time the sitemap is generated. If unsure, leave at 1000.",
                 'optionscode' => "text",
@@ -644,83 +644,83 @@ function google_seo_plugin_activate()
         "Google SEO URL",
         "URL settings for the Google Search Engine Optimization plugin.",
         array(
-            'google_seo_url' => array(
+            'enabled' => array(
                 'title' => "Enable Google SEO URLs",
                 'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
                 ),
-            'google_seo_url_punctuation' => array(
+            'punctuation' => array(
                 'title' => "Punctuation characters",
                 'description' => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters including space. If you are running an international forum with non-ASCII script, you might want to add unwanted punctuation characters of those scripts here.",
                 'optionscode' => "text",
                 'value' => "!\"#$%&'( )*+,-./:;<=>?@[\\]^_`{|}~",
                 ),
-            'google_seo_url_separator' => array(
+            'separator' => array(
                 'title' => "URL separator",
                 'description' => "Enter the separator that should be used to separate words in the URLs. By default this is - which is a good choice as it is easy to type in most keyboard layouts (single keypress without shift/alt modifier). If you want some other character or string as a separator, you can enter it here. Please note that special characters like :&amp;?@/ or space could render your URLs unuseable or hard to work with.",
                 'optionscode' => "text",
                 'value' => "-",
                 ),
-            'google_seo_url_uniquifier' => array(
+            'uniquifier' => array(
                 'title' => "URL uniquifier",
                 'description' => "In case of URL collisions (for example two threads with the same title), the uniquifier is applied to the URL of the newer thread. To guarantee uniqueness, the uniquifier must incorporate the ID and use punctuation other than a single separator. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for examples of good and bad uniquifiers.",
                 'optionscode' => "text",
                 'value' => '{url}{separator}{separator}{id}',
                 ),
-            'google_seo_url_uniquifier_force' => array(
+            'uniquifier_force' => array(
                 'title' => "URL uniquifier enforcer",
                 'description' => "This option is NOT recommended. If you set this to yes, Google SEO will be forced to use the uniquifier for all URLs without exception, even if it's not necessary. Use this only if you absolutely want every URL to contain the ID. If you enable this, a single separator will be sufficient for the uniquifier.",
                 ),
-            'google_seo_url_translate' => array(
+            'translate' => array(
                 'title' => "Character Translation",
                 'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/google_seo/translate.php</i> and then enable this option. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.",
                 ),
-            'google_seo_url_lowercase' => array(
+            'lowercase' => array(
                 'title' => "lowercase words",
                 'description' => "If you prefer lower case URLs, you can set this to YES. This will not affect the way URLs are stored in the database so you can go back to the original case letters any time. Please note that if you set this to YES, you will also have to make sure that your forum URL, as well as scheme and uniqufier are all lowercase too for the URL to be completely in lower case.",
                 ),
-            'google_seo_url_length_soft' => array(
+            'length_soft' => array(
                 'title' => "URL length soft limit",
                 'description' => "URLs can be shortened after a soft limit by truncating it after a word (punctuation separator). Set to 0 to disable.",
                 'optionscode' => "text",
                 'value' => '0',
                 ),
-            'google_seo_url_length_hard' => array(
+            'length_hard' => array(
                 'title' => "URL length hard limit",
                 'description' => "URLs can be shortened after a hard limit by truncating it regardless of word separators. Set to 0 to disable.",
                 'optionscode' => "text",
                 'value' => '0',
                 ),
-            'google_seo_url_forums' => array(
+            'forums' => array(
                 'title' => "Forum URL scheme",
                 'description' => "Enter the Forum URL scheme. By default this is <i>Forum-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.",
                 'optionscode' => "text",
                 'value' => 'Forum-{url}',
                 ),
-            'google_seo_url_threads' => array(
+            'threads' => array(
                 'title' => "Thread URL scheme",
                 'description' => "Enter the Thread URL scheme. By default this is <i>Thread-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.",
                 'optionscode' => "text",
                 'value' => 'Thread-{url}',
                 ),
-            'google_seo_url_announcements' => array(
+            'announcements' => array(
                 'title' => "Announcement URL scheme",
                 'description' => "Enter the Announcement URL scheme. By default this is <i>Announcement-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.",
                 'optionscode' => "text",
                 'value' => 'Announcement-{url}',
                 ),
-            'google_seo_url_users' => array(
+            'users' => array(
                 'title' => "User URL scheme",
                 'description' => "Enter the User URL scheme. By default this is <i>User-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Users.",
                 'optionscode' => "text",
                 'value' => 'User-{url}',
                 ),
-            'google_seo_url_calendars' => array(
+            'calendars' => array(
                 'title' => "Calendar URL scheme",
                 'description' => "Enter the Calendar URL scheme. By default this is <i>Calendar-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Calendars.",
                 'optionscode' => "text",
                 'value' => 'Calendar-{url}',
                 ),
-            'google_seo_url_events' => array(
+            'events' => array(
                 'title' => "Event URL scheme",
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",

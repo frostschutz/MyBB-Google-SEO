@@ -170,7 +170,7 @@ global $settings;
 
 foreach(array('404', 'meta', 'redirect', 'sitemap', 'url') as $module)
 {
-    if($settings["google_seo_{$module}"])
+    if($settings["google_seo_{$module}_enabled"])
     {
         require_once MYBB_ROOT."inc/plugins/google_seo/{$module}.php";
     }
