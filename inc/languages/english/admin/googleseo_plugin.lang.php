@@ -34,6 +34,8 @@ $l['googleseo_plugin_htaccess_users'] = "Google SEO URL Users";
 $l['googleseo_plugin_list'] = "{1}, {2}";
 $l['googleseo_plugin_list_final'] = "{1} and {2}";
 $l['googleseo_plugin_meta'] = "Meta";
+$l['googleseo_plugin_pl_missing'] = 'Google SEO requires <a href="http://mods.mybb.com/view/pluginlibrary">PluginLibrary</a>. Please download and install it.';
+$l['googleseo_plugin_pl_old'] = 'Your <a href="http://mods.mybb.com/view/pluginlibrary">PluginLibrary</a> is too old. Please download and install the new version.';
 $l['googleseo_plugin_redirect'] = "Redirect";
 $l['googleseo_plugin_redirect_warn_bburl'] = "Board URL is set to '{1}', but you currently seem to be on '{2}'. A wrong Board URL setting may cause problems with Redirect.";
 $l['googleseo_plugin_redirect_warn_url'] = "Redirect enabled, but URL disabled. This is fine for redirecting stock MyBB URLs (showthread.php?tid=x) to MyBB search engine friendly URLs (thread-x.html) or vice versa. If you want to redirect stock MyBB URLs to Google SEO URLs or vice versa, please enable URL as well.";

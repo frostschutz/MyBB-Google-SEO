@@ -25,9 +25,17 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+if(!defined("PLUGINLIBRARY"))
+{
+    define("PLUGINLIBRARY", MYBB_ROOT."inc/plugins/pluginlibrary.php");
+}
+
 // This define triggers code to generate new language file for settings.
 // (Activate the plugin, Copy&Paste the output to googleseo_settings.lang.php)
 // define("GOOGLESEO_GENERATE_LANG", 1);
+
+global $lang;
+$lang->load("googleseo_plugin");
 
 /* --- Plugin Info: --- */
 
@@ -39,8 +47,6 @@ if(!defined("IN_MYBB"))
 function google_seo_plugin_info()
 {
     global $lang, $settings, $plugins_cache;
-
-    $lang->load("googleseo_plugin");
 
     $info = array(
         "name"          => "Google SEO",
@@ -359,6 +365,29 @@ function google_seo_plugin_status()
 /* --- Plugin Helpers: --- */
 
 /**
+ * Check that dependencies are installed.
+ */
+function google_seo_plugin_dependency()
+{
+    global $lang;
+
+    if(!file_exists(PLUGINLIBRARY))
+    {
+        flash_message($lang->googleseo_plugin_pl_missing, "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+
+    global $PL;
+    $PL or require_once(PLUGINLIBRARY);
+
+    if($PL->version < 3)
+    {
+        flash_message($lang->googleseo_plugin_pl_old, "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
+}
+
+/**
  * Make a human readable list out of a string array.
  * Used by plugin status.
  *
@@ -523,6 +552,8 @@ function google_seo_plugin_is_installed()
  */
 function google_seo_plugin_install()
 {
+    google_seo_plugin_dependency();
+
     global $db;
 
     // Create the Google SEO table.
@@ -546,6 +577,8 @@ function google_seo_plugin_install()
  */
 function google_seo_plugin_uninstall()
 {
+    google_seo_plugin_dependency();
+
     global $db;
 
     // Drop the Google SEO table.
@@ -571,6 +604,8 @@ function google_seo_plugin_uninstall()
 
 function google_seo_plugin_activate()
 {
+    google_seo_plugin_dependency();
+
     global $db;
 
     /* Bugfix: Empty URLs */
