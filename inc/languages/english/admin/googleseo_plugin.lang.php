@@ -19,7 +19,7 @@
  */
 
 $l['googleseo_plugin_404'] = "404";
-$l['googleseo_plugin_description'] = "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
+$l['googleseo_plugin_description'] = "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_error'] = "{1} is disabled. (<a href=\"index.php?module=config&amp;action=change&amp;search=google%20seo\">Configure</a>)";
 $l['googleseo_plugin_error_plural'] = "{1} are disabled. (<a href=\"index.php?module=config&amp;action=change&amp;search=google%20seo\">Configure</a>)";
 $l['googleseo_plugin_htaccess_404'] = "Google SEO 404";
@@ -44,8 +44,8 @@ $l['googleseo_plugin_sitemap'] = "Sitemap";
 $l['googleseo_plugin_success'] = "{1} is enabled.";
 $l['googleseo_plugin_success_plural'] = "{1} are enabled.";
 $l['googleseo_plugin_url'] = "URL";
-$l['googleseo_plugin_url_warn_functions'] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
-$l['googleseo_plugin_url_warn_translate'] = "inc/plugins/google_seo/translate.php is required for URL translation. Please see the <a href=\"../inc/plugins/google_seo.txt\">documentation</a> for details.";
+$l['googleseo_plugin_url_warn_functions'] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
+$l['googleseo_plugin_url_warn_translate'] = "inc/plugins/google_seo/translate.php is required for URL translation. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_warn_htaccess'] = "Add to .htaccess:";
 $l['googleseo_plugin_warn_mbstring'] = "Your host does not seem to support mbstring. This may cause problems with UTF-8.";
 $l['googleseo_plugin_warning_encoding'] = "Your database encoding is '{1}', should be 'utf8'. Please update your MyBB to use UTF-8 everywhere.";
