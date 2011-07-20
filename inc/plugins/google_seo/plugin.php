@@ -481,7 +481,7 @@ function google_seo_plugin_uninstall()
     $db->drop_table("google_seo");
 
     // Remove the Google SEO setting groups.
-    $PL->settings_delete("google_seo", True);
+    $PL->settings_delete("google_seo", true);
 }
 
 /* --- Plugin Activation: --- */
@@ -739,6 +739,178 @@ function google_seo_plugin_deactivate()
 {
     // Keep settings and database in case Google SEO gets activated again.
     // Use uninstall if you want to get rid of Google SEO completely.
+}
+
+/* --- Core file edits: --- */
+
+/**
+ * Apply changes to MyBB core files using PluginLibrary::edit_core().
+ *
+ */
+function google_seo_plugin_apply($check=true)
+{
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
+
+    $edits = array();
+
+    // multipage
+    $edits[] = array(
+        'search' => array('function multipage(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_multipage"))',
+            '{',
+            '    $newurl = google_seo_url_multipage($url);',
+            '',
+            '    if($newurl)',
+            '    {',
+            '        $url = $newurl;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // users
+    $edits[] = array(
+        'search' => array('function get_profile_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_profile"))',
+            '{',
+            '    $link = google_seo_url_profile($uid);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // announcements
+    $edits[] = array(
+        'search' => array('function get_announcement_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_announcement"))',
+            '{',
+            '    $link = google_seo_url_announcement($aid);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // forums
+    $edits[] = array(
+        'search' => array('function get_forum_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_forum"))',
+            '{',
+            '    $link = google_seo_url_forum($fid, $page);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // threads
+    $edits[] = array(
+        'search' => array('function get_thread_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_thread"))',
+            '{',
+            '    $link = google_seo_url_thread($tid, $page, $action);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // posts
+    $edits[] = array(
+        'search' => array('function get_post_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_post"))',
+            '{',
+            '    $link = google_seo_url_post($pid, $tid);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // events
+    $edits[] = array(
+        'search' => array('function get_event_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_event"))',
+            '{',
+            '    $link = google_seo_url_event($eid);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // calendars
+    $edits[] = array(
+        'search' => array('function get_calendar_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_calendar"))',
+            '{',
+            '    $link = google_seo_url_calendar($calendar, $year, $month, $day);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    // calendards (week)
+    $edits[] = array(
+        'search' => array('function get_calendar_week_link(', '{'),
+        'after' => array(
+            'if(function_exists("google_seo_url_calendar_week"))',
+            '{',
+            '    $link = google_seo_url_calendar_week($calendar, $week);',
+            '',
+            '    if($link)',
+            '    {',
+            '        return $link;',
+            '    }',
+            '}',
+            ),
+        );
+
+    return $PL->edit_core('google_seo', 'inc/functions.php', $edits, !$check);
+}
+
+/**
+ * Revert changes to MyBB core files using PluginLibrary::edit_core().
+ *
+ */
+function google_seo_plugin_revert($check=true)
+{
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
+
+    return $PL->edit_core('google_seo', 'inc/functions.php', array(), !$check);
 }
 
 /* --- End of file. --- */
