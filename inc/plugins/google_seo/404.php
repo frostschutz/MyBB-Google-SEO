@@ -57,6 +57,7 @@ if(THIS_SCRIPT == "misc.php"
 
 // Set HTTP 404 status code, add widget to error pages:
 $plugins->add_hook("error", "google_seo_404");
+$plugins->add_hook("no_permission", "google_seo_404_no_permission");
 
 // Custom 404 error page:
 $plugins->add_hook("misc_start", "google_seo_404_page");
@@ -73,27 +74,60 @@ $plugins->add_hook("build_friendly_wol_location_end", "google_seo_404_wol");
  */
 function google_seo_404($error)
 {
-    global $lang, $settings, $mybb;
+    global $mybb, $lang, $settings;
+    global $google_seo_404_label;
 
-    if(!$mybb->input['ajax'])
+    if($mybb->input['ajax'])
     {
-        // Technically, this is incorrect, as it also hits error messages
-        // that are intended to occur. But there is no good way of detecting
-        // all cases that should be 404 (error due to bad link) and the user
-        // gets to see the same page either way.
+        // don't mess with ajax
+        return;
+    }
 
-        // As a side effect, 404 erroring all error pages gives you a list
-        // in Google's Webmaster tools of pages that Google shouldn't access
-        // and therefore should be disallowed in robots.txt.
+    // Reverse language lookup hack. Might fail for dynamic {1} elements.
+    // Thanks to Cayo / HTTP Status plugin for this idea.
+    $keys = array_keys((array)$lang, $error);
 
-        @header("HTTP/1.1 404 Not Found");
+    if(count($keys) > 0)
+    {
+        sort($keys); // try to be deterministic in case of dupes
+        $label = $keys[0];
 
-        if($settings['google_seo_404_widget'])
+        // Most labels start with error_, shorten it.
+        if(strpos($label, "error_") === 0)
         {
-            $error .= $lang->sprintf($lang->googleseo_404_widget,
-                                     $settings['bburl']);
+            $label = substr($label, 6);
         }
     }
+
+    else if($google_seo_404_label)
+    {
+        $label = $google_seo_404_label;
+    }
+
+    else
+    {
+        $label = 'NULL';
+    }
+
+    if($label && $settings['google_seo_404_debug'])
+    {
+        $label = htmlspecialchars($label);
+        $error .= "<p>(Error label: '<b>{$label}</b>')</p>";
+    }
+
+    @header("HTTP/1.1 404 Not Found");
+
+    if($settings['google_seo_404_widget'])
+    {
+        $error .= $lang->sprintf($lang->googleseo_404_widget,
+                                 $settings['bburl']);
+    }
+}
+
+function google_seo_404_no_permission()
+{
+    global $google_seo_404_label;
+    $google_seo_404_label = "no_permission";
 }
 
 /* ---  Custom 404 error page --- */

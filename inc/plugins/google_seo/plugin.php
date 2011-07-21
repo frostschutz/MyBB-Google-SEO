@@ -562,6 +562,10 @@ function google_seo_plugin_activate()
                 'title' => "Show 404 errors in Who's Online",
                 'description' => "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.",
                 ),
+            'debug' => array(
+                'title' => "Debug 404 errors",
+                'description' => "Setting this to Yes will show the MyBB error label to board admins. The labels can then be used to configure custom error codes.",
+                ),
             )
         );
 
