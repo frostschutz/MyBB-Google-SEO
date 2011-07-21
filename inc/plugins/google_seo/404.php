@@ -38,10 +38,21 @@ if(!defined("IN_MYBB"))
 global $mybb;
 
 if(THIS_SCRIPT == "misc.php"
-   && $mybb->input['google_seo_error'] == "404"
-   && $mybb->settings['google_seo_404_wol_show'] == 0)
+   && $mybb->input['google_seo_error'] == "404")
 {
-    define("NO_ONLINE", 1);
+    if($mybb->settings['google_seo_404_wol_show'] == 0)
+    {
+        define("NO_ONLINE", 1);
+    }
+
+    else if(!defined("MYBB_LOCATION"))
+    {
+        // Include the reason for the 404 error in the location information
+        define("MYBB_LOCATION",
+               substr('misc.php?google_seo_error=404&amp;uri='
+                      .urlencode($_SERVER['REQUEST_URI']),
+                      0, 150));
+    }
 }
 
 /* --- Hooks: --- */
@@ -114,7 +125,7 @@ function google_seo_404_wol($p)
     global $lang, $user, $settings;
 
     // Check if this user is on a 404 page.
-    if(strstr($p['user_activity']['location'], "google_seo_error"))
+    if(strpos($p['user_activity']['location'], "misc.php?google_seo_error=404") === 0)
     {
         $p['user_activity']['activity'] = 'google_seo_404';
         $location = $p['user_activity']['location'];
