@@ -129,8 +129,6 @@ function google_seo_404_wol($p)
     {
         $p['user_activity']['activity'] = 'google_seo_404';
         $location = $p['user_activity']['location'];
-        // MyBB 1.4.4 bug workaround:
-        $location = str_replace("&amp;amp;", "&amp;", $location);
         $p['location_name'] = $lang->sprintf($lang->googleseo_404_wol,
                                              $location);
     }
