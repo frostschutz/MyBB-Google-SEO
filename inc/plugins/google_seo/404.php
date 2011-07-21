@@ -25,14 +25,12 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
-/* --- NO_ONLINE Hack: --- */
-
 /**
  * Hooks are called too late, so this is done before hooks:
  *
  * Define NO_ONLINE if it looks like we're going to show an 404 error,
  * unless the user explicitely wants these errors to show in the WOL.
- *
+ * In that case, also include the location that caused the 404 error.
  */
 
 global $mybb;
