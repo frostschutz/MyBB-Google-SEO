@@ -555,12 +555,13 @@ function google_seo_plugin_activate()
                 ),
             'widget' => array(
                 'title' => "404 widget",
-                'description' => "Add the Google 404 widget for invalid thread / forum / etc error pages.",
+                'description' => "Add the Google 404 widget for 404 error pages.",
                 'value' => 1,
                 ),
             'wol_show' => array(
                 'title' => "Show 404 errors in Who's Online",
                 'description' => "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.",
+                'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including URI",
                 ),
             'debug' => array(
                 'title' => "Debug 404 errors",

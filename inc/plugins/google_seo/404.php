@@ -30,7 +30,6 @@ if(!defined("IN_MYBB"))
  *
  * Define NO_ONLINE if it looks like we're going to show an 404 error,
  * unless the user explicitely wants these errors to show in the WOL.
- * In that case, also include the location that caused the 404 error.
  */
 
 global $mybb;
@@ -38,18 +37,25 @@ global $mybb;
 if(THIS_SCRIPT == "misc.php"
    && $mybb->input['google_seo_error'] == "404")
 {
-    if($mybb->settings['google_seo_404_wol_show'] == 0)
+    if($mybb->settings['google_seo_404_wol_show'])
     {
-        define("NO_ONLINE", 1);
+        // Set the 404 error location
+        $location = 'misc.php?google_seo_error=404';
+
+        if($mybb->settings['google_seo_404_wol_show'] == 2)
+        {
+            // Include the URI for debugging purposes
+            $location .= '&amp;uri='.urlencode($_SERVER['REQUEST_URI']);
+        }
+
+        $location = substr($location, 0, 150);
+
+        @define("MYBB_LOCATION", $location);
     }
 
-    else if(!defined("MYBB_LOCATION"))
+    else
     {
-        // Include the reason for the 404 error in the location information
-        define("MYBB_LOCATION",
-               substr('misc.php?google_seo_error=404&amp;uri='
-                      .urlencode($_SERVER['REQUEST_URI']),
-                      0, 150));
+        @define("NO_ONLINE", 1);
     }
 }
 
