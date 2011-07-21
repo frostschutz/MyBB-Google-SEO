@@ -19,7 +19,12 @@
  */
 
 $l['googleseo_plugin_404'] = "404";
+$l['googleseo_plugin_apply_error'] = "Couldn't apply changes to inc/functions.php. Is the file writable?";
+$l['googleseo_plugin_apply_success'] = "Changes to inc/functions.php applied successfully.";
 $l['googleseo_plugin_description'] = "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
+$l['googleseo_plugin_edit'] = "Click to {1} changes to core files.";
+$l['googleseo_plugin_edit_apply'] = "Apply";
+$l['googleseo_plugin_edit_revert'] = "Revert";
 $l['googleseo_plugin_error'] = "{1} is disabled. (<a href=\"index.php?module=config&amp;action=change&amp;search=google%20seo\">Configure</a>)";
 $l['googleseo_plugin_error_plural'] = "{1} are disabled. (<a href=\"index.php?module=config&amp;action=change&amp;search=google%20seo\">Configure</a>)";
 $l['googleseo_plugin_htaccess_404'] = "Google SEO 404";
@@ -40,6 +45,8 @@ $l['googleseo_plugin_pl_old'] = 'Your <a href="http://mods.mybb.com/view/pluginl
 $l['googleseo_plugin_redirect'] = "Redirect";
 $l['googleseo_plugin_redirect_warn_bburl'] = "Board URL is set to '{1}', but you currently seem to be on '{2}'. A wrong Board URL setting may cause problems with Redirect.";
 $l['googleseo_plugin_redirect_warn_url'] = "Redirect enabled, but URL disabled. This is fine for redirecting stock MyBB URLs (showthread.php?tid=x) to MyBB search engine friendly URLs (thread-x.html) or vice versa. If you want to redirect stock MyBB URLs to Google SEO URLs or vice versa, please enable URL as well.";
+$l['googleseo_plugin_revert_error'] = "Couldn't revert changes to inc/functions.php. Is the file writable?";
+$l['googleseo_plugin_revert_success'] = "Changes to inc/functions.php reverted successfully.";
 $l['googleseo_plugin_sitemap'] = "Sitemap";
 $l['googleseo_plugin_success'] = "{1} is enabled.";
 $l['googleseo_plugin_success_plural'] = "{1} are enabled.";

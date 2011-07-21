@@ -44,6 +44,9 @@ function google_seo_plugin_info()
 {
     global $lang, $settings, $plugins_cache;
 
+    // Check for edit action.
+    google_seo_plugin_edit();
+
     $donate = '<div style="float: right"><form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="8V9B4YYMJF862"><input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!"><img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form></div>';
 
     $info = array(
@@ -77,6 +80,8 @@ function google_seo_plugin_info()
 function google_seo_plugin_status()
 {
     global $lang, $mybb, $config, $settings, $db;
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
 
     $success = array();
     $warning = array();
@@ -310,6 +315,32 @@ function google_seo_plugin_status()
         $warning[] = $lang->googleseo_plugin_warn_mbstring;
     }
 
+    // Check edits to core files.
+    if(@is_writable(MYBB_ROOT.'inc/functions.php'))
+    {
+        if(google_seo_plugin_apply() !== true)
+        {
+            $apply = $PL->url_append('index.php',
+                                     array(
+                                         'module' => 'config-plugins',
+                                         'google_seo' => 'apply',
+                                         'my_post_key' => $mybb->post_code,
+                                         ));
+            $edits[] = "<a href=\"{$apply}\">{$lang->googleseo_plugin_edit_apply}</a>";
+        }
+
+        if(google_seo_plugin_revert() !== true)
+        {
+            $revert = $PL->url_append('index.php',
+                                      array(
+                                          'module' => 'config-plugins',
+                                          'google_seo' => 'revert',
+                                          'my_post_key' => $mybb->post_code,
+                                          ));
+            $edits[] = "<a href=\"{$revert}\">{$lang->googleseo_plugin_edit_revert}</a>";
+        }
+    }
+
     // Build a list with success, warnings, errors:
     if(count($error))
     {
@@ -353,6 +384,17 @@ function google_seo_plugin_status()
 
         $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.gif)\">"
             .$s
+            ."</li>\n";
+    }
+
+    if(count($edits))
+    {
+        $list = google_seo_plugin_list($edits);
+
+        $e = $lang->sprintf($lang->googleseo_plugin_edit, $list);
+
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/custom.gif)\">"
+            .$e
             ."</li>\n";
     }
 
@@ -744,10 +786,53 @@ function google_seo_plugin_deactivate()
 /* --- Core file edits: --- */
 
 /**
+ * Check for edit action
+ *
+ */
+function google_seo_plugin_edit()
+{
+    global $mybb, $lang;
+
+    // Check for core file edit action
+    if($mybb->input['my_post_key'] == $mybb->post_code)
+    {
+        if($mybb->input['google_seo'] == 'apply')
+        {
+            if(google_seo_plugin_apply(true) === true)
+            {
+                flash_message($lang->googleseo_plugin_apply_success, 'success');
+                admin_redirect('index.php?module=config-plugins');
+            }
+
+            else
+            {
+                flash_message($lang->googleseo_plugin_apply_error, 'error');
+                admin_redirect('index.php?module=config-plugins');
+            }
+        }
+
+        if($mybb->input['google_seo'] == 'revert')
+        {
+            if(google_seo_plugin_revert(true) === true)
+            {
+                flash_message($lang->googleseo_plugin_revert_success, 'success');
+                admin_redirect('index.php?module=config-plugins');
+            }
+
+            else
+            {
+                flash_message($lang->googleseo_plugin_revert_error, 'error');
+                admin_redirect('index.php?module=config-plugins');
+            }
+        }
+    }
+}
+
+/**
  * Apply changes to MyBB core files using PluginLibrary::edit_core().
  *
  */
-function google_seo_plugin_apply($check=true)
+function google_seo_plugin_apply($apply=false)
 {
     global $PL;
     $PL or require_once PLUGINLIBRARY;
@@ -898,19 +983,19 @@ function google_seo_plugin_apply($check=true)
             ),
         );
 
-    return $PL->edit_core('google_seo', 'inc/functions.php', $edits, !$check);
+    return $PL->edit_core('google_seo', 'inc/functions.php', $edits, $apply);
 }
 
 /**
  * Revert changes to MyBB core files using PluginLibrary::edit_core().
  *
  */
-function google_seo_plugin_revert($check=true)
+function google_seo_plugin_revert($apply=false)
 {
     global $PL;
     $PL or require_once PLUGINLIBRARY;
 
-    return $PL->edit_core('google_seo', 'inc/functions.php', array(), !$check);
+    return $PL->edit_core('google_seo', 'inc/functions.php', array(), $apply);
 }
 
 /* --- End of file. --- */
