@@ -53,6 +53,7 @@ $l['googleseo_plugin_success_plural'] = "{1} are enabled.";
 $l['googleseo_plugin_url'] = "URL";
 $l['googleseo_plugin_url_warn_functions'] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_url_warn_translate'] = "inc/plugins/google_seo/translate.php is required for URL translation. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
+$l['googleseo_plugin_warn_errordocument'] = "Please remove or comment the google_seo_error=404 directive from .htaccess while 404 is disabled.";
 $l['googleseo_plugin_warn_htaccess'] = "Add to .htaccess:";
 $l['googleseo_plugin_warn_mbstring'] = "Your host does not seem to support mbstring. This may cause problems with UTF-8.";
 $l['googleseo_plugin_warning_encoding'] = "Your database encoding is '{1}', should be 'utf8'. Please update your MyBB to use UTF-8 everywhere.";

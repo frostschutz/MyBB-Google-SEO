@@ -100,6 +100,12 @@ function google_seo_plugin_status()
     if($settings['google_seo_404_enabled'])
     {
         $success[] = $lang->googleseo_plugin_404;
+
+        $url = $settings['bburl'];
+        $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
+        $htaccess[] = array("ErrorDocument 404 $url/misc.php?google_seo_error=404",
+                            0,
+                            $lang->googleseo_plugin_htaccess_404);
     }
 
     else
@@ -244,16 +250,7 @@ function google_seo_plugin_status()
     }
 
     // Check htaccess.
-    if($settings['google_seo_404_enabled'])
-    {
-        $url = $settings['bburl'];
-        $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
-        $htaccess[] = array("ErrorDocument 404 $url/misc.php?google_seo_error=404",
-                            0,
-                            $lang->googleseo_plugin_htaccess_404);
-    }
-
-    if(count($htaccess))
+    if(count($htaccess) || !$settings['google_seo_404_enabled'])
     {
         $file = @file_get_contents(MYBB_ROOT.".htaccess");
 
@@ -313,8 +310,15 @@ function google_seo_plugin_status()
         {
             $warning[] = $lang->googleseo_plugin_warn_htaccess
                 ."<pre style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
-                .implode($lines, "\n")
+                .htmlspecialchars(implode($lines, "\n"))
                 ."</pre>";
+        }
+
+        // Special case: remove ErrorDocument if 404 is disabled
+        if(!$settings['google_seo_404_enabled']
+           && strpos($file, "google_seo_error=404"))
+        {
+            $warning[] = $lang->googleseo_plugin_warn_errordocument;
         }
     }
 
