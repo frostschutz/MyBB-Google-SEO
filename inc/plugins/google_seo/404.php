@@ -71,6 +71,75 @@ $plugins->add_hook("misc_start", "google_seo_404_page");
 // WOL extension for custom page:
 $plugins->add_hook("build_friendly_wol_location_end", "google_seo_404_wol");
 
+/* --- 404 helpers: --- */
+
+/**
+ * Sort function: longest strings first, patterns last
+ */
+function google_seo_404_status_cmp($a, $b)
+{
+    return strlen($b) - strlen($a);
+}
+
+/**
+ * Parse the 404 status setting
+ */
+function google_seo_404_status($label)
+{
+    global $settings;
+
+    $patterns = array('*' => '404 Not Found');
+
+    if(is_string($settings['google_seo_404_status']))
+    {
+        $lines = explode("\n", $settings['google_seo_404_status']);
+
+        foreach($lines as $line)
+        {
+            $fields = explode(":", $line);
+
+            if(count($fields) == 2)
+            {
+                $status = trim($fields[0]);
+                $values = explode(",", $fields[1]);
+
+                if(strpos($status, intval($status).' ') === 0)
+                {
+                    foreach($values as $value)
+                    {
+                        $value = trim($value);
+
+                        if($value === $label)
+                        {
+                            return $status;
+                        }
+
+                        else if(strpos($value, '*') !== false)
+                        {
+                            $patterns[$value] = $status;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Sort patterns by length.
+    uksort($patterns, 'google_seo_404_status_cmp');
+
+    // Find the first matching pattern
+    foreach($patterns as $pattern => $status)
+    {
+        $pattern = preg_quote($pattern, '#');
+        $pattern = str_replace('\\*', '.*', $pattern);
+
+        if(preg_match("#^{$pattern}\$#", $label))
+        {
+            return $status;
+        }
+    }
+}
+
 /* --- 404 error handling: --- */
 
 /**
@@ -121,12 +190,17 @@ function google_seo_404($error)
         $error .= "<p>(Error label: '<b>{$label}</b>')</p>";
     }
 
-    @header("HTTP/1.1 404 Not Found");
+    $status = google_seo_404_status($label);
 
-    if($settings['google_seo_404_widget'])
+    if($status)
     {
-        $error .= $lang->sprintf($lang->googleseo_404_widget,
-                                 $settings['bburl']);
+        @header("HTTP/1.1 {$status}");
+
+        if($status[0] == '4' && $settings['google_seo_404_widget'])
+        {
+            $error .= $lang->sprintf($lang->googleseo_404_widget,
+                                     $settings['bburl']);
+        }
     }
 }
 
@@ -144,7 +218,7 @@ function google_seo_404_no_permission()
  */
 function google_seo_404_page()
 {
-    global $lang, $mybb, $session;
+    global $mybb, $lang;
 
     if($mybb->input['google_seo_error'] == 404)
     {

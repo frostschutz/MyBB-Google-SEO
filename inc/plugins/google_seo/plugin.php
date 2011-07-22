@@ -555,17 +555,22 @@ function google_seo_plugin_activate()
                 ),
             'widget' => array(
                 'title' => "404 widget",
-                'description' => "Add the Google 404 widget for 404 error pages.",
-                'value' => 1,
+                'description' => "Add the Google 404 widget for 404/403 error pages.",
                 ),
             'wol_show' => array(
                 'title' => "Show 404 errors in Who's Online",
                 'description' => "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.",
                 'optionscode' => "radio\n0=No\n1=Yes\n2=Yes, including URI",
                 ),
+            'status' => array(
+                'title' => "Customize HTTP status codes",
+                'description' => 'Specify which <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes" target="_blank">HTTP status code</a> should be returned for specific error pages. You can specify one status code per line followed by : and a comma-separated list of error labels, which may include wildcards. By default, the returned status code is 404 Not Found.',
+                'optionscode' => "php\n<textarea name=\\\"upsetting[{\$setting['name']}]\\\" rows=\\\"5\\\" cols=\\\"80\\\" wrap=\\\"off\\\">\".htmlspecialchars(\$setting['value']).\"</textarea>",
+                'value' => "404 Not Found:*\n403 Forbidden:no_permission\n503 Service Unavailable:boardclosed\n200 OK:nosearchresults,redirect_*",
+                ),
             'debug' => array(
-                'title' => "Debug 404 errors",
-                'description' => "Setting this to Yes will show the MyBB error label to board admins. The labels can then be used to configure custom error codes.",
+                'title' => "Debug 404 error labels",
+                'description' => "Setting this to Yes will show an error label on error pages. The labels can then be used to configure custom error codes for that page.",
                 ),
             )
         );
