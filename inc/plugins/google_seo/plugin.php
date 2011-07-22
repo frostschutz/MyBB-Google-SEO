@@ -153,14 +153,23 @@ function google_seo_plugin_status()
     // Google SEO Sitemap:
     if($settings['google_seo_sitemap_enabled'])
     {
-        $success[] = $lang->googleseo_plugin_sitemap;
-
         if($settings['google_seo_sitemap_url'])
         {
+            $link = "{$settings['bburl']}/{$settings['google_seo_sitemap_url']}";
+
             $htaccess[] = array($settings['google_seo_sitemap_url'],
                                 'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
                                 'Google SEO Sitemap');
         }
+
+        else
+        {
+            $link = "{$settings['bburl']}/misc.php?google_seo_sitemap={url}";
+        }
+
+        $link = google_seo_expand($link, array('url' => 'index'));
+
+        $success[] = "<a href=\"{$link}\" target=\"_blank\">{$lang->googleseo_plugin_sitemap}</a>";
     }
 
     else
