@@ -50,6 +50,8 @@ $l['googleseo_plugin_revert_success'] = "Changes to inc/functions.php reverted s
 $l['googleseo_plugin_sitemap'] = "Sitemap";
 $l['googleseo_plugin_success'] = "{1} is enabled.";
 $l['googleseo_plugin_success_plural'] = "{1} are enabled.";
+$l['googleseo_plugin_uninstall'] = "Are you sure you want to uninstall Google SEO? This will remove your settings and SEO URL database. You won't be able to redirect SEO URLs anymore.";
+$l['googleseo_plugin_uninstall_confirm'] = "Click here to uninstall Google SEO.";
 $l['googleseo_plugin_url'] = "URL";
 $l['googleseo_plugin_url_warn_functions'] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_url_warn_translate'] = "inc/plugins/google_seo/translate.php is required for URL translation. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";

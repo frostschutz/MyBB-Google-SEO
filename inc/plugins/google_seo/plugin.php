@@ -527,9 +527,25 @@ function google_seo_plugin_uninstall()
 {
     google_seo_plugin_dependency();
 
-    global $db;
+    global $mybb, $db, $lang;
     global $PL;
-    $PL or require_once(PLUGINLIBRARY);
+    $PL or require_once PLUGINLIBRARY;
+
+    // Confirmation step.
+    if(!$mybb->input['confirm'])
+    {
+        $link = $PL->url_append('index.php', array(
+                                    'module' => 'config-plugins',
+                                    'action' => 'deactivate',
+                                    'uninstall' => '1',
+                                    'plugin' => 'google_seo',
+                                    'my_post_key' => $mybb->post_code,
+                                    'confirm' => '1',
+                                    ));
+
+        flash_message("{$lang->googleseo_plugin_uninstall} <a href=\"{$link}\">{$lang->googleseo_plugin_uninstall_confirm}</a>", "error");
+        admin_redirect("index.php?module=config-plugins");
+    }
 
     // Drop the Google SEO table.
     $db->drop_table("google_seo");
