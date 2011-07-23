@@ -89,6 +89,24 @@ function google_seo_meta_canonical($link)
 }
 
 /**
+ * Initialize a page variable
+ */
+function google_seo_meta_page($page)
+{
+    global $settings, $lang;
+    global $google_seo_page;
+
+    if($page > 1 && $settings['google_seo_meta_page'])
+    {
+        $google_seo_page = google_seo_expand(
+            $settings['google_seo_meta_page'],
+            array('page' => $lang->googleseo_meta_page,
+                  'number' => intval($page))
+            );
+    }
+}
+
+/**
  * Generate meta tags for a forum.
  *
  * @param int Forum-ID
@@ -116,6 +134,9 @@ function google_seo_meta_forum()
     {
         google_seo_meta_description($foruminfo['description']);
     }
+
+    // Page:
+    google_seo_meta_page(intval($page));
 }
 
 /**
@@ -125,7 +146,8 @@ function google_seo_meta_forum()
  */
 function google_seo_meta_thread($post)
 {
-    global $settings, $plugins, $tid, $page;
+    global $settings, $lang, $plugins, $tid, $page;
+    global $google_seo_page;
 
     // We're only interested in the first post of a page.
     $plugins->remove_hook("postbit", "google_seo_meta_thread");
@@ -149,6 +171,9 @@ function google_seo_meta_thread($post)
     {
         google_seo_meta_description($post['message']);
     }
+
+    // Page:
+    google_seo_meta_page(intval($page));
 }
 
 /**

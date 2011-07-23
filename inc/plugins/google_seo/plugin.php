@@ -613,6 +613,12 @@ function google_seo_plugin_activate()
                 'title' => "Add tags to Archive",
                 'description' => "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages by using unconventional methods.",
                 ),
+            'page' => array(
+                'title' => "Provide page number for forum and thread titles",
+                'description' => "If set, initialize a variable for forum and thread pages &gt; 1. {page} stands for Page (translatable in googleseo.lang.php), {number} for the actual page number. Edit your <i>forumdisplay</i> and <i>showthread</i> templates to include <i>{\$google_seo_page}</i> in the &lt;title&gt; tag.",
+                'optionscode' => 'text',
+                'value' => ' - {page} {number}',
+                ),
             )
         );
 
