@@ -103,7 +103,7 @@ function google_seo_plugin_status()
 
         $url = $settings['bburl'];
         $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
-        $htaccess[] = array("ErrorDocument 404 $url/misc.php?google_seo_error=404",
+        $htaccess[] = array("ErrorDocument 404 {$url}/misc.php?google_seo_error=404",
                             0,
                             $lang->googleseo_plugin_htaccess_404);
     }
@@ -268,10 +268,9 @@ function google_seo_plugin_status()
                 $rule = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $rule);
                 $url = "([^./]+)";
                 $rule = google_seo_expand($rule, array('url' => $url));
-
                 $rule = "RewriteRule ^{$rule}$ {$v[1]}";
 
-                if(strstr($file, $rule) === false)
+                if(strpos($file, $rule) === false)
                 {
                     $line = "# {$v[2]}:\n{$rule}\n";
                 }
@@ -279,7 +278,7 @@ function google_seo_plugin_status()
 
             else
             {
-                if(strstr($file, $v[0]) === false)
+                if(strpos($file, $v[0]) === false)
                 {
                     $line = "# {$v[2]}:\n{$v[0]}\n";
                 }
@@ -287,7 +286,7 @@ function google_seo_plugin_status()
 
             if($line)
             {
-                $lines[] = htmlspecialchars($line);
+                $lines[] = $line;
                 $line = '';
             }
         }
