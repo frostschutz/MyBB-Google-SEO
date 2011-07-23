@@ -455,8 +455,6 @@ function google_seo_plugin_list($strarr)
 {
     global $lang;
 
-    $result = "";
-
     // Don't do anything if it's empty.
     if(!count($strarr))
     {
