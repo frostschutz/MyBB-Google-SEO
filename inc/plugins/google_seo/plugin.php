@@ -437,7 +437,7 @@ function google_seo_plugin_dependency()
     global $PL;
     $PL or require_once(PLUGINLIBRARY);
 
-    if($PL->version < 3)
+    if($PL->version < 4)
     {
         flash_message($lang->googleseo_plugin_pl_old, "error");
         admin_redirect("index.php?module=config-plugins");
