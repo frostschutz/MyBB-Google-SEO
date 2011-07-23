@@ -190,7 +190,7 @@ function google_seo_plugin_status()
 
         $file = @file_get_contents(MYBB_ROOT."inc/functions.php");
 
-        if(strstr($file, "google_seo_url") === false)
+        if(strpos($file, "google_seo_url") === false)
         {
             $warning[] = $lang->googleseo_plugin_url_warn_functions;
         }
@@ -293,14 +293,14 @@ function google_seo_plugin_status()
 
         // Special case: search.php workaround must be the first rewrite rule.
         $workaround = 'RewriteRule ^([^&]*)&(.*)$ '.$mybb->settings['bburl'].'/$1?$2 [L,QSA,R=301]';
-        $pos = strstr($file, $workaround);
+        $pos = strpos($file, $workaround);
 
-        if($rewrite && ($pos === false || $pos != strstr($file, "RewriteRule")))
+        if($rewrite && ($pos === false || $pos != strpos($file, "RewriteRule")))
         {
             array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n# {$lang->googleseo_plugin_htaccess_search_first}\n{$workaround}\n");
         }
 
-        if($rewrite && strstr($file, "RewriteEngine on") === false)
+        if($rewrite && strpos($file, "RewriteEngine on") === false)
         {
             array_unshift($lines, "RewriteEngine on\n");
         }
