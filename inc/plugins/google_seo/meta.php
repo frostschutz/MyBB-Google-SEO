@@ -25,17 +25,11 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
-/* --- Hooks: --- */
+/* --- Globals: --- */
 
-global $settings, $google_seo_nofollow;
+global $settings, $google_seo_nofollow, $google_seo_meta;
 
-$plugins->add_hook("forumdisplay_end", "google_seo_meta_forum");
-$plugins->add_hook("postbit", "google_seo_meta_thread");
-$plugins->add_hook("member_profile_end", "google_seo_meta_user");
-$plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
-$plugins->add_hook("calendar_event_end", "google_seo_meta_event");
-$plugins->add_hook("calendar_end", "google_seo_meta_calendar");
-
+// Nofollow datetime
 if($settings['google_seo_meta_nofollow'])
 {
     $google_seo_nofollow = floatval($settings['google_seo_meta_nofollow']);
@@ -46,10 +40,20 @@ if($settings['google_seo_meta_nofollow'])
     }
 }
 
+/* --- Hooks: --- */
+
+// Generic Hooks
+$plugins->add_hook("forumdisplay_end", "google_seo_meta_forum");
+$plugins->add_hook("postbit", "google_seo_meta_thread");
+$plugins->add_hook("member_profile_end", "google_seo_meta_user");
+$plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
+$plugins->add_hook("calendar_event_end", "google_seo_meta_event");
+$plugins->add_hook("calendar_end", "google_seo_meta_calendar");
+
+// Archive Hooks
 if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
 {
     $plugins->add_hook("archive_start", "google_seo_meta_archive_start");
-    $plugins->add_hook("archive_end", "google_seo_meta_archive_end");
     $plugins->add_hook("archive_announcement_end", "google_seo_meta_archive");
     $plugins->add_hook("archive_thread_post", "google_seo_meta_archive");
     $plugins->add_hook("archive_forum_end", "google_seo_meta_archive");
@@ -58,13 +62,13 @@ if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
 /* --- Functions: --- */
 
 /**
- * Clean up a description and append it to headerinclude.
+ * Clean up a description and append it to google_seo_meta.
  *
  * @param string The unfiltered description that should be used.
  */
 function google_seo_meta_description($description)
 {
-    global $settings, $headerinclude;
+    global $settings, $plugins, $google_seo_meta;
 
     if($settings['google_seo_meta_length'] > 0)
     {
@@ -78,23 +82,25 @@ function google_seo_meta_description($description)
 
         if($description)
         {
-            $headerinclude = "<meta name=\"description\" content=\"{$description}\" />\n{$headerinclude}";
+            $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
+            $google_seo_meta = "<meta name=\"description\" content=\"{$description}\" />\n{$google_seo_meta}";
         }
     }
 }
 
 /**
- * Append a canonical link to headerinclude.
+ * Append a canonical link to google_seo_meta.
  *
  * @param string The link that is canonical for this page.
  */
 function google_seo_meta_canonical($link)
 {
-    global $settings, $headerinclude;
+    global $settings, $plugins, $google_seo_meta;
 
     if($link)
     {
-        $headerinclude = "<link rel=\"canonical\" href=\"{$settings['bburl']}/$link\" />\n{$headerinclude}";
+        $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
+        $google_seo_meta = "<link rel=\"canonical\" href=\"{$settings['bburl']}/$link\" />\n{$google_seo_meta}";
     }
 }
 
@@ -121,11 +127,12 @@ function google_seo_meta_page($page)
  */
 function google_seo_meta_noindex($fid)
 {
-    global $settings, $headerinclude;
+    global $settings, $plugins, $google_seo_meta;
 
     if(strpos(",{$settings['google_seo_meta_noindex_fids']},", ",{$fid},"))
     {
-        $headerinclude = "<meta name=\"robots\" content=\"noindex\" />\n{$headerinclude}";
+        $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
+        $google_seo_meta = "<meta name=\"robots\" content=\"noindex\" />\n{$google_seo_meta}";
     }
 }
 
@@ -369,20 +376,31 @@ function google_seo_meta_archive()
  */
 function google_seo_meta_archive_start()
 {
-    ob_start(NULL, 0);
+    ob_start('google_seo_meta_output');
 }
 
 /**
- * Add the tags to the output we caught and output it.
+ * Add the tags to the output.
  */
-function google_seo_meta_archive_end()
+function google_seo_meta_output($string)
 {
-    global $headerinclude;
+    global $google_seo_meta;
 
-    $output = ob_get_contents();
-    ob_end_clean();
-    $output = str_replace("</head>", "{$headerinclude}</head>", $output);
-    echo $output;
+    if($google_seo_meta)
+    {
+        $pos = strpos($string, '</head>');
+
+        if($pos)
+        {
+            // Insert google_seo_meta at pos.
+            $string = substr_replace($string, $google_seo_meta, $pos, 0);
+
+            // Just in case.
+            $google_seo_meta = '';
+        }
+    }
+
+    return $string;
 }
 
 /* --- End of file. --- */
