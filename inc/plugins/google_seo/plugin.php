@@ -576,12 +576,13 @@ function google_seo_plugin_activate()
         "404 error page settings for the Google Search Engine Optimization plugin.",
         array(
             'enabled' => array(
-                'title' => "Google SEO 404",
+                'title' => "Enable Google SEO 404",
                 'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
                 ),
             'widget' => array(
                 'title' => "404 widget",
                 'description' => "Add the Google 404 widget for 404/403 error pages.",
+                'value' => 1,
                 ),
             'wol_show' => array(
                 'title' => "Show 404 errors in Who's Online",
@@ -608,7 +609,7 @@ function google_seo_plugin_activate()
         "Meta tag settings for the Google Search Engine Optimization plugin.",
         array(
             'enabled' => array(
-                'title' => 'Google SEO Meta',
+                'title' => 'Enable Google SEO Meta',
                 'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
                 ),
             'length' => array(
@@ -642,7 +643,7 @@ function google_seo_plugin_activate()
         "Redirection settings for the Google Search Engine Optimization plugin.",
         array(
             'enabled' => array(
-                'title' => "Google SEO Redirect",
+                'title' => "Enable Google SEO Redirect",
                 'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
                 ),
             'permission' => array(
@@ -667,7 +668,7 @@ function google_seo_plugin_activate()
         "Sitemap settings for the Google Search Engine Optimization plugin.",
         array(
             'enabled' => array(
-                'title' => "Google SEO Sitemap",
+                'title' => "Enable Google SEO Sitemap",
                 'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
                 ),
             'url' => array(
