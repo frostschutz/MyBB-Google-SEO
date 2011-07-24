@@ -308,7 +308,7 @@ function google_seo_plugin_status()
         if(count($lines))
         {
             $warning[] = $lang->googleseo_plugin_warn_htaccess
-                ."<pre style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
+                ."<pre dir=\"ltr\" style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
                 .htmlspecialchars(implode($lines, "\n"))
                 ."</pre>";
         }
