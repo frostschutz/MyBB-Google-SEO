@@ -49,6 +49,7 @@ $plugins->add_hook("member_profile_end", "google_seo_meta_user");
 $plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
 $plugins->add_hook("calendar_event_end", "google_seo_meta_event");
 $plugins->add_hook("calendar_end", "google_seo_meta_calendar");
+$plugins->add_hook("printthread_post", "google_seo_meta_printthread");
 
 // Archive Hooks
 if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
@@ -248,6 +249,32 @@ function google_seo_meta_posts(&$post)
         $post['button_www'] = google_seo_meta_nofollow($post['www_button']);
         $post['signature'] = google_seo_meta_nofollow($post['signature']);
     }
+}
+
+/**
+ * Meta for printthread
+ */
+function google_seo_meta_printthread()
+{
+    global $plugins, $postrow, $thread;
+    global $google_seo_nofollow;
+
+    $plugins->remove_hook("printthread_post", "google_seo_meta_printthread");
+
+    google_seo_meta_thread($postrow);
+
+    // Nofollow:
+    if($google_seo_nofollow && $thread['lastpost'] > $google_seo_nofollow)
+    {
+        $plugins->add_hook("printthread_post", "google_seo_meta_printthread_post");
+        // google_seo_meta_posts already called by google_seo_meta_thread()
+    }
+}
+
+function google_seo_meta_printthread_post()
+{
+    global $postrow;
+    google_seo_meta_posts($postrow);
 }
 
 /**
