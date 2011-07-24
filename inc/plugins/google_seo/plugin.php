@@ -633,6 +633,12 @@ function google_seo_plugin_activate()
                 'optionscode' => 'text',
                 'value' => ' - {page} {number}',
                 ),
+            'noindex_fids' => array(
+                'title' => "Noindex forums",
+                'description' => "If you want to prevent one or more forums and its threads from being indexed by search engines altogether, enter a comma separated list of forum IDs here. This is not recommended but might be useful for trashcan or duplicate content forums.",
+                'optionscode' => 'text',
+                'value' => '',
+                ),
             )
         );
 

@@ -107,6 +107,19 @@ function google_seo_meta_page($page)
 }
 
 /**
+ * Make a page noindex.
+ */
+function google_seo_meta_noindex($fid)
+{
+    global $settings, $headerinclude;
+
+    if(strpos(",{$settings['google_seo_meta_noindex_fids']},", ",{$fid},"))
+    {
+        $headerinclude = "<meta name=\"robots\" content=\"noindex\" />\n{$headerinclude}";
+    }
+}
+
+/**
  * Generate meta tags for a forum.
  *
  * @param int Forum-ID
@@ -137,6 +150,9 @@ function google_seo_meta_forum()
 
     // Page:
     google_seo_meta_page(intval($page));
+
+    // Noindex:
+    google_seo_meta_noindex($fid);
 }
 
 /**
@@ -174,6 +190,9 @@ function google_seo_meta_thread($post)
 
     // Page:
     google_seo_meta_page(intval($page));
+
+    // Noindex:
+    google_seo_meta_noindex($post['fid']);
 }
 
 /**
