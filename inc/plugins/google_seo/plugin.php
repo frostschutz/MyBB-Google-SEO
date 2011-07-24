@@ -633,6 +633,12 @@ function google_seo_plugin_activate()
                 'optionscode' => 'text',
                 'value' => ' - {page} {number}',
                 ),
+            'nofollow' => array(
+                'title' => "Nofollow links",
+                'description' => "Give recently posted links the <a href=\"http://en.wikipedia.org/wiki/Nofollow\" target=\"_blank\">Nofollow</a> attribute. If your forum gets spammed, this will give you time to moderate, while still giving reputation to outgoing links in the long run. The default value is 7.0 days (one week). Set to 0 to disable, or -1 for infinite duration (not recommended).",
+                'optionscode' => 'text',
+                'value' => '7.0',
+                ),
             'noindex_fids' => array(
                 'title' => "Noindex forums",
                 'description' => "If you want to prevent one or more forums and its threads from being indexed by search engines altogether, enter a comma separated list of forum IDs here. This is not recommended but might be useful for trashcan or duplicate content forums.",

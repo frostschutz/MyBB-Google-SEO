@@ -27,7 +27,7 @@ if(!defined("IN_MYBB"))
 
 /* --- Hooks: --- */
 
-global $settings;
+global $settings, $google_seo_nofollow;
 
 $plugins->add_hook("forumdisplay_end", "google_seo_meta_forum");
 $plugins->add_hook("postbit", "google_seo_meta_thread");
@@ -35,6 +35,16 @@ $plugins->add_hook("member_profile_end", "google_seo_meta_user");
 $plugins->add_hook("postbit_announcement", "google_seo_meta_announcement");
 $plugins->add_hook("calendar_event_end", "google_seo_meta_event");
 $plugins->add_hook("calendar_end", "google_seo_meta_calendar");
+
+if($settings['google_seo_meta_nofollow'])
+{
+    $google_seo_nofollow = floatval($settings['google_seo_meta_nofollow']);
+
+    if($google_seo_nofollow > 0)
+    {
+        $google_seo_nofollow = TIME_NOW - $google_seo_nofollow*24*60*60;
+    }
+}
 
 if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
 {
@@ -120,6 +130,21 @@ function google_seo_meta_noindex($fid)
 }
 
 /**
+ * Make links in a string nofollow.
+ */
+function google_seo_meta_nofollow($text)
+{
+    if(is_string($text))
+    {
+        $text = str_replace('<a ',
+                            '<a rel="nofollow" ',
+                            $text);
+    }
+
+    return $text;
+}
+
+/**
  * Generate meta tags for a forum.
  *
  * @param int Forum-ID
@@ -160,10 +185,10 @@ function google_seo_meta_forum()
  *
  * @param post
  */
-function google_seo_meta_thread($post)
+function google_seo_meta_thread(&$post)
 {
-    global $settings, $lang, $plugins, $tid, $page;
-    global $google_seo_page;
+    global $settings, $lang, $plugins, $tid, $page, $thread;
+    global $google_seo_page, $google_seo_nofollow;
 
     // We're only interested in the first post of a page.
     $plugins->remove_hook("postbit", "google_seo_meta_thread");
@@ -193,6 +218,29 @@ function google_seo_meta_thread($post)
 
     // Noindex:
     google_seo_meta_noindex($post['fid']);
+
+    // Nofollow:
+    if($google_seo_nofollow && $thread['lastpost'] > $google_seo_nofollow)
+    {
+        // We need to grab the remaining posts as well.
+        $plugins->add_hook("postbit", "google_seo_meta_posts");
+        google_seo_meta_posts($post);
+    }
+}
+
+/**
+ * Nofollow links in posts.
+ */
+function google_seo_meta_posts(&$post)
+{
+    global $google_seo_nofollow;
+
+    if($post['dateline'] > $google_seo_nofollow)
+    {
+        $post['message'] = google_seo_meta_nofollow($post['message']);
+        $post['button_www'] = google_seo_meta_nofollow($post['www_button']);
+        $post['signature'] = google_seo_meta_nofollow($post['signature']);
+    }
 }
 
 /**
@@ -202,7 +250,8 @@ function google_seo_meta_thread($post)
  */
 function google_seo_meta_user()
 {
-    global $settings, $uid;
+    global $settings, $uid, $memprofile;
+    global $google_seo_nofollow;
 
     // Canonical:
     if($settings['google_seo_meta_canonical'] && $uid > 0)
@@ -210,8 +259,12 @@ function google_seo_meta_user()
         google_seo_meta_canonical(get_profile_link($uid));
     }
 
-    // Description:
-    // not implemented yet
+    // Nofollow:
+    if($memprofile['regdate'] > $google_seo_nofollow)
+    {
+        $signature = google_seo_meta_nofollow($signature);
+        $website = google_seo_meta_nofollow($website);
+    }
 }
 
 /**
