@@ -89,6 +89,10 @@ function google_seo_plugin_status()
     $htaccess = array();
     $lines = array();
 
+    // Required for 404 and URL
+    $base = $settings['bburl'];
+    $base = preg_replace('#^[^/]*://[^/]*#', '', $base);
+
     // UTF-8 is required:
     if($mybb->config['database']['encoding'] != 'utf8')
     {
@@ -101,9 +105,7 @@ function google_seo_plugin_status()
     {
         $success[] = $lang->googleseo_plugin_404;
 
-        $url = $settings['bburl'];
-        $url = preg_replace('#^[^/]*://[^/]*#', '', $url);
-        $htaccess[] = array("ErrorDocument 404 {$url}/misc.php?google_seo_error=404",
+        $htaccess[] = array("ErrorDocument 404 {$base}/misc.php?google_seo_error=404",
                             0,
                             $lang->googleseo_plugin_htaccess_404);
     }
@@ -291,6 +293,11 @@ function google_seo_plugin_status()
         if($rewrite && ($pos === false || $pos != strpos($file, "RewriteRule")))
         {
             array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n# {$lang->googleseo_plugin_htaccess_search_first}\n{$workaround}\n");
+        }
+
+        if($rewrite && (strpos($file, "RewriteBase {$base}") === false || strpos($file, "RewriteBase") > strpos($file, "RewriteRule")))
+        {
+            array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_rewritebase}\nRewriteBase {$base}/\n");
         }
 
         if($rewrite && strpos($file, "RewriteEngine on") === false)
