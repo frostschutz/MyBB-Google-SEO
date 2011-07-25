@@ -92,7 +92,7 @@ function google_seo_plugin_status()
     // UTF-8 is required:
     if($mybb->config['database']['encoding'] != 'utf8')
     {
-        $warning[] = $lang->sprintf($lang->googleseo_plugin_databasencoding,
+        $warning[] = $lang->sprintf($lang->googleseo_plugin_warn_encoding,
                                     $mybb->config['database']['encoding']);
     }
 
@@ -187,13 +187,6 @@ function google_seo_plugin_status()
     if($settings['google_seo_url_enabled'])
     {
         $success[] = $lang->googleseo_plugin_url;
-
-        $file = @file_get_contents(MYBB_ROOT."inc/functions.php");
-
-        if(strpos($file, "google_seo_url") === false)
-        {
-            $warning[] = $lang->googleseo_plugin_url_warn_functions;
-        }
 
         if($settings['google_seo_url_translate'] &&
            !file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
@@ -328,29 +321,41 @@ function google_seo_plugin_status()
     }
 
     // Check edits to core files.
-    if(@is_writable(MYBB_ROOT.'inc/functions.php'))
+    if(google_seo_plugin_apply() !== true)
     {
-        if(google_seo_plugin_apply() !== true)
+        if($settings['google_seo_url_enabled'])
         {
-            $apply = $PL->url_append('index.php',
-                                     array(
-                                         'module' => 'config-plugins',
-                                         'google_seo' => 'apply',
-                                         'my_post_key' => $mybb->post_code,
-                                         ));
-            $edits[] = "<a href=\"{$apply}\">{$lang->googleseo_plugin_edit_apply}</a>";
+            $warning[] = $lang->googleseo_plugin_warn_url_apply;
+
+            if($settings['google_seo_redirect_enabled'])
+            {
+                $warning[] = $lang->googleseo_plugin_warn_url_redirect;
+            }
         }
 
-        if(google_seo_plugin_revert() !== true)
+        $apply = $PL->url_append('index.php',
+                                 array(
+                                     'module' => 'config-plugins',
+                                     'google_seo' => 'apply',
+                                     'my_post_key' => $mybb->post_code,
+                                     ));
+        $edits[] = "<a href=\"{$apply}\">{$lang->googleseo_plugin_edit_apply}</a>";
+    }
+
+    if(google_seo_plugin_revert() !== true)
+    {
+        if(!$settings['google_seo_url_enabled'])
         {
-            $revert = $PL->url_append('index.php',
-                                      array(
-                                          'module' => 'config-plugins',
-                                          'google_seo' => 'revert',
-                                          'my_post_key' => $mybb->post_code,
-                                          ));
-            $edits[] = "<a href=\"{$revert}\">{$lang->googleseo_plugin_edit_revert}</a>";
+            $warning[] = $lang->googleseo_plugin_warn_url_revert;
         }
+
+        $revert = $PL->url_append('index.php',
+                                  array(
+                                      'module' => 'config-plugins',
+                                      'google_seo' => 'revert',
+                                      'my_post_key' => $mybb->post_code,
+                                      ));
+        $edits[] = "<a href=\"{$revert}\">{$lang->googleseo_plugin_edit_revert}</a>";
     }
 
     // Build a list with success, warnings, errors:
