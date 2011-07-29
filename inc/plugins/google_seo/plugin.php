@@ -836,6 +836,16 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => 'Event-{url}',
                 ),
+            'query_limit' => array(
+                'title' => 'Query Limit',
+                'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 20. Set to 0 for no limit.</p>",
+                'optionscode' => "text",
+                'value' => '20',
+                ),
+            'query_post' => array(
+                'title' => 'Handle pure post URLs',
+                'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
+                ),
             )
         );
 }

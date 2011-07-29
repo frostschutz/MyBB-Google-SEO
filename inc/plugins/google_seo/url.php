@@ -47,6 +47,16 @@ $google_seo_url_idtype = array(
     "calendars" => 6,
     );
 
+// Query limit. Decreases by 1 for every query.
+global $db;
+
+$db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
+
+if($db->google_seo_query_limit <= 0)
+{
+    $db->google_seo_query_limit = 32767;
+}
+
 // There are several more global variables defined in functions below.
 
 /* --- URL processing: --- */
@@ -264,6 +274,11 @@ function google_seo_url_create($type, $ids)
     global $db, $settings;
     global $google_seo_url_idtype, $google_seo_url_cache;
 
+    if($db->google_seo_query_limit <= 0)
+    {
+        return;
+    }
+
     $scheme = $settings["google_seo_url_$type"];
 
     // Is Google SEO URL enabled for this type?
@@ -299,6 +314,7 @@ function google_seo_url_create($type, $ids)
         }
 
         // Query the item title as base for our URL.
+        $db->google_seo_query_limit--;
         $titles = $db->query("SELECT $titlename,$idname
                               FROM ".TABLE_PREFIX."$type
                               WHERE $idname IN ("
@@ -336,6 +352,7 @@ function google_seo_url_create($type, $ids)
             $idtype = $google_seo_url_idtype[$type];
 
             // Check for existing entry and possible collisions.
+            $db->google_seo_query_limit--;
             $query = $db->query("SELECT url,id FROM ".TABLE_PREFIX."google_seo
                                  WHERE idtype=$idtype
                                  AND url IN ('"
@@ -371,6 +388,7 @@ function google_seo_url_create($type, $ids)
                 }
 
                 // Set old entries for us to not active.
+                $db->google_seo_query_limit--;
                 $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
                                   SET active=NULL
                                   WHERE active=1
@@ -378,6 +396,7 @@ function google_seo_url_create($type, $ids)
                                   AND id=$id");
 
                 // Insert new entry (while possibly replacing old ones).
+                $db->google_seo_query_limit--;
                 $db->write_query("REPLACE INTO ".TABLE_PREFIX."google_seo
                                   VALUES (active,idtype,id,url),
                                   ('1','$idtype','$id','".$db->escape_string($url)."')");
@@ -416,7 +435,7 @@ function google_seo_url_create($type, $ids)
  */
 function google_seo_url_optimize($type, $id)
 {
-    global $mybb, $settings, $cache, $db;
+    global $db, $mybb, $settings, $cache;
     global $google_seo_url_optimize, $google_seo_url_cache;
 
     switch(THIS_SCRIPT)
@@ -457,6 +476,7 @@ function google_seo_url_optimize($type, $id)
                 if($mybb->settings['showwol'] != 0 && $mybb->usergroup['canviewonline'] != 0)
                 {
                     $timesearch = TIME_NOW - $mybb->settings['wolcutoff'];
+                    $db->google_seo_query_limit--;
                     $query = $db->query("SELECT uid FROM ".TABLE_PREFIX."sessions
                                          WHERE uid != '0' AND time > '$timesearch'");
 
@@ -687,10 +707,12 @@ function google_seo_url_optimize($type, $id)
  */
 function google_seo_url_cache($type, $id)
 {
-    global $db, $settings, $google_seo_url_cache, $google_seo_url_idtype;
+    global $db, $settings;
+    global $google_seo_url_cache, $google_seo_url_idtype;
 
     // If it's not in the cache, try loading the cache.
-    if($google_seo_url_cache[$type][$id] === NULL)
+    if($google_seo_url_cache[$type][$id] === NULL
+        && $db->google_seo_query_limit > 0)
     {
         // Prepare database query.
         $idtype = $google_seo_url_idtype[$type];
@@ -709,6 +731,7 @@ function google_seo_url_cache($type, $id)
         $ids = google_seo_url_optimize($type, $id);
 
         // Run database query.
+        $db->google_seo_query_limit--;
         $query = $db->query("SELECT $what
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE active=1
@@ -750,10 +773,12 @@ function google_seo_url_cache($type, $id)
  */
 function google_seo_url_id($type, $url)
 {
-    global $db, $settings, $google_seo_url_idtype;
+    global $db, $settings;
+    global $google_seo_url_idtype;
 
     $idtype = $google_seo_url_idtype[$type];
 
+    $db->google_seo_query_limit--;
     $query = $db->query("SELECT id
                          FROM ".TABLE_PREFIX."google_seo
                          WHERE idtype=$idtype
@@ -772,6 +797,7 @@ function google_seo_url_id($type, $url)
             $urls[2] = $db->escape_string(google_seo_url_separate($urls[1]));
         }
 
+        $db->google_seo_query_limit--;
         $query = $db->query("SELECT id
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE idtype=$idtype
@@ -802,7 +828,7 @@ function google_seo_url_id($type, $url)
  */
 function google_seo_url_hook()
 {
-    global $db, $settings, $mybb, $session;
+    global $db, $mybb, $settings, $session;
 
     // Translate URL name to ID and verify.
     switch(THIS_SCRIPT)
@@ -978,6 +1004,7 @@ function google_seo_url_hook()
     {
         $updatesession = array_map(array($db, 'escape_string'), $updatesession);
 
+        $db->google_seo_query_limit--;
         $db->update_query('sessions', $updatesession,
                           "sid='".$db->escape_string($session->sid)."'");
     }
@@ -1043,14 +1070,15 @@ function google_seo_url_merge_hook()
  */
 function google_seo_url_after_merge_hook($arguments)
 {
-    global $db, $google_seo_url_idtype;
+    global $db;
+    global $google_seo_url_idtype;
 
     $mergetid = intval($arguments['mergetid']);
     $tid = intval($arguments['tid']);
     $idtype = $google_seo_url_idtype['threads'];
 
     // Integrate mergetid into tid:
-
+    $db->google_seo_query_limit--;
     $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
                       SET active=NULL, id={$tid}
                       WHERE idtype={$idtype} AND id={$mergetid}");
@@ -1162,7 +1190,8 @@ function google_seo_url_thread($tid, $page=0, $action='')
  */
 function google_seo_url_post($pid, $tid=0)
 {
-    global $settings, $db;
+    global $db, $settings;
+    global $google_seo_url_pid;
 
     if($settings['google_seo_url_threads'] && $pid > 0)
     {
@@ -1170,38 +1199,57 @@ function google_seo_url_post($pid, $tid=0)
         {
             // We didn't get a tid so we have to fetch it. Ugly.
             // Code based on showthread.php:
-            global $style;
+            global $style, $thread, $post;
 
-            if(isset($style) && $style['pid'] == $pid && $style['tid'])
+            if(array_key_exists($pid, (array)$google_seo_url_pid))
             {
-                $tid = $style['tid'];
+                $tid = $google_seo_url_pid[$pid];
             }
 
-            else
+            else if(isset($style) && $style['pid'] == $pid && $style['tid'])
+            {
+                $tid = intval($style['tid']);
+            }
+
+            else if(isset($thread) && $thread['firstpost'] == $pid && $thread['tid'])
+            {
+                $tid = intval($thread['tid']);
+            }
+
+            else if(isset($post) && $post['pid'] == $pid && $post['tid'])
+            {
+                $tid = intval($post['tid']);
+            }
+
+            else if($settings['google_seo_url_query_post'] && $db->google_seo_query_limit > 0)
             {
                 $options = array(
                     "limit" => 1
                 );
+                $db->google_seo_query_limit--;
                 $query = $db->simple_select("posts", "tid", "pid={$pid}",
                                             $options);
                 $tid = $db->fetch_field($query, "tid");
             }
 
-            // If we still don't have a tid, we were given an invalid pid.
+            // If we still don't have a tid, give up.
             if($tid <= 0)
             {
+                $google_seo_url_pid[$pid] = 0;
                 return 0;
             }
         }
+
+        // Cache it if a link for the same pid is asked twice.
+        $google_seo_url_pid[$pid] = $tid;
 
         $url = google_seo_url_cache("threads", $tid);
 
         if($url)
         {
             $url .= "?pid={$pid}";
+            return $url;
         }
-
-        return $url;
     }
 }
 
