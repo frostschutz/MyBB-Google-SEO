@@ -302,6 +302,7 @@ function google_seo_url_create($type, $ids)
             case "threads":
                 $idname = "tid";
                 $titlename = "subject";
+                $extra = ",prefix";
                 break;
             case "events":
                 $idname = "eid";
@@ -315,9 +316,9 @@ function google_seo_url_create($type, $ids)
 
         // Query the item title as base for our URL.
         $db->google_seo_query_limit--;
-        $titles = $db->query("SELECT $titlename,$idname
-                              FROM ".TABLE_PREFIX."$type
-                              WHERE $idname IN ("
+        $titles = $db->query("SELECT {$titlename},{$idname}{$extra}
+                              FROM ".TABLE_PREFIX."{$type}
+                              WHERE {$idname} IN ("
                              .implode((array)$ids, ",")
                              .")");
 
@@ -329,6 +330,20 @@ function google_seo_url_create($type, $ids)
             if($type == "forums")
             {
                 $url = strip_tags($url);
+            }
+
+            // Thread Prefixes
+            if($type == "threads" && $row['prefix']
+               && $settings['google_seo_url_thread_prefix'])
+            {
+                $prefix = build_prefixes($row['prefix']);
+
+                if($prefix['prefix'])
+                {
+                    $url = google_seo_expand($settings['google_seo_url_thread_prefix'],
+                                             array('url' => $url,
+                                                   'prefix' => $prefix['prefix']));
+                }
             }
 
             $id = $row[$idname];

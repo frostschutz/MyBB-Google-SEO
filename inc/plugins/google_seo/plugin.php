@@ -846,6 +846,12 @@ function google_seo_plugin_activate()
                 'title' => 'Handle pure post URLs',
                 'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
                 ),
+            'thread_prefix' => array(
+                'title' => 'Thread Prefixes in URLs',
+                'description' => "Include thread prefixes in thread URLs?",
+                'optionscode' => "text",
+                'value' => "{prefix}-{url}",
+                ),
             )
         );
 }
