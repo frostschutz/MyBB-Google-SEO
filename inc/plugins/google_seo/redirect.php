@@ -278,6 +278,7 @@ function google_seo_redirect_hook()
                         header("Content-type: text/html; charset=UTF-8");
                         echo "<pre style=\"text-align: left\">";
                         echo "Google SEO Redirect Debug Information:\n";
+                        echo "!!! WARNING: This may contain cookie authentication data. Don't post debug info in public. !!!\n";
                         echo htmlspecialchars(
                             print_r(
                                 array(
