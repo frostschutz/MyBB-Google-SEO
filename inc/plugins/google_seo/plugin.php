@@ -758,6 +758,12 @@ function google_seo_plugin_activate()
                 'title' => "Enable Google SEO URLs",
                 'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
                 ),
+            'query_limit' => array(
+                'title' => 'Query Limit',
+                'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 20. Set to 0 for no limit.</p>",
+                'optionscode' => "text",
+                'value' => '20',
+                ),
             'punctuation' => array(
                 'title' => "Punctuation characters",
                 'description' => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters including space. If you are running an international forum with non-ASCII script, you might want to add unwanted punctuation characters of those scripts here.",
@@ -800,6 +806,23 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => '0',
                 ),
+            'prefix' => array(
+                'title' => 'Thread Prefixes',
+                'description' => "Include thread prefixes in thread URLs?",
+                'optionscode' => "text",
+                'value' => "{prefix}-{url}",
+                ),
+            'posts' => array(
+                'title' => 'Handle post links',
+                'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
+                'optionscode' => "radio\n0=No\n1=Maybe (use given or guessed tid)\n2=Yes (query tid if necessary)",
+                'value' => 1,
+                ),
+            'multipage' => array(
+                'title' => 'Handle multipage links',
+                'description' => "MyBB uses a special multipage() function to produce pagination links for all sorts of things, including forum and thread pages. Set this to Yes to allow Google SEO to attempt replacing these with their SEO URL counterparts, otherwise no.",
+                'value' => 1,
+                ),
             'forums' => array(
                 'title' => "Forum URL scheme",
                 'description' => "Enter the Forum URL scheme. By default this is <i>Forum-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Forums.",
@@ -835,22 +858,6 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Event URL scheme. By default this is <i>Event-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Events.",
                 'optionscode' => "text",
                 'value' => 'Event-{url}',
-                ),
-            'query_limit' => array(
-                'title' => 'Query Limit',
-                'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 20. Set to 0 for no limit.</p>",
-                'optionscode' => "text",
-                'value' => '20',
-                ),
-            'query_post' => array(
-                'title' => 'Handle pure post URLs',
-                'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
-                ),
-            'thread_prefix' => array(
-                'title' => 'Thread Prefixes in URLs',
-                'description' => "Include thread prefixes in thread URLs?",
-                'optionscode' => "text",
-                'value' => "{prefix}-{url}",
                 ),
             )
         );
@@ -917,154 +924,191 @@ function google_seo_plugin_edit()
  */
 function google_seo_plugin_apply($apply=false)
 {
+    global $settings;
     global $PL;
     $PL or require_once PLUGINLIBRARY;
 
     $edits = array();
 
-    // multipage
-    $edits[] = array(
-        'search' => array('function multipage(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_multipage"))',
-            '{',
-            '    $newurl = google_seo_url_multipage($url);',
-            '',
-            '    if($newurl)',
-            '    {',
-            '        $url = $newurl;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_multipage']
+       && ($settings['google_seo_url_forums']
+           || $settings['google_seo_url_threads']))
+    {
+        // multipage
+        $edits[] = array(
+            'search' => array('function multipage(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_multipage"))',
+                '{',
+                '    $newurl = google_seo_url_multipage($url);',
+                '',
+                '    if($newurl)',
+                '    {',
+                '        $url = $newurl;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // users
-    $edits[] = array(
-        'search' => array('function get_profile_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_profile"))',
-            '{',
-            '    $link = google_seo_url_profile($uid);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_users'])
+    {
+        // users
+        $edits[] = array(
+            'search' => array('function get_profile_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_profile"))',
+                '{',
+                '    $link = google_seo_url_profile($uid);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // announcements
-    $edits[] = array(
-        'search' => array('function get_announcement_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_announcement"))',
-            '{',
-            '    $link = google_seo_url_announcement($aid);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_announcements'])
+    {
+        // announcements
+        $edits[] = array(
+            'search' => array('function get_announcement_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_announcement"))',
+                '{',
+                '    $link = google_seo_url_announcement($aid);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // forums
-    $edits[] = array(
-        'search' => array('function get_forum_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_forum"))',
-            '{',
-            '    $link = google_seo_url_forum($fid, $page);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_forums'])
+    {
+        // forums
+        $edits[] = array(
+            'search' => array('function get_forum_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_forum"))',
+                '{',
+                '    $link = google_seo_url_forum($fid, $page);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // threads
-    $edits[] = array(
-        'search' => array('function get_thread_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_thread"))',
-            '{',
-            '    $link = google_seo_url_thread($tid, $page, $action);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_threads'])
+    {
+        // threads
+        $edits[] = array(
+            'search' => array('function get_thread_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_thread"))',
+                '{',
+                '    $link = google_seo_url_thread($tid, $page, $action);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // posts
-    $edits[] = array(
-        'search' => array('function get_post_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_post"))',
-            '{',
-            '    $link = google_seo_url_post($pid, $tid);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_threads']
+       && $settings['google_seo_url_posts'])
+    {
+        // posts
+        $edits[] = array(
+            'search' => array('function get_post_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_post"))',
+                '{',
+                '    $link = google_seo_url_post($pid, $tid);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // events
-    $edits[] = array(
-        'search' => array('function get_event_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_event"))',
-            '{',
-            '    $link = google_seo_url_event($eid);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_events'])
+    {
+        // events
+        $edits[] = array(
+            'search' => array('function get_event_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_event"))',
+                '{',
+                '    $link = google_seo_url_event($eid);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // calendars
-    $edits[] = array(
-        'search' => array('function get_calendar_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_calendar"))',
-            '{',
-            '    $link = google_seo_url_calendar($calendar, $year, $month, $day);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_calendars'])
+    {
+        // calendars
+        $edits[] = array(
+            'search' => array('function get_calendar_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_calendar"))',
+                '{',
+                '    $link = google_seo_url_calendar($calendar, $year, $month, $day);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
 
-    // calendards (week)
-    $edits[] = array(
-        'search' => array('function get_calendar_week_link(', '{'),
-        'after' => array(
-            'if(function_exists("google_seo_url_calendar_week"))',
-            '{',
-            '    $link = google_seo_url_calendar_week($calendar, $week);',
-            '',
-            '    if($link)',
-            '    {',
-            '        return $link;',
-            '    }',
-            '}',
-            ),
-        );
+    if($settings['google_seo_url_weeks'])
+    {
+        // calendards (week)
+        $edits[] = array(
+            'search' => array('function get_calendar_week_link(', '{'),
+            'after' => array(
+                'if(function_exists("google_seo_url_calendar_week"))',
+                '{',
+                '    $link = google_seo_url_calendar_week($calendar, $week);',
+                '',
+                '    if($link)',
+                '    {',
+                '        return $link;',
+                '    }',
+                '}',
+                ),
+            );
+    }
+
+    if(!$settings['google_seo_url_enabled'])
+    {
+        // ... not. ;)
+        $edits = array();
+    }
 
     return $PL->edit_core('google_seo', 'inc/functions.php', $edits, $apply);
 }
