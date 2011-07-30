@@ -334,13 +334,13 @@ function google_seo_url_create($type, $ids)
 
             // Thread Prefixes
             if($type == "threads" && $row['prefix']
-               && $settings['google_seo_url_thread_prefix'])
+               && $settings['google_seo_url_prefix'])
             {
                 $prefix = build_prefixes($row['prefix']);
 
                 if($prefix['prefix'])
                 {
-                    $url = google_seo_expand($settings['google_seo_url_thread_prefix'],
+                    $url = google_seo_expand($settings['google_seo_url_prefix'],
                                              array('url' => $url,
                                                    'prefix' => $prefix['prefix']));
                 }
