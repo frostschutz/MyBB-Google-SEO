@@ -34,21 +34,60 @@ $plugins->add_hook("class_moderation_merge_threads", "google_seo_url_after_merge
 
 /* --- Global Variables: --- */
 
-// Required for database queries to the google_seo table.
-// Do not change.
-global $google_seo_url_idtype;
+global $db;
 
-$google_seo_url_idtype = array(
-    "users" => 1,
-    "announcements" => 2,
-    "forums" => 3,
-    "threads" => 4,
-    "events" => 5,
-    "calendars" => 6,
+// Required for database queries to the google_seo table. In theory this
+// could be used to coerce Google SEO into managing URLs of other types.
+// In practice there is no guarantee that this API will stay stable.
+
+define('GOOGLE_SEO_USER', 1);
+define('GOOGLE_SEO_ANNOUNCEMENT', 2);
+define('GOOGLE_SEO_FORUM', 3);
+define('GOOGLE_SEO_THREAD', 4);
+define('GOOGLE_SEO_EVENT', 5);
+define('GOOGLE_SEO_CALENDAR', 6);
+
+$db->google_seo_url = array(
+    GOOGLE_SEO_USER => array(
+        'table' => TABLE_PREFIX.'users',
+        'id' => 'uid',
+        'name' => 'username',
+        'scheme' => $settings['google_seo_url_users'],
+        ),
+    GOOGLE_SEO_ANNOUNCEMENT => array(
+        'table' => TABLE_PREFIX.'announcements',
+        'id' => 'aid',
+        'name' => 'subject',
+        'scheme' => $settings['google_seo_url_announcements'],
+        ),
+    GOOGLE_SEO_FORUM => array(
+        'table' => TABLE_PREFIX.'forums',
+        'id' => 'fid',
+        'name' => 'name',
+        'scheme' => $settings['google_seo_url_forums'],
+        ),
+    GOOGLE_SEO_THREAD => array(
+        'table' => TABLE_PREFIX.'threads',
+        'id' => 'tid',
+        'name' => 'subject',
+        'extra' => ',prefix',
+        'scheme' => $settings['google_seo_url_threads'],
+        ),
+    GOOGLE_SEO_EVENT => array(
+        'table' => TABLE_PREFIX.'events',
+        'id' => 'eid',
+        'name' => 'name',
+        'scheme' => $settings['google_seo_url_events'],
+        ),
+    GOOGLE_SEO_CALENDAR => array(
+        'table' => TABLE_PREFIX.'calendars',
+        'id' => 'cid',
+        'name' => 'name',
+        'scheme' => $settings['google_seo_url_calendars'],
+        ),
     );
 
 // Query limit. Decreases by 1 for every query.
-global $db;
 
 $db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
 
@@ -272,68 +311,39 @@ function google_seo_url_finalize($url, $scheme)
 function google_seo_url_create($type, $ids)
 {
     global $db, $settings;
-    global $google_seo_url_idtype, $google_seo_url_cache;
+    global $google_seo_url_cache;
 
     if($db->google_seo_query_limit <= 0)
     {
         return;
     }
 
-    $scheme = $settings["google_seo_url_$type"];
+    $data = $db->google_seo_url[$type];
 
     // Is Google SEO URL enabled for this type?
-    if($scheme)
+    if($data['scheme'])
     {
-        // Prepare the query of the item title:
-        switch($type)
-        {
-            case "users":
-                $idname = "uid";
-                $titlename = "username";
-                break;
-            case "announcements":
-                $idname = "aid";
-                $titlename = "subject";
-                break;
-            case "forums":
-                $idname = "fid";
-                $titlename = "name";
-                break;
-            case "threads":
-                $idname = "tid";
-                $titlename = "subject";
-                $extra = ",prefix";
-                break;
-            case "events":
-                $idname = "eid";
-                $titlename = "name";
-                break;
-            case "calendars":
-                $idname = "cid";
-                $titlename = "name";
-                break;
-        }
 
         // Query the item title as base for our URL.
         $db->google_seo_query_limit--;
-        $titles = $db->query("SELECT {$titlename},{$idname}{$extra}
-                              FROM ".TABLE_PREFIX."{$type}
-                              WHERE {$idname} IN ("
+        $titles = $db->query("SELECT {$data['name']},{$data['id']}{$data['extra']}
+                              FROM {$data['table']}
+                              WHERE {$data['id']} IN ("
                              .implode((array)$ids, ",")
                              .")");
 
         while($row = $db->fetch_array($titles))
         {
-            $url = $row[$titlename];
+            $url = $row[$data['name']];
 
             // MyBB unfortunately allows HTML in forum names.
-            if($type == "forums")
+            if($type == GOOGLE_SEO_FORUM)
             {
                 $url = strip_tags($url);
             }
 
             // Thread Prefixes
-            if($type == "threads" && $row['prefix']
+            if($type == GOOGLE_SEO_THREAD && $row['prefix']
                && $settings['google_seo_url_prefix'])
             {
                 $prefix = build_prefixes($row['prefix']);
@@ -346,7 +356,7 @@ function google_seo_url_create($type, $ids)
                 }
             }
 
-            $id = $row[$idname];
+            $id = $row[$data['id']];
 
             // Prepare the URL.
             if($settings['google_seo_url_translate'])
@@ -364,19 +374,17 @@ function google_seo_url_create($type, $ids)
                 $url = $uniqueurl;
             }
 
-            $idtype = $google_seo_url_idtype[$type];
-
             // Check for existing entry and possible collisions.
             $db->google_seo_query_limit--;
             $query = $db->query("SELECT url,id FROM ".TABLE_PREFIX."google_seo
-                                 WHERE idtype=$idtype
+                                 WHERE idtype={$type}
                                  AND url IN ('"
                                 .$db->escape_string($url)."','"
                                 .$db->escape_string($uniqueurl)."')
                                  AND active=1
-                                 AND id<=$id
-                                 AND EXISTS(SELECT * FROM ".TABLE_PREFIX."$type
-                                            WHERE $idname=id)
+                                 AND id<={$id}
+                                 AND EXISTS(SELECT * FROM {$data['table']}
+                                            WHERE {$data['id']}=id)
                                  ORDER BY id ASC");
 
             $urlrow = $db->fetch_array($query);
@@ -407,14 +415,14 @@ function google_seo_url_create($type, $ids)
                 $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
                                   SET active=NULL
                                   WHERE active=1
-                                  AND idtype=$idtype
-                                  AND id=$id");
+                                  AND idtype={$type}
+                                  AND id={$id}");
 
                 // Insert new entry (while possibly replacing old ones).
                 $db->google_seo_query_limit--;
                 $db->write_query("REPLACE INTO ".TABLE_PREFIX."google_seo
                                   VALUES (active,idtype,id,url),
-                                  ('1','$idtype','$id','".$db->escape_string($url)."')");
+                                  ('1','{$type}','{$id}','".$db->escape_string($url)."')");
             }
 
             // Finalize URL.
@@ -423,7 +431,7 @@ function google_seo_url_create($type, $ids)
                 $url = my_strtolower($url);
             }
 
-            $url = google_seo_url_finalize($url, $scheme);
+            $url = google_seo_url_finalize($url, $data['scheme']);
 
             $google_seo_url_cache[$type][$id] = $url;
         }
@@ -469,9 +477,9 @@ function google_seo_url_optimize($type, $id)
                     {
                         foreach($b as $c)
                         {
-                            $google_seo_url_optimize["forums"][$c['fid']] = 0;
-                            $google_seo_url_optimize["users"][$c['lastposteruid']] = 0;
-                            $google_seo_url_optimize["threads"][$c['lastposttid']] = 0;
+                            $google_seo_url_optimize[GOOGLE_SEO_FORUM][$c['fid']] = 0;
+                            $google_seo_url_optimize[GOOGLE_SEO_USER][$c['lastposteruid']] = 0;
+                            $google_seo_url_optimize[GOOGLE_SEO_THREAD][$c['lastposttid']] = 0;
                         }
                     }
                 }
@@ -485,7 +493,7 @@ function google_seo_url_optimize($type, $id)
 
                 // last user
                 $stats = $cache->read("stats");
-                $google_seo_url_optimize["users"][$stats['lastuid']] = 0;
+                $google_seo_url_optimize[GOOGLE_SEO_USER][$stats['lastuid']] = 0;
 
                 // who's online
                 if($mybb->settings['showwol'] != 0 && $mybb->usergroup['canviewonline'] != 0)
@@ -497,7 +505,7 @@ function google_seo_url_optimize($type, $id)
 
                     while($user = $db->fetch_array($query))
                     {
-                        $google_seo_url_optimize["users"][$user['uid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$user['uid']] = 0;
                     }
                 }
             }
@@ -526,11 +534,11 @@ function google_seo_url_optimize($type, $id)
                     {
                         $i++;
 
-                        $google_seo_url_optimize["users"][$row['uid']] = 0;
-                        $google_seo_url_optimize["users"][$row['lastposteruid']] = 0;
-                        $google_seo_url_optimize["threads"][$row['tid']] = 0;
-                        $google_seo_url_optimize["forums"][$row['fid']] = 0;
-                        $google_seo_url_optimize["announcements"][$row['aid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$row['uid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$row['lastposteruid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_THREAD][$row['tid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_FORUM][$row['fid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_ANNOUNCEMENT][$row['aid']] = 0;
                     }
 
                     // Determine original pointer position.
@@ -546,11 +554,11 @@ function google_seo_url_optimize($type, $id)
                     {
                         $i++;
 
-                        $google_seo_url_optimize["users"][$row['uid']] = 0;
-                        $google_seo_url_optimize["users"][$row['lastposteruid']] = 0;
-                        $google_seo_url_optimize["threads"][$row['tid']] = 0;
-                        $google_seo_url_optimize["forums"][$row['fid']] = 0;
-                        $google_seo_url_optimize["announcements"][$row['aid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$row['uid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$row['lastposteruid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_THREAD][$row['tid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_FORUM][$row['fid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_ANNOUNCEMENT][$row['aid']] = 0;
                     }
                 }
             }
@@ -567,8 +575,8 @@ function google_seo_url_optimize($type, $id)
 
                 foreach($forum_cache as $f)
                 {
-                    $google_seo_url_optimize["forums"][$f['fid']] = 0;
-                    $google_seo_url_optimize["users"][$f['lastposteruid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_FORUM][$f['fid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_USER][$f['lastposteruid']] = 0;
                 }
             }
 
@@ -581,10 +589,10 @@ function google_seo_url_optimize($type, $id)
 
                 foreach($threadcache as $t)
                 {
-                    $google_seo_url_optimize["threads"][$t['tid']] = 0;
-                    $google_seo_url_optimize["forums"][$t['fid']] = 0;
-                    $google_seo_url_optimize["users"][$t['uid']] = 0;
-                    $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_THREAD][$t['tid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_FORUM][$t['fid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_USER][$t['uid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_USER][$t['lastposteruid']] = 0;
                 }
             }
 
@@ -600,10 +608,10 @@ function google_seo_url_optimize($type, $id)
 
                 foreach($thread_cache as $t)
                 {
-                    $google_seo_url_optimize["threads"][$t['tid']] = 0;
-                    $google_seo_url_optimize["forums"][$t['fid']] = 0;
-                    $google_seo_url_optimize["users"][$t['uid']] = 0;
-                    $google_seo_url_optimize["users"][$t['lastposteruid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_THREAD][$t['tid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_FORUM][$t['fid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_USER][$t['uid']] = 0;
+                    $google_seo_url_optimize[GOOGLE_SEO_USER][$t['lastposteruid']] = 0;
                 }
             }
 
@@ -621,9 +629,9 @@ function google_seo_url_optimize($type, $id)
                 {
                     foreach($d as $e)
                     {
-                        $google_seo_url_optimize["users"][$e['uid']] = 0;
-                        $google_seo_url_optimize["events"][$e['eid']] = 0;
-                        $google_seo_url_optimize["calendars"][$e['cid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$e['uid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_EVENT][$e['eid']] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_CALENDAR][$e['cid']] = 0;
                     }
                 }
             }
@@ -642,7 +650,7 @@ function google_seo_url_optimize($type, $id)
 
                     foreach($uid_list as $uid)
                     {
-                        $google_seo_url_optimize["users"][$uid] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_USER][$uid] = 0;
                     }
                 }
 
@@ -653,7 +661,7 @@ function google_seo_url_optimize($type, $id)
 
                     foreach($aid_list as $aid)
                     {
-                        $google_seo_url_optimize["announcements"][$aid] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_ANNOUNCEMENT][$aid] = 0;
                     }
                 }
 
@@ -664,7 +672,7 @@ function google_seo_url_optimize($type, $id)
 
                     foreach($eid_list as $eid)
                     {
-                        $google_seo_url_optimize["events"][$eid] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_EVENT][$eid] = 0;
                     }
                 }
 
@@ -675,7 +683,7 @@ function google_seo_url_optimize($type, $id)
 
                     foreach($fid_list as $fid)
                     {
-                        $google_seo_url_optimize["forums"][$fid] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_FORUM][$fid] = 0;
                     }
                 }
 
@@ -686,7 +694,7 @@ function google_seo_url_optimize($type, $id)
 
                     foreach($tid_list as $tid)
                     {
-                        $google_seo_url_optimize["threads"][$tid] = 0;
+                        $google_seo_url_optimize[GOOGLE_SEO_THREAD][$tid] = 0;
                     }
                 }
             }
@@ -723,15 +731,13 @@ function google_seo_url_optimize($type, $id)
 function google_seo_url_cache($type, $id)
 {
     global $db, $settings;
-    global $google_seo_url_cache, $google_seo_url_idtype;
+    global $google_seo_url_cache;
 
     // If it's not in the cache, try loading the cache.
     if($google_seo_url_cache[$type][$id] === NULL
         && $db->google_seo_query_limit > 0)
     {
         // Prepare database query.
-        $idtype = $google_seo_url_idtype[$type];
-
         if($settings["google_seo_url_lowercase"])
         {
             $what = "LOWER(url) AS url,id";
@@ -750,13 +756,13 @@ function google_seo_url_cache($type, $id)
         $query = $db->query("SELECT $what
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE active=1
-                             AND idtype=$idtype
+                             AND idtype={$type}
                              AND id IN ("
                             .implode(array_keys($ids),",")
                             .")");
 
         // Process the query results.
-        $scheme = $settings["google_seo_url_$type"];
+        $scheme = $db->google_seo_url[$type]['scheme'];
 
         while($row = $db->fetch_array($query))
         {
@@ -789,14 +795,11 @@ function google_seo_url_cache($type, $id)
 function google_seo_url_id($type, $url)
 {
     global $db, $settings;
-    global $google_seo_url_idtype;
-
-    $idtype = $google_seo_url_idtype[$type];
 
     $db->google_seo_query_limit--;
     $query = $db->query("SELECT id
                          FROM ".TABLE_PREFIX."google_seo
-                         WHERE idtype=$idtype
+                         WHERE idtype={$type}
                          AND url='".$db->escape_string($url)."'");
 
     $id = $db->fetch_field($query, "id");
@@ -815,7 +818,7 @@ function google_seo_url_id($type, $url)
         $db->google_seo_query_limit--;
         $query = $db->query("SELECT id
                              FROM ".TABLE_PREFIX."google_seo
-                             WHERE idtype=$idtype
+                             WHERE idtype={$type}
                              AND url IN ('".implode($urls,"','")."')
                              ORDER BY id ASC
                              LIMIT 1");
@@ -854,7 +857,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('fid', $mybb->input))
             {
-                $fid = google_seo_url_id("forums", $url);
+                $fid = google_seo_url_id(GOOGLE_SEO_FORUM, $url);
                 $mybb->input['fid'] = $fid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_forum={$url}",
@@ -872,7 +875,7 @@ function google_seo_url_hook()
 
             if($fid)
             {
-                google_seo_url_create("forums", $fid);
+                google_seo_url_create(GOOGLE_SEO_FORUM, $fid);
             }
 
             break;
@@ -883,7 +886,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('tid', $mybb->input))
             {
-                $tid = google_seo_url_id("threads", $url);
+                $tid = google_seo_url_id(GOOGLE_SEO_THREAD, $url);
                 $mybb->input['tid'] = $tid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_thread={$url}",
@@ -901,7 +904,7 @@ function google_seo_url_hook()
 
             if($tid)
             {
-                google_seo_url_create("threads", $tid);
+                google_seo_url_create(GOOGLE_SEO_THREAD, $tid);
             }
 
             $pid = $mybb->input['pid'];
@@ -919,7 +922,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('aid', $mybb->input))
             {
-                $aid = google_seo_url_id("announcements", $url);
+                $aid = google_seo_url_id(GOOGLE_SEO_ANNOUNCEMENT, $url);
                 $mybb->input['aid'] = $aid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_announcement={$url}", "aid={$aid}", $location);
@@ -931,7 +934,7 @@ function google_seo_url_hook()
 
             if($aid)
             {
-                google_seo_url_create("announcements", $aid);
+                google_seo_url_create(GOOGLE_SEO_ANNOUNCEMENT, $aid);
             }
 
             break;
@@ -942,7 +945,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('uid', $mybb->input))
             {
-                $uid = google_seo_url_id("users", $url);
+                $uid = google_seo_url_id(GOOGLE_SEO_USER, $url);
                 $mybb->input['uid'] = $uid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_user={$url}", "uid={$uid}", $location);
@@ -954,7 +957,7 @@ function google_seo_url_hook()
 
             if($uid && $mybb->input['action'] == 'profile')
             {
-                google_seo_url_create("users", $uid);
+                google_seo_url_create(GOOGLE_SEO_USER, $uid);
             }
 
             break;
@@ -965,7 +968,7 @@ function google_seo_url_hook()
 
             if($url && !array_key_exists('eid', $mybb->input))
             {
-                $eid = google_seo_url_id("events", $url);
+                $eid = google_seo_url_id(GOOGLE_SEO_EVENT, $url);
                 $mybb->input['eid'] = $eid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_event={$url}", "eid={$eid}", $location);
@@ -977,7 +980,7 @@ function google_seo_url_hook()
 
             if($eid)
             {
-                google_seo_url_create("events", $eid);
+                google_seo_url_create(GOOGLE_SEO_EVENT, $eid);
             }
 
             else if(!$url)
@@ -986,7 +989,7 @@ function google_seo_url_hook()
 
                 if($url && !array_key_exists('calendar', $mybb->input))
                 {
-                    $cid = google_seo_url_id("calendars", $url);
+                    $cid = google_seo_url_id(GOOGLE_SEO_CALENDAR, $url);
 
                     // Hack to cause invalid calendar message to appear:
                     // If cid is not set, the default calendar would be shown.
@@ -1007,7 +1010,7 @@ function google_seo_url_hook()
 
                 if($cid)
                 {
-                    google_seo_url_create("calendars", $cid);
+                    google_seo_url_create(GOOGLE_SEO_CALENDAR, $cid);
                 }
             }
 
@@ -1086,17 +1089,16 @@ function google_seo_url_merge_hook()
 function google_seo_url_after_merge_hook($arguments)
 {
     global $db;
-    global $google_seo_url_idtype;
 
     $mergetid = intval($arguments['mergetid']);
     $tid = intval($arguments['tid']);
-    $idtype = $google_seo_url_idtype['threads'];
 
     // Integrate mergetid into tid:
+    $type = GOOGLE_SEO_THREAD;
     $db->google_seo_query_limit--;
     $db->write_query("UPDATE ".TABLE_PREFIX."google_seo
                       SET active=NULL, id={$tid}
-                      WHERE idtype={$idtype} AND id={$mergetid}");
+                      WHERE idtype={$type} AND id={$mergetid}");
 }
 
 /* --- URL API: --- */
@@ -1113,7 +1115,7 @@ function google_seo_url_profile($uid=0)
 
     if($settings['google_seo_url_users'] && $uid > 0)
     {
-        return google_seo_url_cache("users", $uid);
+        return google_seo_url_cache(GOOGLE_SEO_USER, $uid);
     }
 }
 
@@ -1129,7 +1131,7 @@ function google_seo_url_announcement($aid=0)
 
     if($settings['google_seo_url_announcements'] && $aid > 0)
     {
-        return google_seo_url_cache("announcements", $aid);
+        return google_seo_url_cache(GOOGLE_SEO_ANNOUNCEMENT, $aid);
     }
 }
 
@@ -1147,7 +1149,7 @@ function google_seo_url_forum($fid, $page=0)
 
     if($settings['google_seo_url_forums'] && $fid > 0)
     {
-        $url = google_seo_url_cache("forums", $fid);
+        $url = google_seo_url_cache(GOOGLE_SEO_FORUM, $fid);
 
         if($url && $page && $page != 1)
         {
@@ -1172,7 +1174,7 @@ function google_seo_url_thread($tid, $page=0, $action='')
 
     if($settings['google_seo_url_threads'] && $tid > 0)
     {
-        $url = google_seo_url_cache("threads", $tid);
+        $url = google_seo_url_cache(GOOGLE_SEO_THREAD, $tid);
 
         if($url)
         {
@@ -1258,7 +1260,7 @@ function google_seo_url_post($pid, $tid=0)
         // Cache it if a link for the same pid is asked twice.
         $google_seo_url_pid[$pid] = $tid;
 
-        $url = google_seo_url_cache("threads", $tid);
+        $url = google_seo_url_cache(GOOGLE_SEO_THREAD, $tid);
 
         if($url)
         {
@@ -1280,7 +1282,7 @@ function google_seo_url_event($eid)
 
     if($settings['google_seo_url_events'] && $eid > 0)
     {
-        return google_seo_url_cache("events", $eid);
+        return google_seo_url_cache(GOOGLE_SEO_EVENT, $eid);
     }
 }
 
@@ -1299,7 +1301,7 @@ function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
 
     if($settings['google_seo_url_calendars'] && $cid > 0)
     {
-        $url = google_seo_url_cache("calendars", $cid);
+        $url = google_seo_url_cache(GOOGLE_SEO_CALENDAR, $cid);
 
         if($url && $year)
         {
@@ -1333,7 +1335,7 @@ function google_seo_url_calendar_week($cid, $week)
 
     if($settings['google_seo_url_calendars'] && $cid > 0)
     {
-        $url = google_seo_url_cache("calendars", $cid);
+        $url = google_seo_url_cache(GOOGLE_SEO_CALENDAR, $cid);
 
         if($url)
         {
