@@ -101,7 +101,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO 404:
-    if($settings['google_seo_404_enabled'])
+    if($settings['google_seo_404'])
     {
         $success[] = $lang->googleseo_plugin_404;
 
@@ -116,7 +116,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Meta:
-    if($settings['google_seo_meta_enabled'])
+    if($settings['google_seo_meta'])
     {
         $success[] = $lang->googleseo_plugin_meta;
     }
@@ -127,11 +127,11 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Redirect:
-    if($settings['google_seo_redirect_enabled'])
+    if($settings['google_seo_redirect'])
     {
         $success[] = $lang->googleseo_plugin_redirect;
 
-        if(!$settings['google_seo_url_enabled'])
+        if(!$settings['google_seo_url'])
         {
             $warning[] = $lang->googleseo_plugin_redirect_warn_url;
         }
@@ -159,7 +159,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO Sitemap:
-    if($settings['google_seo_sitemap_enabled'])
+    if($settings['google_seo_sitemap'])
     {
         if($settings['google_seo_sitemap_url'])
         {
@@ -186,7 +186,7 @@ function google_seo_plugin_status()
     }
 
     // Google SEO URL:
-    if($settings['google_seo_url_enabled'])
+    if($settings['google_seo_url'])
     {
         $success[] = $lang->googleseo_plugin_url;
 
@@ -245,7 +245,7 @@ function google_seo_plugin_status()
     }
 
     // Check htaccess.
-    if(count($htaccess) || !$settings['google_seo_404_enabled'])
+    if(count($htaccess) || !$settings['google_seo_404'])
     {
         $file = @file_get_contents(MYBB_ROOT.".htaccess");
 
@@ -314,7 +314,7 @@ function google_seo_plugin_status()
         }
 
         // Special case: remove ErrorDocument if 404 is disabled
-        if(!$settings['google_seo_404_enabled']
+        if(!$settings['google_seo_404']
            && strpos($file, "google_seo_error=404"))
         {
             $warning[] = $lang->googleseo_plugin_warn_errordocument;
@@ -330,11 +330,11 @@ function google_seo_plugin_status()
     // Check edits to core files.
     if(google_seo_plugin_apply() !== true)
     {
-        if($settings['google_seo_url_enabled'])
+        if($settings['google_seo_url'])
         {
             $warning[] = $lang->googleseo_plugin_warn_url_apply;
 
-            if($settings['google_seo_redirect_enabled'])
+            if($settings['google_seo_redirect'])
             {
                 $warning[] = $lang->googleseo_plugin_warn_url_redirect;
             }
@@ -351,7 +351,7 @@ function google_seo_plugin_status()
 
     if(google_seo_plugin_revert() !== true)
     {
-        if(!$settings['google_seo_url_enabled'])
+        if(!$settings['google_seo_url'])
         {
             $warning[] = $lang->googleseo_plugin_warn_url_revert;
         }
@@ -364,6 +364,14 @@ function google_seo_plugin_status()
                                       ));
         $edits[] = "<a href=\"{$revert}\">{$lang->googleseo_plugin_edit_revert}</a>";
     }
+
+    // Configure URL
+    $configure = $PL->url_append('index.php', array(
+                                     'module' => 'config',
+                                     'action' => 'change',
+                                     'search' => 'google seo',
+                                     ));
+    $configure = $lang->sprintf($lang->googleseo_plugin_configure, $configure);
 
     // Build a list with success, warnings, errors:
     if(count($error))
@@ -382,7 +390,7 @@ function google_seo_plugin_status()
 
         $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/error.gif)\">"
             .$e
-            ."</li>\n";
+            ." {$configure}</li>\n";
     }
 
     foreach($warning as $w)
@@ -408,7 +416,7 @@ function google_seo_plugin_status()
 
         $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.gif)\">"
             .$s
-            ."</li>\n";
+            ." {$configure}</li>\n";
     }
 
     if(count($edits))
@@ -588,16 +596,41 @@ function google_seo_plugin_activate()
     /* Bugfix: Empty URLs */
     $db->delete_query("google_seo", "url=''");
 
+    /* Settings for Google SEO */
+    $PL->settings(
+        "google_seo",
+        "Google SEO",
+        "Enable or disable the main features of Google SEO.",
+        array(
+            '404' => array(
+                'title' => "Enable Google SEO 404",
+                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
+                ),
+            'meta' => array(
+                'title' => 'Enable Google SEO Meta',
+                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
+                ),
+            'redirect' => array(
+                'title' => "Enable Google SEO Redirect",
+                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
+                ),
+            'sitemap' => array(
+                'title' => "Enable Google SEO Sitemap",
+                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
+                ),
+            'url' => array(
+                'title' => "Enable Google SEO URLs",
+                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
+                ),
+            )
+        );
+
     /* Settings for Google SEO 404 */
     $PL->settings(
         "google_seo_404",
         "Google SEO 404",
         "404 error page settings for the Google Search Engine Optimization plugin.",
         array(
-            'enabled' => array(
-                'title' => "Enable Google SEO 404",
-                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
-                ),
             'widget' => array(
                 'title' => "404 widget",
                 'description' => "Add the Google 404 widget for 404/403 error pages.",
@@ -627,10 +660,6 @@ function google_seo_plugin_activate()
         "Google SEO Meta",
         "Meta tag settings for the Google Search Engine Optimization plugin.",
         array(
-            'enabled' => array(
-                'title' => 'Enable Google SEO Meta',
-                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
-                ),
             'length' => array(
                 'title' => 'Meta description',
                 'description' => "Generate Meta description tags based on the contents of the current page (description of a forum, first posting of a thread, ...). Set to the maximum description length you want to allow or to 0 to disable.",
@@ -673,10 +702,6 @@ function google_seo_plugin_activate()
         "Google SEO Redirect",
         "Redirection settings for the Google Search Engine Optimization plugin.",
         array(
-            'enabled' => array(
-                'title' => "Enable Google SEO Redirect",
-                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
-                ),
             'permission' => array(
                 'title' => "Permission Checks",
                 'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
@@ -698,10 +723,6 @@ function google_seo_plugin_activate()
         "Google SEO Sitemap",
         "Sitemap settings for the Google Search Engine Optimization plugin.",
         array(
-            'enabled' => array(
-                'title' => "Enable Google SEO Sitemap",
-                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
-                ),
             'url' => array(
                 'title' => "XML Sitemap URL scheme",
                 'description' => "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.",
@@ -761,10 +782,6 @@ function google_seo_plugin_activate()
         "Google SEO URL",
         "URL settings for the Google Search Engine Optimization plugin.",
         array(
-            'enabled' => array(
-                'title' => "Enable Google SEO URLs",
-                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
-                ),
             'query_limit' => array(
                 'title' => 'Query Limit',
                 'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 50. Set to 0 for no limit.</p>",
@@ -1116,7 +1133,7 @@ function google_seo_plugin_apply($apply=false)
             );
     }
 
-    if(!$settings['google_seo_url_enabled'])
+    if(!$settings['google_seo_url'])
     {
         // ... not. ;)
         $edits = array();
