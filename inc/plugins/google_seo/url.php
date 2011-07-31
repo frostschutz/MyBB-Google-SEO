@@ -27,7 +27,7 @@ if(!defined("IN_MYBB"))
 
 /* --- Global Variables: --- */
 
-global $db;
+global $db, $mybb, $settings;
 
 // Required for database queries to the google_seo table. In theory this
 // could be used to coerce Google SEO into managing URLs of other types.
@@ -87,6 +87,27 @@ $db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
 if($db->google_seo_query_limit <= 0)
 {
     $db->google_seo_query_limit = 32767;
+}
+
+// Lazy Mode.
+
+global $google_seo_url_lazy;
+
+$google_seo_url_lazy = false;
+
+if($settings['google_seo_url_mode'] == 'lazy'
+   && $mybb->request_method != 'post')
+{
+    $google_seo_url_lazy = random_str(4);
+
+    $db->google_seo_url[GOOGLE_SEO_ANNOUNCEMENT]['lazy'] = "announcements.php?aid={id}&amp;google_seo={$google_seo_url_lazy}";
+    $db->google_seo_url[GOOGLE_SEO_CALENDAR]['lazy'] = "calendar.php?calendar={id}&amp;google_seo={$google_seo_url_lazy}";
+    $db->google_seo_url[GOOGLE_SEO_EVENT]['lazy'] = "calendar.php?action=event&amp;eid={id}&amp;google_seo={$google_seo_url_lazy}";
+    $db->google_seo_url[GOOGLE_SEO_FORUM]['lazy'] = "forumdisplay.php?fid={id}&amp;google_seo={$google_seo_url_lazy}";
+    $db->google_seo_url[GOOGLE_SEO_THREAD]['lazy'] = "showthread.php?tid={id}&amp;google_seo={$google_seo_url_lazy}";
+    $db->google_seo_url[GOOGLE_SEO_USER]['lazy'] = "member.php?action=profile&amp;uid={id}&amp;google_seo={$google_seo_url_lazy}";
+
+    $google_seo_url_lazy = true;
 }
 
 // There are several more global variables defined in functions below.
@@ -744,12 +765,42 @@ function google_seo_url_optimize($type, $id)
 function google_seo_url_cache($type, $id)
 {
     global $db, $settings;
-    global $google_seo_url_cache;
+    global $google_seo_url_cache, $google_seo_url_lazy;
 
     // If it's not in the cache, try loading the cache.
     if($google_seo_url_cache[$type][$id] === NULL
         && $db->google_seo_query_limit > 0)
     {
+        // Special case: Lazy Mode
+        if($google_seo_url_lazy !== false)
+        {
+            if($google_seo_url_lazy === true)
+            {
+                // first time call
+                global $plugins;
+                $plugins->add_hook('pre_output_page', 'google_seo_url_lazy', 1000);
+                ob_start('google_seo_url_lazy');
+                $google_seo_url_lazy = array();
+            }
+
+            // Create a temporary placeholder (but working) URL.
+            $url = google_seo_expand(
+                $db->google_seo_url[$type]['lazy'],
+                array('id' => $id)
+                );
+
+            // strtr is SO much faster if all strings have the exact same length
+            // 64 is the longest lazy url assuming 10 digit ids
+            $url = str_pad($url, 64, "+");
+
+            $google_seo_url_cache[$type][$id] = $url;
+            $google_seo_url_lazy[$type][$id] = $url;
+
+            return $url;
+        }
+
+        // Full Mode
+
         // Prepare database query.
         if($settings["google_seo_url_lowercase"])
         {
@@ -807,6 +858,59 @@ function google_seo_url_cache($type, $id)
 
     // Return the cached entry for the originally requested type and id.
     return $google_seo_url_cache[$type][$id];
+}
+
+function google_seo_url_lazy($message)
+{
+    global $plugins;
+    global $google_seo_url_lazy, $google_seo_url_optimize, $google_seo_url_cache;
+
+    if(!$google_seo_url_lazy)
+    {
+        // Do nothing.
+        return $message;
+    }
+
+    $lazy = $google_seo_url_lazy;
+    $google_seo_url_lazy = false;
+
+    // We've been lazy and now we have to pay the price.
+
+    // Prepare cache and optimize.
+    foreach($lazy as $key => $value)
+    {
+        // substract lazy from cache so it will redo these URLs
+        $google_seo_url_cache[$key] = array_diff_key((array)$google_seo_url_cache[$key],
+                                                     (array)$lazy[$key]);
+        // add lazy to optimize so it will use a single query when redoing them
+        $google_seo_url_optimize[$key] = (array)$google_seo_url_optimize[$key] + (array)$lazy[$key];
+    }
+
+    // Make it load the URLs.
+    $type = key($lazy);
+    $id = key($lazy[$type]);
+    google_seo_url_cache($type, $id);
+
+    // Build the replacement foo.
+    $strtr = array();
+
+    foreach($lazy as $type => $list)
+    {
+        foreach($list as $id => $url)
+        {
+            $seourl = $google_seo_url_cache[$type][$id];
+
+            if($seourl)
+            {
+                $strtr[$url] = $seourl;
+            }
+        }
+    }
+
+    // This is the most expensive bit.
+    $message = strtr($message, $strtr);
+
+    return $message;
 }
 
 /* --- URL Lookup: --- */
