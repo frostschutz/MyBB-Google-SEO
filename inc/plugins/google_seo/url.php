@@ -313,6 +313,13 @@ function google_seo_url_create($type, $ids)
     global $db, $settings;
     global $google_seo_url_cache;
 
+    $ids = (array)$ids;
+
+    foreach($ids as $id)
+    {
+        $google_seo_url_cache[$type][$id] = 0;
+    }
+
     if($db->google_seo_query_limit <= 0)
     {
         return;
@@ -323,13 +330,12 @@ function google_seo_url_create($type, $ids)
     // Is Google SEO URL enabled for this type?
     if($data['scheme'])
     {
-
         // Query the item title as base for our URL.
         $db->google_seo_query_limit--;
         $titles = $db->query("SELECT {$data['name']},{$data['id']}{$data['extra']}
                               FROM {$data['table']}
                               WHERE {$data['id']} IN ("
-                             .implode((array)$ids, ",")
+                             .implode(",", $ids)
                              .")");
 
         while($row = $db->fetch_array($titles))
@@ -383,7 +389,8 @@ function google_seo_url_create($type, $ids)
                                 .$db->escape_string($uniqueurl)."')
                                  AND active=1
                                  AND id<={$id}
-                                 AND EXISTS(SELECT * FROM {$data['table']}
+                                 AND EXISTS(SELECT {$data['id']}
+                                            FROM {$data['table']}
                                             WHERE {$data['id']}=id)
                                  ORDER BY id ASC");
 
@@ -705,19 +712,23 @@ function google_seo_url_optimize($type, $id)
     // Include the ID that was originally requested.
     $google_seo_url_optimize[$type][$id] = 0;
 
-    // Extract and return IDs for this type.
-    $ids = $google_seo_url_optimize[$type];
+    // Clean up
+    foreach($google_seo_url_optimize as $key => $value)
+    {
+        if(!$db->google_seo_url[$key]['scheme'])
+        {
+            unset($google_seo_url_optimize[$key]);
+        }
 
-    // kill optimize cache for this type because they're getting queried now
-    unset($google_seo_url_optimize[$type]);
+        unset($google_seo_url_optimize[$key][0]);
+        unset($google_seo_url_optimize[$key]['']);
+    }
 
-    // kill bad entries (guests, empty strings)
-    unset($ids[0]);
-    unset($ids['0']);
-    unset($ids['']);
+    // return the collected IDs
+    $result = $google_seo_url_optimize;
+    $google_seo_url_optimize = array();
 
-    // return ids
-    return $ids;
+    return $result;
 }
 
 /**
@@ -740,46 +751,59 @@ function google_seo_url_cache($type, $id)
         // Prepare database query.
         if($settings["google_seo_url_lowercase"])
         {
-            $what = "LOWER(url) AS url,id";
+            $what = "LOWER(url) AS url,id,idtype";
         }
 
         else
         {
-            $what = "url,id";
+            $what = "url,id,idtype";
         }
 
         // Optimize by collecting more IDs for this query.
         $ids = google_seo_url_optimize($type, $id);
+
+        $condition = array();
+
+        foreach($ids as $key => $value)
+        {
+            $condition[] = "(idtype={$key} AND id IN ("
+                .implode(",", array_keys($value)).
+                "))";
+        }
+
+        $condition = implode(" OR ", $condition);
 
         // Run database query.
         $db->google_seo_query_limit--;
         $query = $db->query("SELECT $what
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE active=1
-                             AND idtype={$type}
-                             AND id IN ("
-                            .implode(array_keys($ids),",")
-                            .")");
+                             AND ({$condition})");
 
         // Process the query results.
-        $scheme = $db->google_seo_url[$type]['scheme'];
-
         while($row = $db->fetch_array($query))
         {
-            $rowid = $row['id'];
-            $google_seo_url_cache[$type][$rowid] =
-                google_seo_url_finalize($row['url'], $scheme);
-            unset($ids[$rowid]);
+            $rowid = intval($row['id']);
+            $rowtype = intval($row['idtype']);
+            $google_seo_url_cache[$rowtype][$rowid] =
+                google_seo_url_finalize($row['url'],
+                                        $db->google_seo_url[$rowtype]['scheme']);
+            unset($ids[$rowtype][$rowid]);
         }
 
         // Create URLs for the remaining IDs.
-        if(count($ids))
+        foreach($ids as $key => $value)
         {
-            google_seo_url_create($type, array_keys($ids));
+            unset($value[0]);
+
+            if(count($value))
+            {
+                google_seo_url_create($key, array_keys($value));
+            }
         }
     }
 
-    // Return the cached entry.
+    // Return the cached entry for the originally requested type and id.
     return $google_seo_url_cache[$type][$id];
 }
 
