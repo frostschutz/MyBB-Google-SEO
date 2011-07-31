@@ -1238,7 +1238,8 @@ function google_seo_url_post($pid, $tid=0)
                 $tid = intval($post['tid']);
             }
 
-            else if($settings['google_seo_url_query_post'] && $db->google_seo_query_limit > 0)
+            else if($settings['google_seo_url_posts'] == 2
+                    && $db->google_seo_query_limit > 0)
             {
                 $options = array(
                     "limit" => 1
