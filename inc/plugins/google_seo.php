@@ -142,20 +142,15 @@ function google_seo_lang()
  */
 function google_seo_expand($string, $array)
 {
-    $search = array();
-    $replace = array();
+    $strtr = array();
 
     foreach($array as $key => $value)
     {
-        $search[] = "{{$key}}";
-        $replace[] = $value;
-
-        // Backwards compatibility: understand with $ too.
-        $search[] = "{\${$key}}";
-        $replace[] = $value;
+        $strtr["{{$key}}"] = $value;   // {var} style
+        $strtr["{\${$key}}"] = $value; // {$var} style
     }
 
-    return str_replace($search, $replace, $string);
+    return strtr($string, $strtr);
 }
 
 /* --- Submodules: --- */
