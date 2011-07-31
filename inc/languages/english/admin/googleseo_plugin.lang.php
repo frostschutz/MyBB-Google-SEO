@@ -61,6 +61,7 @@ $l['googleseo_plugin_warn_encoding'] = "Your database encoding is '{1}', should 
 $l['googleseo_plugin_warn_errordocument'] = "Please enable 404 or remove or comment the google_seo_error=404 directive from .htaccess.";
 $l['googleseo_plugin_warn_htaccess'] = "Add to .htaccess:";
 $l['googleseo_plugin_warn_mbstring'] = "Your host does not seem to support mbstring. This may cause problems with UTF-8.";
+$l['googleseo_plugin_warn_setting'] = "The Google SEO setting group appears to be missing. Deactivate and Activate the plugin.";
 $l['googleseo_plugin_warn_url_apply'] = "URL is passive. Apply changes to core files to activate.";
 $l['googleseo_plugin_warn_url_redirect'] = "Redirect is enabled and URL is passive. Redirecting SEO URLs back to MyBB's default URLs.";
 $l['googleseo_plugin_warn_url_revert'] = "Please enable URL or revert changes to core files.";

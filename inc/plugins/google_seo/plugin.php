@@ -366,12 +366,23 @@ function google_seo_plugin_status()
     }
 
     // Configure URL
-    $configure = $PL->url_append('index.php', array(
-                                     'module' => 'config',
-                                     'action' => 'change',
-                                     'search' => 'google seo',
-                                     ));
-    $configure = $lang->sprintf($lang->googleseo_plugin_configure, $configure);
+    $query = $db->simple_select("settinggroups", "gid", "name='google_seo'");
+    $gid = $db->fetch_field($query, 'gid');
+
+    if($gid)
+    {
+        $configure = $PL->url_append('index.php', array(
+                                         'module' => 'config',
+                                         'action' => 'change',
+                                         'gid' => $gid,
+                                         ));
+        $configure = $lang->sprintf($lang->googleseo_plugin_configure, $configure);
+    }
+
+    else
+    {
+        $warning[] = $lang->googleseo_plugin_warn_setting;
+    }
 
     // Build a list with success, warnings, errors:
     if(count($error))
