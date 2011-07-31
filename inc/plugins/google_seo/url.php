@@ -351,15 +351,16 @@ function google_seo_url_create($type, $ids)
 
             // Thread Prefixes
             if($type == GOOGLE_SEO_THREAD && $row['prefix']
-               && $settings['google_seo_url_prefix'])
+               && $settings['google_seo_url_threadprefix'])
             {
                 $prefix = build_prefixes($row['prefix']);
 
                 if($prefix['prefix'])
                 {
-                    $url = google_seo_expand($settings['google_seo_url_prefix'],
-                                             array('url' => $url,
-                                                   'prefix' => $prefix['prefix']));
+                    $url = google_seo_expand(
+                        $settings['google_seo_url_threadprefix'],
+                        array('url' => $url,
+                              'prefix' => $prefix['prefix']));
                 }
             }
 

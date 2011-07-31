@@ -806,12 +806,6 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => '0',
                 ),
-            'prefix' => array(
-                'title' => 'Thread Prefixes',
-                'description' => "Include thread prefixes in thread URLs?",
-                'optionscode' => "text",
-                'value' => "{prefix}-{url}",
-                ),
             'posts' => array(
                 'title' => 'Handle post links',
                 'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
@@ -834,6 +828,12 @@ function google_seo_plugin_activate()
                 'description' => "Enter the Thread URL scheme. By default this is <i>Thread-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Threads.",
                 'optionscode' => "text",
                 'value' => 'Thread-{url}',
+                ),
+            'threadprefix' => array(
+                'title' => 'Thread Prefixes',
+                'description' => "Include thread prefixes in thread URLs?",
+                'optionscode' => "text",
+                'value' => "{prefix}-{url}",
                 ),
             'announcements' => array(
                 'title' => "Announcement URL scheme",
