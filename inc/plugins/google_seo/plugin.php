@@ -760,9 +760,14 @@ function google_seo_plugin_activate()
                 ),
             'query_limit' => array(
                 'title' => 'Query Limit',
-                'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 20. Set to 0 for no limit.</p>",
+                'description' => "Google SEO uses the database to store, and subsequently query, unique SEO URLs for every forum, thread, etc. While these queries are fast and usually low in number, in some cases the total number of queries per request may exceed sane values. Possible causes for this are new installs in large forums when lots of SEO URLs have to be created for the first time, as well as plugins that add lots of unexpected links on a page. Limiting the total number of queries per request helps to avoid load spikes. Stock URLs will appear for the links that couldn't be queried due to this limit.<p>Set the total number of queries URL is allowed to use in a single request. Default is 50. Set to 0 for no limit.</p>",
                 'optionscode' => "text",
-                'value' => '20',
+                'value' => '50',
+                ),
+            'mode' => array(
+                'title' => "Evaluation Mode",
+                'description' => "In Full Mode (which is the default), Google SEO will query and return SEO URLs directly at the time they are requested. This is the most reliable method but it will probably use more than just one database query, depending on how well Google SEO can predict which links will show up on a page. In Lazy Mode, Google SEO will first collect all links created on a page, and only at the very end obtain all SEO URLs in a single query and replace their stock URL counterparts in the output. This reduces queries to a minimum, at the cost of PHP processing time and reliability.",
+                'optionscode' => "radio\n0=Full Mode (Default)\nlazy=Lazy Mode",
                 ),
             'punctuation' => array(
                 'title' => "Punctuation characters",
