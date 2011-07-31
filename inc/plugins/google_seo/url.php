@@ -25,13 +25,6 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
-/* --- Hooks: --- */
-
-// URL -> ID conversion:
-$plugins->add_hook("global_start", "google_seo_url_hook", 1);
-$plugins->add_hook("moderation_do_merge", "google_seo_url_merge_hook", 1);
-$plugins->add_hook("class_moderation_merge_threads", "google_seo_url_after_merge_hook");
-
 /* --- Global Variables: --- */
 
 global $db;
@@ -97,6 +90,14 @@ if($db->google_seo_query_limit <= 0)
 }
 
 // There are several more global variables defined in functions below.
+
+/* --- Hooks: --- */
+
+$plugins->add_hook("moderation_do_merge", "google_seo_url_merge_hook", 1);
+$plugins->add_hook("class_moderation_merge_threads", "google_seo_url_after_merge_hook");
+
+// Originally a global_start hook, it's called too late for session location
+google_seo_url_hook();
 
 /* --- URL processing: --- */
 
@@ -870,7 +871,7 @@ function google_seo_url_id($type, $url)
  */
 function google_seo_url_hook()
 {
-    global $db, $mybb, $settings, $session;
+    global $db, $mybb, $settings;
 
     // Translate URL name to ID and verify.
     switch(THIS_SCRIPT)
@@ -886,12 +887,6 @@ function google_seo_url_hook()
                 $location = get_current_location();
                 $location = str_replace("google_seo_forum={$url}",
                                         "fid={$fid}", $location);
-                $speciallocs = $session->get_special_locations();
-                $updatesession = array(
-                    'location' => $location,
-                    'location1' => intval($speciallocs['1']),
-                    'location2' => intval($speciallocs['2']),
-                    );
             }
 
             // Verification.
@@ -915,12 +910,6 @@ function google_seo_url_hook()
                 $location = get_current_location();
                 $location = str_replace("google_seo_thread={$url}",
                                         "tid={$tid}", $location);
-                $speciallocs = $session->get_special_locations();
-                $updatesession = array(
-                    'location' => $location,
-                    'location1' => intval($speciallocs['1']),
-                    'location2' => intval($speciallocs['2'])
-                    );
             }
 
             // Verification.
@@ -945,7 +934,6 @@ function google_seo_url_hook()
                 $mybb->input['aid'] = $aid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_announcement={$url}", "aid={$aid}", $location);
-                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -968,7 +956,6 @@ function google_seo_url_hook()
                 $mybb->input['uid'] = $uid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_user={$url}", "uid={$uid}", $location);
-                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -991,7 +978,6 @@ function google_seo_url_hook()
                 $mybb->input['eid'] = $eid;
                 $location = get_current_location();
                 $location = str_replace("google_seo_event={$url}", "eid={$eid}", $location);
-                $updatesession = array('location' => $location);
             }
 
             // Verification.
@@ -1021,7 +1007,6 @@ function google_seo_url_hook()
                     $mybb->input['calendar'] = $cid;
                     $location = get_current_location();
                     $location = str_replace("google_seo_calendar={$cid}", "calendar={$cid}", $location);
-                    $updatesession = array('location' => $location);
                 }
 
                 // Verification.
@@ -1036,14 +1021,10 @@ function google_seo_url_hook()
             break;
     }
 
-    // Update translated location in the sessions table.
-    if($updatesession)
+    if($location)
     {
-        $updatesession = array_map(array($db, 'escape_string'), $updatesession);
-
-        $db->google_seo_query_limit--;
-        $db->update_query('sessions', $updatesession,
-                          "sid='".$db->escape_string($session->sid)."'");
+        $location = substr($location, 0, 150);
+        @define("MYBB_LOCATION", $location);
     }
 }
 
