@@ -557,6 +557,13 @@ function google_seo_plugin_uninstall()
         admin_redirect("index.php?module=config-plugins");
     }
 
+    // Revert edits.
+    if(google_seo_plugin_revert(true) !== true)
+    {
+        flash_message($lang->googleseo_plugin_revert_error, 'error');
+        admin_redirect('index.php?module=config-plugins');
+    }
+
     // Drop the Google SEO table.
     $db->drop_table("google_seo");
 
