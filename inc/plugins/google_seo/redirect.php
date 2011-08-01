@@ -108,7 +108,7 @@ function google_seo_redirect_hook()
 
             break;
 
-        case 'announcement.php':
+        case 'announcements.php':
             if((int)$mybb->input['aid'])
             {
                 $target = get_announcement_link((int)$mybb->input['aid']);
