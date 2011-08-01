@@ -717,6 +717,11 @@ function google_seo_plugin_activate()
                 'title' => "Permission Checks",
                 'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
                 ),
+            'posts' => array(
+                'title' => "Redirect Post Links",
+                'description' => "MyBB allows linking to specific posts by specifying the post ID (pid) in the URL. Redirect can trust the thread ID (tid) it tid was given and query it if it was not (default MyBB behaviour), or it can verify the tid (by making a query) in order to redirect links to posts that were moved to another thread, or it can ignore these links completely (avoiding the tid query altogether).",
+                'optionscode' => "radio\ndefault=Default (query on demand)\nverify=Verify (always query)\nignore=Ignore (never query)",
+                ),
             'litespeed' => array(
                 'title' => "LiteSpeed Bug workaround",
                 'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",

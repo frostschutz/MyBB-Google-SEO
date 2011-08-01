@@ -89,7 +89,17 @@ function google_seo_redirect_hook()
             // even at the cost of an additional query.
             if((int)$mybb->input['pid'])
             {
-                $target = get_post_link((int)$mybb->input['pid']);
+                if($settings['google_seo_redirect_posts'] == 'verify'
+                   || (!(int)$mybb->input['tid']
+                       && $settings['google_seo_redirect_posts'] != 'ignore'))
+                {
+                    $pid = intval($mybb->input['pid']);
+                    $query = $db->simple_select('posts', 'tid', "pid={$pid}");
+                    $mybb->input['tid'] = intval($db->fetch_field($query, 'tid'));
+                }
+
+                $target = get_post_link((int)$mybb->input['pid'],
+                                        (int)$mybb->input['tid']);
                 $kill['pid'] = '';
                 $kill['tid'] = '';
                 $kill['google_seo_thread'] = '';
@@ -99,7 +109,7 @@ function google_seo_redirect_hook()
             {
                 $target = get_thread_link((int)$mybb->input['tid'],
                                           (int)$mybb->input['page'],
-                                          $mybb->input['action']);
+                                          (string)$mybb->input['action']);
                 $kill['tid'] = '';
                 $kill['page'] = '';
                 $kill['action'] = '';
@@ -350,7 +360,7 @@ function google_seo_redirect_header()
     global $plugins, $google_seo_redirect;
 
     // Issue the redirect.
-    header("Location: $google_seo_redirect", true, 301);
+    header("Location: {$google_seo_redirect}", true, 301);
 
     // Only exit if the headers haven't been sent yet.
     // (i.e. if the headers will be sent on exit).
