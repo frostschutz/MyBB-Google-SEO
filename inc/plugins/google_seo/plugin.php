@@ -721,6 +721,7 @@ function google_seo_plugin_activate()
                 'title' => "Redirect Post Links",
                 'description' => "MyBB allows linking to specific posts by specifying the post ID (pid) in the URL. Redirect can trust the thread ID (tid) it tid was given and query it if it was not (default MyBB behaviour), or it can verify the tid (by making a query) in order to redirect links to posts that were moved to another thread, or it can ignore these links completely (avoiding the tid query altogether).",
                 'optionscode' => "radio\ndefault=Default (query on demand)\nverify=Verify (always query)\nignore=Ignore (never query)",
+                'value' => 'default',
                 ),
             'litespeed' => array(
                 'title' => "LiteSpeed Bug workaround",
@@ -852,10 +853,10 @@ function google_seo_plugin_activate()
                 'value' => '0',
                 ),
             'posts' => array(
-                'title' => 'Handle post links',
-                'description' => "MyBB allows linking to posts (pid) without specifying the thread (tid). However, Google SEO must know the thread (tid) in order to produce the SEO URL for it. If the tid was not given and all else fails, the only way to obtain the tid is with a database query. Set to Yes to allow Google SEO to make such a query, otherwise No to use stock URLs for pure post links instead.",
-                'optionscode' => "radio\n0=No\n1=Maybe (use given or guessed tid)\n2=Yes (query tid if necessary)",
-                'value' => 1,
+                'title' => "Handle Post Links",
+                'description' => "MyBB allows linking to specific posts by specifying the post ID (pid) in the URL. URL can trust the thread ID (tid) it tid was given and query it if it was not (default), or it can verify the tid (by making a query) in order to show correct links to posts at all times, or it can ignore these links completely (avoiding the tid query altogether by showing a stock post URL).",
+                'optionscode' => "radio\ndefault=Default (query on demand)\nverify=Verify (always query)\nignore=Ignore (never query)",
+                'value' => 'default',
                 ),
             'multipage' => array(
                 'title' => 'Handle multipage links',

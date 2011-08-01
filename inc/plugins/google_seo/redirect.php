@@ -90,12 +90,17 @@ function google_seo_redirect_hook()
             if((int)$mybb->input['pid'])
             {
                 if($settings['google_seo_redirect_posts'] == 'verify'
-                   || (!(int)$mybb->input['tid']
+                   || ((int)$mybb->input['tid'] <= 0
                        && $settings['google_seo_redirect_posts'] != 'ignore'))
                 {
+                    global $google_seo_url_tid;
                     $pid = intval($mybb->input['pid']);
                     $query = $db->simple_select('posts', 'tid', "pid={$pid}");
-                    $mybb->input['tid'] = intval($db->fetch_field($query, 'tid'));
+                    $tid = intval($db->fetch_field($query, 'tid'));
+                    $mybb->input['tid'] = $tid;
+
+                    // Help Google SEO's get_post_link() out
+                    $google_seo_url_tid[$pid] = $tid;
                 }
 
                 $target = get_post_link((int)$mybb->input['pid'],

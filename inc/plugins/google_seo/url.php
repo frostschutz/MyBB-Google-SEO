@@ -1313,65 +1313,67 @@ function google_seo_url_thread($tid, $page=0, $action='')
 function google_seo_url_post($pid, $tid=0)
 {
     global $db, $settings;
-    global $google_seo_url_pid;
+    global $google_seo_url_tid;
 
     if($settings['google_seo_url_threads'] && $pid > 0)
     {
-        if($tid <= 0)
-        {
-            // We didn't get a tid so we have to fetch it. Ugly.
-            // Code based on showthread.php:
-            global $style, $thread, $post;
+        global $style, $thread, $post;
 
-            if(array_key_exists($pid, (array)$google_seo_url_pid))
+        // already in cache?
+        if($google_seo_url_tid[$pid] !== NULL)
+        {
+            $tid = $google_seo_url_tid[$pid];
+        }
+
+        else
+        {
+            // trust the given tid
+            if($tid > 0)
             {
-                $tid = $google_seo_url_pid[$pid];
+                $tid = intval($tid);
             }
 
-            else if(isset($style) && $style['pid'] == $pid && $style['tid'])
+            // or guess tid
+            else if($style['pid'] == $pid && $style['tid'] > 0)
             {
                 $tid = intval($style['tid']);
             }
 
-            else if(isset($thread) && $thread['firstpost'] == $pid && $thread['tid'])
+            else if($thread['firstpost'] == $pid && $thread['tid'] > 0)
             {
                 $tid = intval($thread['tid']);
             }
 
-            else if(isset($post) && $post['pid'] == $pid && $post['tid'])
+            else if($post['pid'] == $pid && $post['tid'] > 0)
             {
                 $tid = intval($post['tid']);
             }
 
-            else if($settings['google_seo_url_posts'] == 2
-                    && $db->google_seo_query_limit > 0)
+            // and/or query tid
+            if($db->google_seo_query_limit > 0
+               && ($settings['google_seo_url_posts'] == 'verify'
+                   || ((int)$tid <= 0
+                       && $settings['google_seo_url_posts'] != 'ignore')))
             {
-                $options = array(
-                    "limit" => 1
-                );
+                $pid = intval($pid);
                 $db->google_seo_query_limit--;
-                $query = $db->simple_select("posts", "tid", "pid={$pid}",
-                                            $options);
-                $tid = $db->fetch_field($query, "tid");
+                $query = $db->simple_select('posts', 'tid', "pid={$pid}");
+                $tid = intval($db->fetch_field($query, 'tid'));
             }
 
-            // If we still don't have a tid, give up.
-            if($tid <= 0)
-            {
-                $google_seo_url_pid[$pid] = 0;
-                return 0;
-            }
+            // Cache entries to avoid making the same query again.
+            $google_seo_url_tid[$pid] = $tid;
         }
 
-        // Cache it if a link for the same pid is asked twice.
-        $google_seo_url_pid[$pid] = $tid;
-
-        $url = google_seo_url_cache(GOOGLE_SEO_THREAD, $tid);
-
-        if($url)
+        if($tid > 0)
         {
-            $url .= "?pid={$pid}";
-            return $url;
+            $url = google_seo_url_cache(GOOGLE_SEO_THREAD, $tid);
+
+            if($url)
+            {
+                $url .= "?pid={$pid}";
+                return $url;
+            }
         }
     }
 }
