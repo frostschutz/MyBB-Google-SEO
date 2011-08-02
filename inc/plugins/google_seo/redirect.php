@@ -80,6 +80,7 @@ function google_seo_redirect_hook()
                 $kill['fid'] = '';
                 $kill['page'] = '';
                 $kill['google_seo_forum'] = '';
+                $kill['google_seo'] = '';
             }
 
             break;
@@ -89,25 +90,14 @@ function google_seo_redirect_hook()
             // even at the cost of an additional query.
             if((int)$mybb->input['pid'])
             {
-                if($settings['google_seo_redirect_posts'] == 'verify'
-                   || ((int)$mybb->input['tid'] <= 0
-                       && $settings['google_seo_redirect_posts'] != 'ignore'))
-                {
-                    global $google_seo_url_tid;
-                    $pid = intval($mybb->input['pid']);
-                    $query = $db->simple_select('posts', 'tid', "pid={$pid}");
-                    $tid = intval($db->fetch_field($query, 'tid'));
-                    $mybb->input['tid'] = $tid;
-
-                    // Help Google SEO's get_post_link() out
-                    $google_seo_url_tid[$pid] = $tid;
-                }
-
-                $target = get_post_link((int)$mybb->input['pid'],
-                                        (int)$mybb->input['tid']);
+                $tid = google_seo_tid((int)$mybb->input['pid'],
+                                      (int)$mybb->input['tid'],
+                                      $settings['google_seo_redirect_posts']);
+                $target = get_post_link((int)$mybb->input['pid'], $tid);
                 $kill['pid'] = '';
                 $kill['tid'] = '';
                 $kill['google_seo_thread'] = '';
+                $kill['google_seo'] = '';
             }
 
             else if((int)$mybb->input['tid'])
@@ -119,6 +109,7 @@ function google_seo_redirect_hook()
                 $kill['page'] = '';
                 $kill['action'] = '';
                 $kill['google_seo_thread'] = '';
+                $kill['google_seo'] = '';
             }
 
             break;
@@ -129,6 +120,7 @@ function google_seo_redirect_hook()
                 $target = get_announcement_link((int)$mybb->input['aid']);
                 $kill['aid'] = '';
                 $kill['google_seo_announcement'] = '';
+                $kill['google_seo'] = '';
             }
 
             break;
@@ -146,6 +138,7 @@ function google_seo_redirect_hook()
                 $target = get_profile_link((int)$mybb->input['uid']);
                 $kill['uid'] = '';
                 $kill['google_seo_user'] = '';
+                $kill['google_seo'] = '';
 
                 if($mybb->input['action'] == 'profile')
                 {
@@ -168,6 +161,7 @@ function google_seo_redirect_hook()
                 $target = get_event_link((int)$mybb->input['eid']);
                 $kill['eid'] = '';
                 $kill['google_seo_event'] = '';
+                $kill['google_seo'] = '';
 
                 if($mybb->input['action'] == 'event')
                 {
@@ -196,6 +190,7 @@ function google_seo_redirect_hook()
                     $kill['week'] = '';
                     $kill['action'] = '';
                     $kill['google_seo_calendar'] = '';
+                    $kill['google_seo'] = '';
                 }
 
                 else
@@ -209,6 +204,7 @@ function google_seo_redirect_hook()
                     $kill['month'] = '';
                     $kill['day'] = '';
                     $kill['google_seo_calendar'] = '';
+                    $kill['google_seo'] = '';
                 }
             }
 
@@ -328,7 +324,7 @@ function google_seo_redirect_hook()
                 // Redirect but retain query.
                 foreach($query as $k=>$v)
                 {
-                    $querystr[] = "$k=".urlencode($v);
+                    $querystr[] = "{$k}=".urlencode($v);
                 }
 
                 if(sizeof($querystr))

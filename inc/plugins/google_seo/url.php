@@ -1258,7 +1258,8 @@ function google_seo_url_forum($fid, $page=0)
 
         if($url && $page && $page != 1)
         {
-            $url .= "?page=$page";
+            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $url .= "{$glue}page={$page}";
         }
 
         return $url;
@@ -1283,19 +1284,21 @@ function google_seo_url_thread($tid, $page=0, $action='')
 
         if($url)
         {
+            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+
             if($page && $page != 1 && $action)
             {
-                $url .= "?page=$page&amp;action=$action";
+                $url .= "{$glue}page={$page}&amp;action={$action}";
             }
 
             else if($page && $page != 1)
             {
-                $url .= "?page=$page";
+                $url .= "{$glue}page={$page}";
             }
 
             else if($action)
             {
-                $url .= "?action=$action";
+                $url .= "{$glue}action={$action}";
             }
 
             return $url;
@@ -1317,53 +1320,8 @@ function google_seo_url_post($pid, $tid=0)
 
     if($settings['google_seo_url_threads'] && $pid > 0)
     {
-        global $style, $thread, $post;
-
-        // already in cache?
-        if($google_seo_url_tid[$pid] !== NULL)
-        {
-            $tid = $google_seo_url_tid[$pid];
-        }
-
-        else
-        {
-            // trust the given tid
-            if($tid > 0)
-            {
-                $tid = intval($tid);
-            }
-
-            // or guess tid
-            else if($style['pid'] == $pid && $style['tid'] > 0)
-            {
-                $tid = intval($style['tid']);
-            }
-
-            else if($thread['firstpost'] == $pid && $thread['tid'] > 0)
-            {
-                $tid = intval($thread['tid']);
-            }
-
-            else if($post['pid'] == $pid && $post['tid'] > 0)
-            {
-                $tid = intval($post['tid']);
-            }
-
-            // and/or query tid
-            if($db->google_seo_query_limit > 0
-               && ($settings['google_seo_url_posts'] == 'verify'
-                   || ((int)$tid <= 0
-                       && $settings['google_seo_url_posts'] != 'ignore')))
-            {
-                $pid = intval($pid);
-                $db->google_seo_query_limit--;
-                $query = $db->simple_select('posts', 'tid', "pid={$pid}");
-                $tid = intval($db->fetch_field($query, 'tid'));
-            }
-
-            // Cache entries to avoid making the same query again.
-            $google_seo_url_tid[$pid] = $tid;
-        }
+        $tid = google_seo_tid($pid, $tid, $settings['google_seo_url_posts'],
+                              $db->google_seo_query_limit);
 
         if($tid > 0)
         {
@@ -1371,7 +1329,8 @@ function google_seo_url_post($pid, $tid=0)
 
             if($url)
             {
-                $url .= "?pid={$pid}";
+                $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+                $url .= "{$glue}pid={$pid}";
                 return $url;
             }
         }
@@ -1413,7 +1372,8 @@ function google_seo_url_calendar($cid, $year=0, $month=0, $day=0)
 
         if($url && $year)
         {
-            $url .= "?year=$year";
+            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $url .= "{$glue}year={$year}";
 
             if($month)
             {
@@ -1447,7 +1407,9 @@ function google_seo_url_calendar_week($cid, $week)
 
         if($url)
         {
-            return "$url?action=weekview&amp;week=$week";
+            $glue = (strpos($url, '?') === false ? '?' : '&amp;');
+            $url .= "{$glue}action=weekview&amp;week={$week}";
+            return $url;
         }
     }
 }
@@ -1491,7 +1453,9 @@ function google_seo_url_multipage($url)
         $urlcheck = str_replace("{{$idname}}", $id, $urlcheck);
 
         // see if we have a default multipage URL here
-        if($url == $urlcheck || strpos($url, $urlcheck.'?') === 0)
+        if($url == $urlcheck
+           || strpos($url, $urlcheck.'?') === 0
+           || strpos($url, $urlcheck.'&amp;') === 0)
         {
             // Check that the Google SEO URLs are being used.
             $seourl = $getlink_googleseo($id, "{page}");
@@ -1502,11 +1466,11 @@ function google_seo_url_multipage($url)
                 $newurl = $seourl;
 
                 // Append extra parameters.
-                $extra = substr($url, strlen($urlcheck)+1);
+                $extra = substr($url, strlen($urlcheck));
 
                 if($extra)
                 {
-                    $newurl .= '&'.$extra;
+                    $newurl .= $extra;
                 }
             }
         }

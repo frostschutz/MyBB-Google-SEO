@@ -153,6 +153,69 @@ function google_seo_expand($string, $array)
     return strtr($string, $strtr);
 }
 
+/*
+ * Guess or query a thread id from a post id.
+ * Required by both URL and Redirect.
+ */
+function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
+{
+    global $db, $style, $thread, $post;
+    global $google_seo_tid;
+
+    if($google_seo_tid[$pid] === NULL)
+    {
+        // trust the given tid
+        if($tid > 0)
+        {
+            $tid = intval($tid);
+        }
+
+        // or guess tid
+        else if($style['pid'] == $pid && $style['tid'] > 0)
+        {
+            $tid = intval($style['tid']);
+        }
+
+        else if($thread['firstpost'] == $pid && $thread['tid'] > 0)
+        {
+            $tid = intval($thread['tid']);
+        }
+
+        else if($post['pid'] == $pid && $post['tid'] > 0)
+        {
+            $tid = intval($post['tid']);
+        }
+
+        else if($google_seo_tid[-$pid] !== NULL)
+        {
+            $tid = $google_seo_tid[-$pid];
+        }
+
+        // and/or query tid
+        if($limit > 0
+           && ($mode == 'verify' || ($tid <= 0 && $mode != 'ignore')))
+        {
+            $pid = intval($pid);
+            $db->google_seo_query_limit--;
+            $query = $db->simple_select('posts', 'tid', "pid={$pid}");
+            $tid = intval($db->fetch_field($query, 'tid'));
+
+            // positive pid cache for trusted tid
+            $google_seo_tid[$pid] = $tid;
+        }
+
+        else if($tid > 0)
+        {
+            // negative pid cache for previously guessed tid
+            $google_seo_tid[-$pid] = $tid;
+        }
+
+        return $tid;
+    }
+
+    return $google_seo_tid[$pid];
+}
+
 /* --- Submodules: --- */
 
 /**
