@@ -171,6 +171,10 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                 $condition[] = "fid NOT IN ($inactiveforums)";
             }
 
+            // passwords already taken care of unviewable forums,
+            // but linkto needs special treatment...
+            $condition[] = "linkto=''";
+
             if($condition)
             {
                 $condition = "WHERE ".implode(" AND ", $condition);
