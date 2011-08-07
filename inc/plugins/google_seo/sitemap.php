@@ -49,9 +49,10 @@ function google_seo_get_unviewable_calendars()
 
     foreach($calendars as $cid => $permissions)
     {
-        if($permissions['canviewcalendar'] == 0)
+        if($cid == intval($cid)
+           && $permissions['canviewcalendar'] == 0)
         {
-            $unviewablecalendars[] = $cid;
+            $unviewablecalendars[] = intval($cid);
         }
     }
 
