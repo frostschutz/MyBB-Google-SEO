@@ -1193,7 +1193,7 @@ function google_seo_url_merge_hook()
     // If $url was 'http://host/Thread-foobar', it is just 'foobar' now.
 
     // Look up the ID for this item.
-    $tid = google_seo_url_id('threads', $url);
+    $tid = google_seo_url_id(GOOGLE_SEO_THREAD, $url);
 
     // If we have an ID, produce an URL suitable for merge.
     if($tid)
