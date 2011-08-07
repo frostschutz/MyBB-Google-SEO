@@ -45,37 +45,37 @@ $db->google_seo_url = array(
         'table' => TABLE_PREFIX.'users',
         'id' => 'uid',
         'name' => 'username',
-        'scheme' => $settings['google_seo_url_users'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_users']),
         ),
     GOOGLE_SEO_ANNOUNCEMENT => array(
         'table' => TABLE_PREFIX.'announcements',
         'id' => 'aid',
         'name' => 'subject',
-        'scheme' => $settings['google_seo_url_announcements'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_announcements']),
         ),
     GOOGLE_SEO_FORUM => array(
         'table' => TABLE_PREFIX.'forums',
         'id' => 'fid',
         'name' => 'name',
-        'scheme' => $settings['google_seo_url_forums'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_forums']),
         ),
     GOOGLE_SEO_THREAD => array(
         'table' => TABLE_PREFIX.'threads',
         'id' => 'tid',
         'name' => 'subject',
-        'scheme' => $settings['google_seo_url_threads'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_threads']),
         ),
     GOOGLE_SEO_EVENT => array(
         'table' => TABLE_PREFIX.'events',
         'id' => 'eid',
         'name' => 'name',
-        'scheme' => $settings['google_seo_url_events'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_events']),
         ),
     GOOGLE_SEO_CALENDAR => array(
         'table' => TABLE_PREFIX.'calendars',
         'id' => 'cid',
         'name' => 'name',
-        'scheme' => $settings['google_seo_url_calendars'],
+        'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_calendars']),
         ),
     );
 
@@ -1048,6 +1048,20 @@ function google_seo_url_id($type, $url)
     return 0;
 }
 
+/*
+ * Dynamic URLs, e.g. showthread.php?Subject-Here
+ *
+ */
+function google_seo_url_dynamic($url='')
+{
+    if(!strlen((string)$url))
+    {
+        $url = google_seo_dynamic($_SERVER['REQUEST_URI']);
+    }
+
+    return $url;
+}
+
 /**
  * Google SEO URL hook.
  *
@@ -1067,9 +1081,9 @@ function google_seo_url_hook()
     {
         case 'forumdisplay.php':
             // Translation.
-            $url = $mybb->input['google_seo_forum'];
+            $url = google_seo_url_dynamic($mybb->input['google_seo_forum']);
 
-            if($url && !array_key_exists('fid', $mybb->input))
+            if(strlen($url) && !array_key_exists('fid', $mybb->input))
             {
                 $fid = google_seo_url_id(GOOGLE_SEO_FORUM, $url);
                 $mybb->input['fid'] = $fid;
@@ -1090,9 +1104,9 @@ function google_seo_url_hook()
 
         case 'showthread.php':
             // Translation.
-            $url = $mybb->input['google_seo_thread'];
+            $url = google_seo_url_dynamic($mybb->input['google_seo_thread']);
 
-            if($url && !array_key_exists('tid', $mybb->input))
+            if(strlen($url) && !array_key_exists('tid', $mybb->input))
             {
                 $tid = google_seo_url_id(GOOGLE_SEO_THREAD, $url);
                 $mybb->input['tid'] = $tid;
@@ -1115,9 +1129,9 @@ function google_seo_url_hook()
 
         case 'announcements.php':
             // Translation.
-            $url = $mybb->input['google_seo_announcement'];
+            $url = google_seo_url_dynamic($mybb->input['google_seo_announcement']);
 
-            if($url && !array_key_exists('aid', $mybb->input))
+            if(strlen($url) && !array_key_exists('aid', $mybb->input))
             {
                 $aid = google_seo_url_id(GOOGLE_SEO_ANNOUNCEMENT, $url);
                 $mybb->input['aid'] = $aid;
@@ -1137,9 +1151,9 @@ function google_seo_url_hook()
 
         case 'member.php':
             // Translation.
-            $url = $mybb->input['google_seo_user'];
+            $url = google_seo_url_dynamic($mybb->input['google_seo_user']);
 
-            if($url && !array_key_exists('uid', $mybb->input))
+            if(strlen($url) && !array_key_exists('uid', $mybb->input))
             {
                 $uid = google_seo_url_id(GOOGLE_SEO_USER, $url);
                 $mybb->input['uid'] = $uid;
@@ -1159,9 +1173,9 @@ function google_seo_url_hook()
 
         case 'calendar.php':
             // Translation.
-            $url = $mybb->input['google_seo_event'];
+            $url = google_seo_url_dynamic($mybb->input['google_seo_event']);
 
-            if($url && !array_key_exists('eid', $mybb->input))
+            if(strlen($url) && !array_key_exists('eid', $mybb->input))
             {
                 $eid = google_seo_url_id(GOOGLE_SEO_EVENT, $url);
                 $mybb->input['eid'] = $eid;
@@ -1179,9 +1193,9 @@ function google_seo_url_hook()
 
             else if(!$url)
             {
-                $url = $mybb->input['google_seo_calendar'];
+                $url = google_seo_url_dynamic($mybb->input['google_seo_calendar']);
 
-                if($url && !array_key_exists('calendar', $mybb->input))
+                if(strlen($url) && !array_key_exists('calendar', $mybb->input))
                 {
                     $cid = google_seo_url_id(GOOGLE_SEO_CALENDAR, $url);
 
@@ -1213,7 +1227,10 @@ function google_seo_url_hook()
     if($location)
     {
         $location = substr($location, 0, 150);
-        @define("MYBB_LOCATION", $location);
+
+        global $google_seo_location;
+
+        $google_seo_location = $location;
     }
 }
 

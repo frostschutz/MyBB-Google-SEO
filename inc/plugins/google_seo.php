@@ -216,6 +216,33 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
     return $google_seo_tid[$pid];
 }
 
+/*
+ * Handle special dynamic URL parameter
+ * Required by both URL and Redirect
+ */
+function google_seo_dynamic($url)
+{
+    // This is complicated because of ?page&page=2, page being the thread title.
+
+    $query = explode('?', $url);
+    $query = $query[1];
+
+    if($query)
+    {
+        $query = str_replace('&amp;', '&', $query);
+        $query = explode('&', $query);
+
+        foreach($query as $key)
+        {
+            // pick the first parameter that doesn't have a value
+            if(strpos($key, '=') === false)
+            {
+                return $key;
+            }
+        }
+    }
+}
+
 /* --- Submodules: --- */
 
 /**

@@ -1180,6 +1180,22 @@ function google_seo_plugin_apply($apply=false)
         $edits = array();
     }
 
+    // Location workaround, needed by 404 as well.
+    if(count($edits) || $settings['google_seo_404_wol_show'])
+    {
+        $edits[] = array(
+            'search' => array('function get_current_location(', '{'),
+            'after' => array(
+                'global $mybb, $google_seo_location;',
+                '',
+                'if($google_seo_location && !$fields)',
+                '{',
+                '    return $google_seo_location;',
+                '}',
+                ),
+            );
+    }
+
     return $PL->edit_core('google_seo', 'inc/functions.php', $edits, $apply);
 }
 

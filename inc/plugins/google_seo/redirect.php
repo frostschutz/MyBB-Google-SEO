@@ -229,8 +229,9 @@ function google_seo_redirect_hook()
             $location_current = $current_parse[0];
 
             // Fix broken query strings (e.g. search.php)
-            $broken_query = $current_parse[1];
-            $broken_query = preg_replace("/\?([^&?]+)=/u", '&$1=', $broken_query);
+            $broken_query = preg_replace("/\?([^&?=]+)([=&])/u",
+                                         '&$1$2',
+                                         $current_parse[1]);
 
             if($current_parse[1] != $broken_query)
             {
@@ -239,10 +240,12 @@ function google_seo_redirect_hook()
             }
 
             // Query
+            $current_dynamic = google_seo_dynamic('?'.$current_parse[1]);
+            $target_dynamic = google_seo_dynamic('?'.$target_parse[1]);
             parse_str(htmlspecialchars_decode($target_parse[1]), $query_target);
             parse_str($current_parse[1], $query_current);
 
-            if(get_magic_quotes_gpc())
+            if(@get_magic_quotes_gpc())
             {
                 // Dear PHP, I don't need magic, thank you very much.
                 $mybb->strip_slashes_array($query_target);
@@ -252,6 +255,16 @@ function google_seo_redirect_hook()
             $query = array_merge($query_current, $mybb->input);
 
             // Kill query string elements that already are part of the URL.
+            if(!$query[$target_dynamic])
+            {
+                unset($query[$target_dynamic]);
+            }
+
+            if(!$query[$current_dynamic])
+            {
+                unset($query[$current_dynamic]);
+            }
+
             foreach($kill as $k=>$v)
             {
                 unset($query[$k]);
@@ -260,7 +273,8 @@ function google_seo_redirect_hook()
             // Final query, current parameters retained
             $query = array_merge($query_target, $query);
 
-            if(count($query) != count($query_current))
+            if(count($query) != count($query_current)
+               || $current_dynamic != $target_dynamic)
             {
                 $change = 1;
             }
@@ -322,9 +336,14 @@ function google_seo_redirect_hook()
                 }
 
                 // Redirect but retain query.
+                if($target_dynamic)
+                {
+                    $querystr[] = urlencode($target_dynamic);
+                }
+
                 foreach($query as $k=>$v)
                 {
-                    $querystr[] = "{$k}=".urlencode($v);
+                    $querystr[] = urlencode($k)."=".urlencode($v);
                 }
 
                 if(sizeof($querystr))

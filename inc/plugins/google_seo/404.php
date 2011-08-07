@@ -50,7 +50,8 @@ if(THIS_SCRIPT == "misc.php"
 
         $location = substr($location, 0, 150);
 
-        @define("MYBB_LOCATION", $location);
+        global $google_seo_location;
+        $google_seo_location = $location;
     }
 
     else
