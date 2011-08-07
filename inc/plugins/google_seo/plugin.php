@@ -905,6 +905,30 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => 'Event-{url}',
                 ),
+            'parent_forum' => array(
+                'title' => "Include parent forum in forum URLs?",
+                'description' => "Set the scheme that should be used to include the parent forum in the forum URL. {parent} is the Google SEO URL of the parent forum, {url} the URL of the forum itself. Enabling this option is not recommended and costs an extra query in the URL creation / verification step for forum URLs.",
+                'optionscode' => "text",
+                'value' => '',
+                ),
+            'parent_thread' => array(
+                'title' => "Include parent forum in thread URLs?",
+                'description' => "Set the scheme that should be used to include the parent forum in the thread URL. {parent} is the Google SEO URL of the parent forum, {url} the URL of the thread itself. Enabling this option is not recommended and costs an extra query in the URL creation / verification step for thread URLs.",
+                'optionscode' => "text",
+                'value' => '',
+                ),
+            'parent_announcement' => array(
+                'title' => "Include parent forum in announcement URLs?",
+                'description' => "Set the scheme that should be used to include parent forum in the announcement URL. {parent} is the Google SEO URL of the parent forum, {url} the URL of the announcement itself. Enabling this option is not recommended and costs an extra query in the URL creation / verification step for announcement URLs.",
+                'optionscode' => "text",
+                'value' => '',
+                ),
+            'parent_event' => array(
+                'title' => "Include parent calendar in event URLs?",
+                'description' => "Set the scheme that should be used to include parent calendar in the event URL. {parent} is the Google SEO URL of the parent calendar, {url} the URL of the event itself. Enabling this option is not recommended and costs an extra query in the URL creation / verification step for event URLs.",
+                'optionscode' => "text",
+                'value' => '',
+                ),
             )
         );
 }

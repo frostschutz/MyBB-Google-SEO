@@ -63,7 +63,6 @@ $db->google_seo_url = array(
         'table' => TABLE_PREFIX.'threads',
         'id' => 'tid',
         'name' => 'subject',
-        'extra' => ',prefix',
         'scheme' => $settings['google_seo_url_threads'],
         ),
     GOOGLE_SEO_EVENT => array(
@@ -79,15 +78,6 @@ $db->google_seo_url = array(
         'scheme' => $settings['google_seo_url_calendars'],
         ),
     );
-
-// Query limit. Decreases by 1 for every query.
-
-$db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
-
-if($db->google_seo_query_limit <= 0)
-{
-    $db->google_seo_query_limit = 32767;
-}
 
 // Lazy Mode.
 
@@ -108,6 +98,56 @@ if($settings['google_seo_url_mode'] == 'lazy'
     $db->google_seo_url[GOOGLE_SEO_USER]['lazy'] = "member.php?action=profile&amp;uid={id}&amp;google_seo={$google_seo_url_lazy}";
 
     $google_seo_url_lazy = true;
+}
+
+// Thread Prefix
+
+if($settings['google_seo_url_threadprefix'])
+{
+    $db->google_seo_url[GOOGLE_SEO_THREAD]['extra'] .= ',prefix';
+}
+
+// Parents
+
+if($db->google_seo_url[GOOGLE_SEO_FORUM]['scheme'])
+{
+    if($settings['google_seo_url_parent_announcement'])
+    {
+        $db->google_seo_url[GOOGLE_SEO_ANNOUNCEMENT]['extra'] .= ',fid AS parent';
+        $db->google_seo_url[GOOGLE_SEO_ANNOUNCEMENT]['parent'] = $settings['google_seo_url_parent_announcement'];
+        $db->google_seo_url[GOOGLE_SEO_ANNOUNCEMENT]['parent_type'] = GOOGLE_SEO_FORUM;
+    }
+
+    if($settings['google_seo_url_parent_forum'])
+    {
+        $db->google_seo_url[GOOGLE_SEO_FORUM]['extra'] .= ',pid AS parent';
+        $db->google_seo_url[GOOGLE_SEO_FORUM]['parent'] = $settings['google_seo_url_parent_forum'];
+        $db->google_seo_url[GOOGLE_SEO_FORUM]['parent_type'] = GOOGLE_SEO_FORUM;
+    }
+
+    if($settings['google_seo_url_parent_thread'])
+    {
+        $db->google_seo_url[GOOGLE_SEO_THREAD]['extra'] .= ',fid AS parent';
+        $db->google_seo_url[GOOGLE_SEO_THREAD]['parent'] = $settings['google_seo_url_parent_thread'];
+        $db->google_seo_url[GOOGLE_SEO_THREAD]['parent_type'] = GOOGLE_SEO_FORUM;
+    }
+}
+
+if($db->google_seo_url[GOOGLE_SEO_CALENDAR]['scheme']
+   && $settings['google_seo_url_parent_event'])
+{
+    $db->google_seo_url[GOOGLE_SEO_EVENT]['extra'] .= ',cid AS parent';
+    $db->google_seo_url[GOOGLE_SEO_EVENT]['parent'] = $settings['google_seo_url_parent_event'];
+    $db->google_seo_url[GOOGLE_SEO_EVENT]['parent_type'] = GOOGLE_SEO_CALENDAR;
+}
+
+// Query limit. Decreases by 1 for every query.
+
+$db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
+
+if($db->google_seo_query_limit <= 0)
+{
+    $db->google_seo_query_limit = 32767;
 }
 
 // There are several more global variables defined in functions below.
@@ -393,8 +433,7 @@ function google_seo_url_create($type, $ids)
             }
 
             // Thread Prefixes
-            if($type == GOOGLE_SEO_THREAD && $row['prefix']
-               && $settings['google_seo_url_threadprefix'])
+            if($row['prefix'])
             {
                 $prefix = build_prefixes($row['prefix']);
 
@@ -417,6 +456,7 @@ function google_seo_url_create($type, $ids)
 
             $url = google_seo_url_separate($url);
             $url = google_seo_url_truncate($url);
+
             $uniqueurl = google_seo_url_uniquify($url, $id);
 
             // Special case: for empty URLs we must use the unique variant
@@ -425,15 +465,37 @@ function google_seo_url_create($type, $ids)
                 $url = $uniqueurl;
             }
 
+            // Parents
+            if($row['parent'])
+            {
+                $parent_type = $db->google_seo_url[$type]['parent_type'];
+                $parent_id = intval($row['parent']);
+
+                // TODO: Parents costs us an extra query. Cache?
+                $db->google_seo_query_limit--;
+                $query = $db->simple_select('google_seo',
+                                            'url AS parent',
+                                            "active=1 AND idtype={$parent_type} AND id={$parent_id}");
+                $parent = $db->fetch_field($query, 'parent');
+
+                if($parent)
+                {
+                    $url = google_seo_expand($db->google_seo_url[$type]['parent'],
+                                             array('url' => $url,
+                                                   'parent' => $parent));
+                    $uniqueurl = google_seo_expand($db->google_seo_url[$type]['parent'],
+                                                   array('url' => $url,
+                                                         'parent' => $parent));
+                }
+            }
+
             // Check for existing entry and possible collisions.
             $db->google_seo_query_limit--;
             $query = $db->query("SELECT url,id FROM ".TABLE_PREFIX."google_seo
-                                 WHERE idtype={$type}
+                                 WHERE active=1 AND idtype={$type} AND id<={$id}
                                  AND url IN ('"
                                 .$db->escape_string($url)."','"
                                 .$db->escape_string($uniqueurl)."')
-                                 AND active=1
-                                 AND id<={$id}
                                  AND EXISTS(SELECT {$data['id']}
                                             FROM {$data['table']}
                                             WHERE {$data['id']}=id)
