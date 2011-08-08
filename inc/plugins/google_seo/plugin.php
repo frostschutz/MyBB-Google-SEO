@@ -716,8 +716,9 @@ function google_seo_plugin_activate()
                 'value' => 1,
                 ),
             'archive' => array(
-                'title' => "Add tags to Archive",
-                'description' => "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages by using unconventional methods.",
+                'title' => "Meta for Archive Mode",
+                'description' => "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages. If this setting is disabled, Google SEO Meta will ignore the Archive mode altogether.",
+                'value' => 1,
                 ),
             'page' => array(
                 'title' => "Provide page number for forum and thread titles",

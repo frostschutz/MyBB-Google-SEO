@@ -16,8 +16,8 @@ $l['setting_google_seo_404_widget_desc'] = "Add the Google 404 widget for 404/40
 $l['setting_google_seo_404_wol_show'] = "Show 404 errors in Who's Online";
 $l['setting_google_seo_404_wol_show_desc'] = "Specify if you want to show that users are seeing the 404 error page in the Who's Online list. This is not recommended. Enabling this can cause problems such as spambots showing up as guests, or users showing up as seeing error pages if your forum e.g. tries to include an image that does not exist.";
 $l['setting_google_seo_meta'] = "Enable Google SEO Meta";
-$l['setting_google_seo_meta_archive'] = "Add tags to Archive";
-$l['setting_google_seo_meta_archive_desc'] = "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages by using unconventional methods.";
+$l['setting_google_seo_meta_archive'] = "Meta for Archive Mode";
+$l['setting_google_seo_meta_archive_desc'] = "Enable this option if you want tags to be added to MyBB's Lite (Archive) Mode pages. If this setting is disabled, Google SEO Meta will ignore the Archive mode altogether.";
 $l['setting_google_seo_meta_canonical'] = "Canonical Page";
 $l['setting_google_seo_meta_canonical_desc'] = "Specify a canonical page. This helps avoid Google indexing the same page under several different names. Please see <a href=\"http://www.google.com/support/webmasters/bin/answer.py?hl=en&amp;answer=139394\">About rel=\"canonical\"</a> for details.";
 $l['setting_google_seo_meta_desc'] = "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in the Google SEO Meta settings group.";
