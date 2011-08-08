@@ -1035,7 +1035,7 @@ function google_seo_url_dynamic($url='')
 {
     if(!strlen((string)$url))
     {
-        $url = google_seo_dynamic($_SERVER['REQUEST_URI']);
+        $url = urldecode(google_seo_dynamic($_SERVER['REQUEST_URI']));
     }
 
     return $url;
