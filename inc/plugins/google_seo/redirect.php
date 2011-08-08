@@ -39,6 +39,8 @@ $plugins->add_hook("global_start", "google_seo_redirect_hook", 2);
  */
 function google_seo_redirect_current_url()
 {
+    global $settings;
+
     // Determine the current page URL.
     if($_SERVER["HTTPS"] == "on")
     {
@@ -51,6 +53,17 @@ function google_seo_redirect_current_url()
     }
 
     $page_url .= $_SERVER["REQUEST_URI"];
+
+    if($settings['google_seo_redirect_nginx'])
+    {
+        // Nginx uses lowercase %cc when RFC 3986 recommends upper case.
+        $page_url = preg_replace_callback('/(%..)+/',
+                                          create_function(
+                                              '$matches',
+                                              'return strtoupper($matches[0]);'
+                                              ),
+                                          $page_url);
+    }
 
     return $page_url;
 }

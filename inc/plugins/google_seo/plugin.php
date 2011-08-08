@@ -763,7 +763,11 @@ function google_seo_plugin_activate()
                 ),
             'litespeed' => array(
                 'title' => "LiteSpeed Bug workaround",
-                'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",
+                'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from a bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",
+                ),
+            'nginx' => array(
+                'title' => "Nginx Bug workaround",
+                'description' => "If your server is running Nginx instead of Apache, and you see redirection loops on URLs that contain UTF-8 or otherwise special characters, you are suffering from a bug in Nginx URI escaping algorithm. Set to YES to work around this bug.",
                 ),
             'debug' => array(
                 'title' => "Debug Redirect",
