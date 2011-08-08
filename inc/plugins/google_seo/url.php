@@ -333,7 +333,7 @@ function google_seo_url_finalize($url, $scheme)
     $url = google_seo_expand($scheme, array('url' => $url));
 
     $test = explode('?', $url);
-    $test = explode('/', $url[0]);
+    $test = explode('/', $test[0]);
 
     foreach($test as $element)
     {
