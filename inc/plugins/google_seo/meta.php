@@ -232,6 +232,12 @@ function google_seo_meta_thread(&$post)
     {
         // We need to grab the remaining posts as well.
         $plugins->add_hook("postbit", "google_seo_meta_posts");
+
+        if(defined("IN_ARCHIVE") && $settings['google_seo_meta_archive'])
+        {
+            $plugins->add_hook("archive_thread_post", "google_seo_meta_posts");
+        }
+
         google_seo_meta_posts($post);
     }
 }
@@ -239,15 +245,22 @@ function google_seo_meta_thread(&$post)
 /**
  * Nofollow links in posts.
  */
-function google_seo_meta_posts(&$post)
+function google_seo_meta_posts(&$mypost)
 {
+    global $post;
     global $google_seo_nofollow;
 
-    if($post['dateline'] > $google_seo_nofollow)
+    // Archive Post hook doesn't supply us with the post so we have to cheat.
+    if(defined("IN_ARCHIVE") && !$mypost && $post)
     {
-        $post['message'] = google_seo_meta_nofollow($post['message']);
-        $post['button_www'] = google_seo_meta_nofollow($post['www_button']);
-        $post['signature'] = google_seo_meta_nofollow($post['signature']);
+        $mypost = &$post;
+    }
+
+    if($mypost['dateline'] > $google_seo_nofollow)
+    {
+        $mypost['message'] = google_seo_meta_nofollow($mypost['message']);
+        $mypost['button_www'] = google_seo_meta_nofollow($mypost['www_button']);
+        $mypost['signature'] = google_seo_meta_nofollow($mypost['signature']);
     }
 }
 
