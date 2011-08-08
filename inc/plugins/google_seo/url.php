@@ -163,65 +163,44 @@ google_seo_url_hook();
 /* --- URL processing: --- */
 
 /**
- * Character translation callback.
- *
- * @param array matches
- * @return string replace string
- */
-function google_seo_url_translate_callback($matches)
-{
-    global $google_seo_translate;
-
-    $r = $google_seo_translate[$matches[0]];
-
-    if($r)
-    {
-        return $r;
-    }
-
-    return $matches[0];
-}
-
-/**
  * Character translation for URLs (optional).
  *
  * @param string The input string
  * @return string The output string
  */
-function google_seo_url_translate($str)
+function google_seo_url_translation($str)
 {
     // Required for URL translation.
-    global $google_seo_translate, $google_seo_translate_pat;
+    global $settings;
+    global $google_seo_url_translation;
 
-    if(!$google_seo_translate)
+    if(!is_array($google_seo_url_translation))
     {
-        if(file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
-        {
-            require_once MYBB_ROOT."inc/plugins/google_seo/translate.php";
-        }
+        // Build the translation array.
+        $google_seo_translation = array();
 
-        if($google_seo_translate)
+        $lines = explode("\n", $settings['google_seo_url_translation']);
+
+        foreach($lines as $line)
         {
-            foreach($google_seo_translate as $k=>$v)
+            $fields = explode('=', $line);
+
+            if(count($fields) == 2)
             {
-                $google_seo_translate_pat[] = preg_quote($k, '/');
+                $key = trim($fields[0]);
+
+                if(strlen($key))
+                {
+                    $value = trim($fields[1]);
+                    $google_seo_url_translation[$key] = $value;
+                }
             }
-
-            $google_seo_translate_pat = implode($google_seo_translate_pat, "|");
-        }
-
-        else
-        {
-            // prevent translate pat from getting generated again.
-            $google_seo_translate = true;
         }
     }
 
-    if($google_seo_translate_pat)
+    if($google_seo_url_translation)
     {
-        return preg_replace_callback("/$google_seo_translate_pat/u",
-                                     "google_seo_url_translate_callback",
-                                     $str);
+        $str = strtr($str, $google_seo_url_translation);
     }
 
     return $str;
@@ -449,9 +428,9 @@ function google_seo_url_create($type, $ids)
             $id = $row[$data['id']];
 
             // Prepare the URL.
-            if($settings['google_seo_url_translate'])
+            if($settings['google_seo_url_translation'])
             {
-                $url = google_seo_url_translate($url);
+                $url = google_seo_url_translation($url);
             }
 
             $url = google_seo_url_separate($url);
@@ -1023,9 +1002,9 @@ function google_seo_url_id($type, $url)
         // Fallback for wrong punctuation, character translation:
         $urls[0] = $db->escape_string(google_seo_url_separate($url));
 
-        if($settings['google_seo_url_translate'])
+        if($settings['google_seo_url_translation'])
         {
-            $urls[1] = $db->escape_string(google_seo_url_translate($url));
+            $urls[1] = $db->escape_string(google_seo_url_translation($url));
             $urls[2] = $db->escape_string(google_seo_url_separate($urls[1]));
         }
 

@@ -654,9 +654,9 @@ function google_seo_plugin_activate()
                 ),
             'status' => array(
                 'title' => "Customize HTTP status codes",
-                'description' => 'Specify which <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes" target="_blank">HTTP status code</a> should be returned for specific error pages. You can specify one status code per line followed by : and a comma-separated list of error labels, which may include wildcards. By default, the returned status code is 404 Not Found.',
+                'description' => 'Specify which <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes" target="_blank">HTTP status code</a> should be returned for specific error pages. You can specify one status code per line followed by = and a comma-separated list of error labels, which may include wildcards. By default, the returned status code is 404 Not Found.',
                 'optionscode' => "php\n<textarea name=\\\"upsetting[{\$setting['name']}]\\\" rows=\\\"5\\\" cols=\\\"80\\\" wrap=\\\"off\\\">\".htmlspecialchars(\$setting['value']).\"</textarea>",
-                'value' => "404 Not Found:*\n403 Forbidden:no_permission\n503 Service Unavailable:boardclosed\n200 OK:nosearchresults,redirect_*",
+                'value' => "404 Not Found=*\n403 Forbidden=no_permission\n503 Service Unavailable=boardclosed\n200 OK=nosearchresults,redirect_*",
                 ),
             'debug' => array(
                 'title' => "Debug 404 error labels",
@@ -832,9 +832,11 @@ function google_seo_plugin_activate()
                 'title' => "URL uniquifier enforcer",
                 'description' => "This option is NOT recommended. If you set this to yes, Google SEO will be forced to use the uniquifier for all URLs without exception, even if it's not necessary. Use this only if you absolutely want every URL to contain the ID. If you enable this, a single separator will be sufficient for the uniquifier.",
                 ),
-            'translate' => array(
+            'translation' => array(
                 'title' => "Character Translation",
-                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger =&gt; Uebergroessentraeger) or words in your URLs, please add your translations to <i>inc/plugins/google_seo/translate.php</i> and then enable this option. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.",
+                'description' => "If you want to replace some characters (German umlaut example: Übergrößenträger -&gt; Uebergroessentraeger) or words in your URLs, please add your translations here. You can specify one character per line followed by = and the replacement character. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.",
+                'optionscode' => "php\n<textarea name=\\\"upsetting[{\$setting['name']}]\\\" rows=\\\"5\\\" cols=\\\"80\\\" wrap=\\\"off\\\">\".htmlspecialchars(\$setting['value']).\"</textarea>",
+                'value' => '',
                 ),
             'lowercase' => array(
                 'title' => "lowercase words",

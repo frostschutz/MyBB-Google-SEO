@@ -97,7 +97,7 @@ function google_seo_404_status($label)
 
         foreach($lines as $line)
         {
-            $fields = explode(":", $line);
+            $fields = explode("=", $line);
 
             if(count($fields) == 2)
             {
