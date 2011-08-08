@@ -243,6 +243,28 @@ function google_seo_dynamic($url)
     }
 }
 
+/*
+ * Encode URLs, leaving some special characters intact.
+ * Required by both URL and Redirect
+ */
+function google_seo_encode($url)
+{
+    $url = rawurlencode((string)$url);
+
+    $url = strtr($url, array(
+                     '%24' => '$',
+                     '%26' => '&',
+                     '%2F' => '/',
+                     '%3B' => ';',
+                     '%3D' => '=',
+                     '%3F' => '?',
+                     '%7B' => '{',
+                     '%7D' => '}',
+                     ));
+
+    return $url;
+}
+
 /* --- Submodules: --- */
 
 /**

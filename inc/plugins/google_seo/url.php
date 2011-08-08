@@ -358,29 +358,7 @@ function google_seo_url_finalize($url, $scheme)
         }
     }
 
-    $url = google_seo_url_encode($url);
-
-    return $url;
-}
-
-/*
- * Encode URLs, leaving some special characters intact.
- *
- */
-function google_seo_url_encode($url)
-{
-    $url = rawurlencode((string)$url);
-
-    $url = strtr($url, array(
-                     '%24' => '$',
-                     '%26' => '&',
-                     '%2F' => '/',
-                     '%3B' => ';',
-                     '%3D' => '=',
-                     '%3F' => '?',
-                     '%7B' => '{',
-                     '%7D' => '}',
-                     ));
+    $url = google_seo_encode($url);
 
     return $url;
 }

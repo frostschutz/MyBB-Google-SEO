@@ -236,6 +236,7 @@ function google_seo_redirect_hook()
             if($current_parse[1] != $broken_query)
             {
                 $change = 1;
+                $current_parse[2] = $current_parse[1];
                 $current_parse[1] = $broken_query;
             }
 
@@ -280,7 +281,7 @@ function google_seo_redirect_hook()
             if(count($query) != count($query_current)
                || $current_dynamic != $target_dynamic)
             {
-                $change = 1;
+                $change = 2;
             }
 
             else
@@ -289,7 +290,7 @@ function google_seo_redirect_hook()
                 {
                     if($query_current[$k] != $v)
                     {
-                        $change = 1;
+                        $change = 3;
                     }
                 }
             }
@@ -344,7 +345,7 @@ function google_seo_redirect_hook()
                 // Redirect but retain query.
                 if($target_dynamic)
                 {
-                    $querystr[] = urlencode($target_dynamic);
+                    $querystr[] = google_seo_encode($target_dynamic);
                 }
 
                 foreach($query as $k=>$v)
