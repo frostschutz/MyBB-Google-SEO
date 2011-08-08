@@ -903,9 +903,12 @@ function google_seo_url_cache($type, $id)
 
         foreach($ids as $key => $value)
         {
-            $condition[] = "(idtype={$key} AND id IN ("
-                .implode(",", array_keys($value)).
-                "))";
+            if($value)
+            {
+                $condition[] = "(idtype={$key} AND id IN ("
+                    .implode(",", array_keys($value)).
+                    "))";
+            }
         }
 
         $condition = implode(" OR ", $condition);
