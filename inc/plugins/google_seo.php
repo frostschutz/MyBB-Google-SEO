@@ -237,7 +237,7 @@ function google_seo_dynamic($url)
             // pick the first parameter that doesn't have a value
             if(strpos($key, '=') === false)
             {
-                return $key;
+                return urldecode($key);
             }
         }
     }
