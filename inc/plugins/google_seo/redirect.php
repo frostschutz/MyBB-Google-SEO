@@ -258,11 +258,15 @@ function google_seo_redirect_hook()
             if(!$query[$target_dynamic])
             {
                 unset($query[$target_dynamic]);
+                unset($query_current[$target_dynamic]);
+                unset($query_target[$target_dynamic]);
             }
 
             if(!$query[$current_dynamic])
             {
                 unset($query[$current_dynamic]);
+                unset($query_current[$current_dynamic]);
+                unset($query_target[$current_dynamic]);
             }
 
             foreach($kill as $k=>$v)
@@ -315,6 +319,8 @@ function google_seo_redirect_hook()
                                     'current' => $current,
                                     'target_parse' => $target_parse,
                                     'current_parse' => $current_parse,
+                                    'target_dynamic' => $target_dynamic,
+                                    'current_dynamic' => $current_dynamic,
                                     'location_target' => $location_target,
                                     'location_current' => $location_current,
                                     'broken_query' => $broken_query,
