@@ -440,7 +440,8 @@ function google_seo_url_create($type, $ids)
                     $url = google_seo_expand(
                         $settings['google_seo_url_threadprefix'],
                         array('url' => $url,
-                              'prefix' => $prefix['prefix']));
+                              'prefix' => $prefix['prefix'],
+                              'separator' => $settings['google_seo_url_separator']));
                 }
             }
 

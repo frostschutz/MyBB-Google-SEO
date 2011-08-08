@@ -615,32 +615,33 @@ function google_seo_plugin_activate()
         array(
             '404' => array(
                 'title' => "Enable Google SEO 404",
-                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module replaces the <i>HTTP 200 OK</i> response with <i>HTTP 404 Not Found</i> for invalid thread / forum / etc error pages and provides additional functionality for 404 error pages. You can also do custom 404 error pages by adding an ErrorPage directive to your .htaccess. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO 404. Setting this to NO also disables all other settings in the Google SEO 404 settings group.",
                 ),
             'meta' => array(
                 'title' => 'Enable Google SEO Meta',
-                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in this group."
+                'description' => "This module generates meta tags for the current page. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Meta. Setting this to NO also disables all other settings in the Google SEO Meta settings group."
                 ),
             'redirect' => array(
                 'title' => "Enable Google SEO Redirect",
-                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module redirects old and invalid URLs to their current proper names. This can be used for all sorts of redirections: redirect to the main site if your forum is available under several domain names, redirect stock MyBB URLs to Google SEO URLs (or the other way around). This prevents your users and Google from seeing the same page under several different names. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Redirect. Setting this to NO also disables all other settings in the Google SEO Redirect settings group.",
                 ),
             'sitemap' => array(
                 'title' => "Enable Google SEO Sitemap",
-                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in the Google SEO Sitemap settings group.",
                 ),
             'url' => array(
                 'title' => "Enable Google SEO URLs",
-                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in this group.",
+                'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in the Google SEO URL settings group.",
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 
     /* Settings for Google SEO 404 */
     $PL->settings(
         "google_seo_404",
         "Google SEO 404",
-        "404 error page settings for the Google Search Engine Optimization plugin.",
+        "(Advanced Users) 404 error page settings for the Google Search Engine Optimization plugin.",
         array(
             'widget' => array(
                 'title' => "404 widget",
@@ -662,14 +663,15 @@ function google_seo_plugin_activate()
                 'title' => "Debug 404 error labels",
                 'description' => "Setting this to Yes will show an error label on error pages. The labels can then be used to configure custom error codes for that page.",
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 
     /* Settings for Google SEO Meta */
     $PL->settings(
         "google_seo_meta",
         "Google SEO Meta",
-        "Meta tag settings for the Google Search Engine Optimization plugin.",
+        "(Advanced Users) Meta tag settings for the Google Search Engine Optimization plugin.",
         array(
             'length' => array(
                 'title' => 'Meta description',
@@ -704,14 +706,15 @@ function google_seo_plugin_activate()
                 'optionscode' => 'text',
                 'value' => '',
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 
     /* Settings for Google SEO Redirect */
     $PL->settings(
         "google_seo_redirect",
         "Google SEO Redirect",
-        "Redirection settings for the Google Search Engine Optimization plugin.",
+        "(Advanced Users) Redirection settings for the Google Search Engine Optimization plugin.",
         array(
             'permission' => array(
                 'title' => "Permission Checks",
@@ -731,14 +734,15 @@ function google_seo_plugin_activate()
                 'title' => "Debug Redirect",
                 'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 
     /* Settings for Google SEO Sitemap */
     $PL->settings(
         "google_seo_sitemap",
         "Google SEO Sitemap",
-        "Sitemap settings for the Google Search Engine Optimization plugin.",
+        "(Advanced Users) Sitemap settings for the Google Search Engine Optimization plugin.",
         array(
             'url' => array(
                 'title' => "XML Sitemap URL scheme",
@@ -790,14 +794,15 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => "1000",
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 
     /* Settings for Google SEO URLs */
     $PL->settings(
         "google_seo_url",
         "Google SEO URL",
-        "URL settings for the Google Search Engine Optimization plugin.",
+        "(Advanced Users) URL settings for the Google Search Engine Optimization plugin.",
         array(
             'query_limit' => array(
                 'title' => 'Query Limit',
@@ -887,7 +892,7 @@ function google_seo_plugin_activate()
                 'title' => 'Thread Prefixes',
                 'description' => "Include thread prefixes in thread URLs?",
                 'optionscode' => "text",
-                'value' => "{prefix}-{url}",
+                'value' => "{prefix}{separator}{url}",
                 ),
             'announcements' => array(
                 'title' => "Announcement URL scheme",
@@ -937,7 +942,8 @@ function google_seo_plugin_activate()
                 'optionscode' => "text",
                 'value' => '',
                 ),
-            )
+            ),
+        false // true to generate language file
         );
 }
 
