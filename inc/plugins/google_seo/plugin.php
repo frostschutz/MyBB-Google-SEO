@@ -89,6 +89,13 @@ function google_seo_plugin_status()
     $htaccess = array();
     $lines = array();
 
+    if(!$settings['google_seo_url']
+       || !$settings['google_seo_url_cache'])
+    {
+        // Good place as any to delete cache if disabled.
+        $PL->cache_delete('google_seo_url');
+    }
+
     // Required for 404 and URL
     $base = $settings['bburl'];
     $base = preg_replace('#^[^/]*://[^/]*#', '', $base);
