@@ -607,6 +607,9 @@ function google_seo_plugin_uninstall()
         admin_redirect("index.php?module=config-plugins");
     }
 
+    // Delete cache
+    $PL->cache_delete('google_seo_url');
+
     // Revert edits.
     if(google_seo_plugin_revert(true) !== true)
     {

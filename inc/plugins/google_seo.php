@@ -93,6 +93,23 @@ if(defined("IN_ADMINCP"))
     }
 
     /**
+     * Fizzle the cache on settings change.
+     */
+    $plugins->add_hook('admin_config_settings_change_commit', 'google_seo_fizzle');
+
+    function google_seo_fizzle()
+    {
+        global $mybb, $cache;
+
+        // Kill the cache when someone changes URL settings the obvious way.
+        // Otherwise the cache may cause unnecessary redirects.
+        if(array_key_exists('google_seo_url_threads', $mybb->input['upsetting']))
+        {
+            $cache->update('google_seo_url', NULL);
+        }
+    }
+
+    /**
      * Override some Google SEO settings if the database table is missing
      * to avoid Admin CP becoming unuseable when the google_seo table is
      * deleted manually or otherwise lost.
