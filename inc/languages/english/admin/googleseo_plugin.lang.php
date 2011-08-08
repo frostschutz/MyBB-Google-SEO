@@ -36,6 +36,7 @@ $l['googleseo_plugin_htaccess_forums'] = 'Google SEO URL Forums';
 $l['googleseo_plugin_htaccess_rewritebase'] = "Some hosts require RewriteBase to make RewriteRules work.";
 $l['googleseo_plugin_htaccess_search'] = "Google SEO workaround for search.php highlights:";
 $l['googleseo_plugin_htaccess_search_first'] = "Make this rule the first rewrite rule in your .htaccess!";
+$l['googleseo_plugin_htaccess_sitemap'] = "Google SEO Sitemap";
 $l['googleseo_plugin_htaccess_threads'] = "Google SEO URL Threads";
 $l['googleseo_plugin_htaccess_users'] = "Google SEO URL Users";
 $l['googleseo_plugin_list'] = "{1}, {2}";

@@ -166,8 +166,9 @@ function google_seo_plugin_status()
             $link = "{$settings['bburl']}/{$settings['google_seo_sitemap_url']}";
 
             $htaccess[] = array($settings['google_seo_sitemap_url'],
-                                'misc.php?google_seo_sitemap=$1 [L,QSA,NC]',
-                                'Google SEO Sitemap');
+                                'misc.php',
+                                'google_seo_sitemap',
+                                $lang->googleseo_plugin_htaccess_sitemap);
         }
 
         else
@@ -199,43 +200,51 @@ function google_seo_plugin_status()
         if($settings['google_seo_url_forums'])
         {
             $htaccess[] = array($settings['google_seo_url_forums'],
-                                'forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]',
+                                'forumdisplay.php',
+                                'google_seo_forum',
                                 $lang->googleseo_plugin_htaccess_forums);
         }
 
         if($settings['google_seo_url_threads'])
         {
             $htaccess[] = array($settings['google_seo_url_threads'],
-                                'showthread.php?google_seo_thread=$1 [L,QSA,NC]',
+                                'showthread.php',
+                                'google_seo_thread',
                                 $lang->googleseo_plugin_htaccess_threads);
         }
 
         if($settings['google_seo_url_announcements'])
         {
             $htaccess[] = array($settings['google_seo_url_announcements'],
-                                'announcements.php?google_seo_announcement=$1 [L,QSA,NC]',
+                                'announcements.php',
+                                'google_seo_announcement',
                                 $lang->googleseo_plugin_htaccess_announcements);
         }
 
         if($settings['google_seo_url_users'])
         {
             $htaccess[] = array($settings['google_seo_url_users'],
-                                'member.php?action=profile&google_seo_user=$1 [L,QSA,NC]',
-                                $lang->googleseo_plugin_htaccess_users);
+                                'member.php',
+                                'google_seo_user',
+                                $lang->googleseo_plugin_htaccess_users,
+                                'action=profile&');
         }
 
         if($settings['google_seo_url_calendars'])
         {
             $htaccess[] = array($settings['google_seo_url_calendars'],
-                                'calendar.php?google_seo_calendar=$1 [L,QSA,NC]',
+                                'calendar.php',
+                                'google_seo_calendar',
                                 $lang->googleseo_plugin_htaccess_calendars);
         }
 
         if($settings['google_seo_url_events'])
         {
             $htaccess[] = array($settings['google_seo_url_events'],
-                                'calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]',
-                                $lang->googleseo_plugin_htaccess_events);
+                                'calendar.php',
+                                'google_seo_event',
+                                $lang->googleseo_plugin_htaccess_events,
+                                'action=event&');
         }
     }
 
@@ -259,15 +268,30 @@ function google_seo_plugin_status()
             if($v[1])
             {
                 $rewrite = 1;
-                $rule = preg_quote($v[0]);
-                $rule = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $rule);
-                $url = "([^./]+)";
-                $rule = google_seo_expand($rule, array('url' => $url));
-                $rule = "RewriteRule ^{$rule}$ {$v[1]}";
+                $rule = explode('?', $v[0]); // ignore dynamic part, if present
+                $rule = $rule[0];
 
-                if(strpos($file, $rule) === false)
+                if($rule != $v[1])
                 {
-                    $line = "# {$v[2]}:\n{$rule}\n";
+                    $rule = preg_quote($rule);
+                    $rule = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $rule);
+
+                    if(strpos($rule, '{url}') !== false)
+                    {
+                        $url = "([^./]+)";
+                        $rule = google_seo_expand($rule, array('url' => $url));
+                        $rule = "RewriteRule ^{$rule}\$ {$v[1]}?{$v[4]}{$v[2]}=\$1 [L,QSA,NC]";
+                    }
+
+                    else
+                    {
+                        $rule = "RewriteRule ^{$rule}\$ {$v[1]}?{$v[4]} [L,QSA,NC]";
+                    }
+
+                    if(strpos($file, $rule) === false)
+                    {
+                        $line = "# {$v[3]}:\n{$rule}\n";
+                    }
                 }
             }
 
