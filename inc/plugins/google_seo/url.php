@@ -27,7 +27,7 @@ if(!defined("IN_MYBB"))
 
 /* --- Global Variables: --- */
 
-global $db, $mybb, $settings;
+global $db, $mybb, $settings, $plugins, $cache;
 
 // Required for database queries to the google_seo table. In theory this
 // could be used to coerce Google SEO into managing URLs of other types.
@@ -148,6 +148,25 @@ $db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
 if($db->google_seo_query_limit <= 0)
 {
     $db->google_seo_query_limit = 32767;
+}
+
+// Cache
+
+global $google_seo_url_cache;
+
+if($settings['google_seo_url_cache'])
+{
+    $data = $cache->read('google_seo_url');
+
+    if(is_array($data) && $data['time'] >= TIME_NOW)
+    {
+        $google_seo_url_cache = $data;
+    }
+
+    if(strpos($settings['google_seo_url_cache'], THIS_SCRIPT) !== false)
+    {
+        $plugins->add_hook("post_output_page", "google_seo_url_cache_hook", 100);
+    }
 }
 
 // There are several more global variables defined in functions below.
@@ -834,6 +853,8 @@ function google_seo_url_cache($type, $id)
     if($google_seo_url_cache[$type][$id] === NULL
         && $db->google_seo_query_limit > 0)
     {
+        $google_seo_url_cache['dirty'] = 1;
+
         // Special case: Lazy Mode
         if($google_seo_url_lazy !== false)
         {
@@ -923,6 +944,9 @@ function google_seo_url_cache($type, $id)
     return $google_seo_url_cache[$type][$id];
 }
 
+/*
+ * Lazy Mode
+ */
 function google_seo_url_lazy($message)
 {
     global $plugins;
@@ -974,6 +998,37 @@ function google_seo_url_lazy($message)
     $message = strtr($message, $strtr);
 
     return $message;
+}
+
+/*
+ * Populate MyBB's Cache
+ */
+function google_seo_url_cache_hook()
+{
+    global $settings, $cache;
+    global $google_seo_url_cache;
+
+    // Do we need to update the cache?
+    if($google_seo_url_cache['dirty'])
+    {
+        unset($google_seo_url_cache['dirty']);
+
+        // New cache?
+        if(!$google_seo_url_cache['time'])
+        {
+            $delta = intval($settings['google_seo_url_cache']);
+
+            if(!$delta)
+            {
+                // Default: 15 Minutes
+                $delta = 15;
+            }
+
+            $google_seo_url_cache['time'] = TIME_NOW + $delta * 60;
+        }
+
+        $cache->update('google_seo_url', $google_seo_url_cache);
+    }
 }
 
 /* --- URL Lookup: --- */

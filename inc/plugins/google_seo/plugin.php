@@ -810,6 +810,12 @@ function google_seo_plugin_activate()
                 'description' => "In Full Mode (which is the default), Google SEO will query and return SEO URLs directly at the time they are requested. This is the most reliable method but it will probably use more than just one database query, depending on how well Google SEO can predict which links will show up on a page. In Lazy Mode, Google SEO will first collect all links created on a page, and only at the very end obtain all SEO URLs in a single query and replace their stock URL counterparts in the output. This reduces queries to a minimum, at the cost of PHP processing time and reliability.",
                 'optionscode' => "radio\n0=Full Mode (Default)\nlazy=Lazy Mode",
                 ),
+            'cache' => array(
+                'title' => "Use MyBB's Cache system for SEO URLs",
+                'description' => "If set, the cache will be populated with the URLs used on the specified pages (by default, index.php and portal.php). Under ideal conditions this will reduce the need for additional queries as the required URLs will already be available from the cache. If the setting starts with a number, the cache will be flushed every x minutes (otherwise it defaults to 15 minutes). Set to empty to disable.<p>Warning: Do not include pages which contain unlimited/all URLs like forumdisplay/showthread. They would make the cache grow too large to be useful.</p>",
+                'optionscode' => 'text',
+                'value' => '15,index.php,portal.php',
+                ),
             'punctuation' => array(
                 'title' => "Punctuation characters",
                 'description' => "Punctuation and other special characters are filtered from the URL string and replaced by the separator. By default, this string contains all special ASCII characters including space. If you are running an international forum with non-ASCII script, you might want to add unwanted punctuation characters of those scripts here.",
