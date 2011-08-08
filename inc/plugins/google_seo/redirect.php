@@ -278,10 +278,14 @@ function google_seo_redirect_hook()
             // Final query, current parameters retained
             $query = array_merge($query_target, $query);
 
-            if(count($query) != count($query_current)
-               || $current_dynamic != $target_dynamic)
+            if(count($query) != count($query_current))
             {
                 $change = 2;
+            }
+
+            else if($current_dynamic != $target_dynamic)
+            {
+                $change = 3;
             }
 
             else
@@ -290,7 +294,7 @@ function google_seo_redirect_hook()
                 {
                     if($query_current[$k] != $v)
                     {
-                        $change = 3;
+                        $change = 4;
                     }
                 }
             }
