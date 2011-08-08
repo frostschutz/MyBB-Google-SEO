@@ -59,7 +59,7 @@ $l['setting_google_seo_sitemap_url'] = "XML Sitemap URL scheme";
 $l['setting_google_seo_sitemap_url_desc'] = "This is the URL scheme used for the XML Sitemap pages. By default, this is <i>sitemap-{url}.xml</i> and your sitemap will be called <i>sitemap-index.xml</i>. Please note that if you change this, you will also need to add a new rewrite rule to your .htaccess. If your host does not support mod_rewrite, leave this empty. Your sitemap will then be called <i>misc.php?google_seo_sitemap=index</i>.";
 $l['setting_google_seo_sitemap_users'] = "XML Sitemap Users";
 $l['setting_google_seo_sitemap_users_desc'] = "Include Users in the XML Sitemap.";
-$l['setting_google_seo_url'] = "Enable Google SEO URLs";
+$l['setting_google_seo_url'] = "Enable Google SEO URL";
 $l['setting_google_seo_url_announcements'] = "Announcement URL scheme";
 $l['setting_google_seo_url_announcements_desc'] = "Enter the Announcement URL scheme. By default this is <i>Announcement-{url}</i>. Please note that if you change this, you will also need to add a new rewrite rule in your .htaccess file. Leave empty to disable Google SEO URLs for Announcements.";
 $l['setting_google_seo_url_cache'] = "Use MyBB's Cache system for SEO URLs";

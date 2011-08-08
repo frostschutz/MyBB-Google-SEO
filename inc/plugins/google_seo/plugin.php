@@ -661,7 +661,7 @@ function google_seo_plugin_activate()
                 'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in the Google SEO Sitemap settings group.",
                 ),
             'url' => array(
-                'title' => "Enable Google SEO URLs",
+                'title' => "Enable Google SEO URL",
                 'description' => "This module replaces the stock MyBB URLs with descriptive URLs that use words (thread subject, forum title, user name, etc) instead of random numeric IDs. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO URL. Setting this to NO also disables all other settings in the Google SEO URL settings group.",
                 ),
             ),
