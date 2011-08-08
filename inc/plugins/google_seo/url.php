@@ -332,7 +332,10 @@ function google_seo_url_finalize($url, $scheme)
 
     $url = google_seo_expand($scheme, array('url' => $url));
 
-    if(strlen($url) >= 256)
+    $test = explode('?', $url);
+    $test = explode('/', $url[0]);
+
+    foreach($test as $element)
     {
         /**
          * Maximum URL length hack.
@@ -348,7 +351,11 @@ function google_seo_url_finalize($url, $scheme)
          * the rare case where the Google SEO URL would be unuseable.
          *
          */
-        return 0;
+
+        if(strlen($element) >= 256)
+        {
+            return 0;
+        }
     }
 
     $url = google_seo_url_encode($url);
