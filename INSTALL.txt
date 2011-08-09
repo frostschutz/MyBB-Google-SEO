@@ -3,7 +3,7 @@ Google SEO README
 
 The documentation for this plugin can be found in:
 
-    inc/plugins/google_seo.txt
+    inc/plugins/google_seo.html
 
 Please read this documentation very carefully.
 

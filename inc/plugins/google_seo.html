@@ -1,0 +1,1026 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8: http://docutils.sourceforge.net/" />
+<title>Google Search Engine Optimization Plugin for MyBB 1.6</title>
+<meta name="author" content="Andreas Klauer &lt;Andreas.Klauer&#64;metamorpher.de&gt;" />
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 6511 2011-01-03 14:49:11Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="google-search-engine-optimization-plugin-for-mybb-1-6">
+<h1 class="title">Google Search Engine Optimization Plugin for MyBB 1.6</h1>
+<h2 class="subtitle" id="end-user-manual">End User Manual</h2>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Andreas Klauer &lt;<a class="reference external" href="mailto:Andreas.Klauer&#64;metamorpher.de">Andreas.Klauer&#64;metamorpher.de</a>&gt;</td></tr>
+<tr><th class="docinfo-name">Version:</th>
+<td>1.6.0 of 2011 Aug 09</td></tr>
+<tr class="field"><th class="docinfo-name">Homepage:</th><td class="field-body"><a class="reference external" href="http://mods.mybb.com/view/google-seo">http://mods.mybb.com/view/google-seo</a></td>
+</tr>
+<tr class="field"><th class="docinfo-name">GitHub:</th><td class="field-body"><a class="reference external" href="https://github.com/frostschutz/Google-SEO">https://github.com/frostschutz/Google-SEO</a></td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#about" id="id6">About</a><ul>
+<li><a class="reference internal" href="#features" id="id7">Features</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing" id="id8">Installing</a><ul>
+<li><a class="reference internal" href="#requirements" id="id9">Requirements</a></li>
+<li><a class="reference internal" href="#upload-language-files" id="id10">Upload language files</a><ul>
+<li><a class="reference internal" href="#language-packs" id="id11">Language Packs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#upload-plugin-files" id="id12">Upload plugin files</a></li>
+<li><a class="reference internal" href="#enable-the-plugin" id="id13">Enable the plugin</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#updating" id="id14">Updating</a></li>
+<li><a class="reference internal" href="#uninstalling" id="id15">Uninstalling</a></li>
+<li><a class="reference internal" href="#plugin-status" id="id16">Plugin Status</a></li>
+<li><a class="reference internal" href="#configuration-settings" id="id17">Configuration &amp; Settings</a><ul>
+<li><a class="reference internal" href="#google-seo" id="id18">Google SEO</a></li>
+<li><a class="reference internal" href="#google-seo-404" id="id19">Google SEO 404</a></li>
+<li><a class="reference internal" href="#google-seo-meta" id="id20">Google SEO Meta</a><ul>
+<li><a class="reference internal" href="#page-number-in-forum-and-thread-titles" id="id21">Page number in forum and thread titles</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#google-seo-redirect" id="id22">Google SEO Redirect</a><ul>
+<li><a class="reference internal" href="#redirect-loops" id="id23">Redirect Loops</a></li>
+<li><a class="reference internal" href="#redirecting-seo-urls-back-to-mybb-stock-urls" id="id24">Redirecting SEO URLs back to MyBB stock URLs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#google-seo-sitemap" id="id25">Google SEO Sitemap</a><ul>
+<li><a class="reference internal" href="#sitemap-generation" id="id26">Sitemap Generation</a></li>
+<li><a class="reference internal" href="#submit-sitemap-to-search-engines" id="id27">Submit Sitemap to Search Engines</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#google-seo-url" id="id28">Google SEO URL</a><ul>
+<li><a class="reference internal" href="#evaluation-mode" id="id29">Evaluation Mode</a></li>
+<li><a class="reference internal" href="#uniquifier" id="id30">Uniquifier</a></li>
+<li><a class="reference internal" href="#character-translation" id="id31">Character Translation</a></li>
+<li><a class="reference internal" href="#url-schemes" id="id32">URL Schemes</a><ul>
+<li><a class="reference internal" href="#avoid-scheme-conflicts" id="id33">Avoid Scheme Conflicts</a></li>
+<li><a class="reference internal" href="#dynamic-seo-urls" id="id34">Dynamic SEO URLs</a></li>
+<li><a class="reference internal" href="#virtual-directory-structure" id="id35">Virtual Directory Structure</a></li>
+<li><a class="reference internal" href="#combined-styles" id="id36">Combined Styles</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#troubleshooting" id="id37">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#seo-urls-do-not-work" id="id38">SEO URLs do not work</a></li>
+<li><a class="reference internal" href="#there-is-no-sitemap-xml-file" id="id39">There is no sitemap.xml file</a></li>
+<li><a class="reference internal" href="#users-show-up-as-seeing-error-pages-in-who-s-online" id="id40">Users show up as seeing error pages in Who's Online</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#support" id="id41">Support</a></li>
+</ul>
+</div>
+<div class="section" id="about">
+<h1><a class="toc-backref" href="#contents">About</a></h1>
+<p>The development of this plugin started when Google released a document called
+&quot;<a class="reference external" href="http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf">Google's Search Engine Optimization starter guide</a>&quot; in November 2008.
+After a long public beta phase the plugin finally reached stable status in
+March 2009. A new, revised edition for MyBB 1.6.4 and newer was released
+in August 2011.</p>
+<p>The goal of this plugin is to implement Search Engine Optimization (SEO)
+in MyBB according to the guidelines presented in <a class="reference external" href="http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf">Google's SEO starter guide</a>
+to make MyBB more friendly to both users and search engines.</p>
+<p><em>Google SEO</em> is free open source software (LGPL). This means that you can
+download the plugin for free, modify it to your liking, and you do not have
+to put any copyright or backlinks on your page.</p>
+<p>I spend countless of hours of work in developing and supporting <em>Google SEO</em>.
+If you want to give something in return, you may send a donation by means of
+PayPal or Amazon Gift Card (COM/DE/UK/JP) to <a class="reference external" href="mailto:Andreas.Klauer&#64;metamorpher.de">Andreas.Klauer&#64;metamorpher.de</a>.
+Thanks for your support!</p>
+<div class="section" id="features">
+<h2><a class="toc-backref" href="#contents">Features</a></h2>
+<p>The plugin currently supports the following features. All features can be
+selectively disabled / enabled. For more detailed information, refer to
+the Configuration section below.</p>
+<ul class="simple">
+<li>Google SEO 404:<ul>
+<li>Error pages return HTTP 404 Not Found (and others) instead of 200 OK</li>
+<li>Custom 404 error pages</li>
+<li>Google's 404 widget</li>
+</ul>
+</li>
+<li>Google SEO Meta:<ul>
+<li>description meta tags for forums / threads / etc.</li>
+<li>specify canonical pages</li>
+<li>nofollow links</li>
+</ul>
+</li>
+<li>Google SEO Redirect:<ul>
+<li>redirect old URLs to new URLs (or vice versa)</li>
+<li>avoid URL breakage and double content</li>
+</ul>
+</li>
+<li>Google SEO Sitemap:<ul>
+<li>dynamic generation of XML Sitemaps</li>
+<li>search engines find your content without crawling</li>
+</ul>
+</li>
+<li>Google SEO URL:<ul>
+<li>Keyword URLs (e.g. Thread-Some-Subject instead of showthread.php?tid=12345)</li>
+<li>UTF-8 in URLs is supported</li>
+<li>Customizable URL styles</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="installing">
+<h1><a class="toc-backref" href="#contents">Installing</a></h1>
+<p>In order to install this plugin, first check that you meet the
+requirements, then upload the plugin's files (usually the entire
+inc/ folder). The list of requirements and files with additional
+instructions is listed below. Once all files are present, you can
+use the Install/Activate controls in the Admin CP and configure it.
+Once installed, the plugin will show a status which may contain
+further instructions.</p>
+<div class="section" id="requirements">
+<h2><a class="toc-backref" href="#contents">Requirements</a></h2>
+<p>In order to use this plugin, you must meet these requirements:</p>
+<ul class="simple">
+<li>MyBB 1.6.4 (older versions of MyBB need the <em>Google SEO Legacy</em> plugin)</li>
+<li><a class="reference external" href="http://mods.mybb.com/view/pluginlibrary">PluginLibrary</a> 4</li>
+<li>PHP 5.1.0</li>
+<li>Apache (alternative webservers may work but are not supported)</li>
+<li>MySQL (alternative databases are not supported at this time)</li>
+</ul>
+<p>Some features of this plugin also require changes to core files.
+The changes can be applied and reverted in the Admin CP.</p>
+</div>
+<div class="section" id="upload-language-files">
+<h2><a class="toc-backref" href="#contents">Upload language files</a></h2>
+<p>This plugin uses the following language files. Please upload them all.</p>
+<ul class="simple">
+<li>inc/languages/english/admin/googleseo_plugin.lang.php</li>
+<li>inc/languages/english/admin/googleseo_settings.lang.php</li>
+<li>inc/languages/english/googleseo.lang.php</li>
+</ul>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your board uses languages other than English, please upload
+another copy of the language files for each language, i.e.
+into every inc/languages/*/ folder.</p>
+</div>
+<div class="section" id="language-packs">
+<h3><a class="toc-backref" href="#contents">Language Packs</a></h3>
+<p>Language Packs for this plugin may be available on the MyBB Mods site,
+but there is no guarantee they will be up to date. This plugin has very
+few (less than ten) language strings that will be used outside of
+the Admin CP. You will find them in googleseo.lang.php. You can either
+translate them yourself or leave them as is.</p>
+</div>
+</div>
+<div class="section" id="upload-plugin-files">
+<h2><a class="toc-backref" href="#contents">Upload plugin files</a></h2>
+<p>This plugin uses the following plugin files. Please upload them all.</p>
+<ul class="simple">
+<li>inc/plugins/google_seo.html (the documentation you are reading)</li>
+<li>inc/plugins/google_seo.php</li>
+<li>inc/plugins/google_seo/404.php</li>
+<li>inc/plugins/google_seo/meta.php</li>
+<li>inc/plugins/google_seo/plugin.php</li>
+<li>inc/plugins/google_seo/redirect.php</li>
+<li>inc/plugins/google_seo/sitemap.php</li>
+<li>inc/plugins/google_seo/url.php</li>
+</ul>
+</div>
+<div class="section" id="enable-the-plugin">
+<h2><a class="toc-backref" href="#contents">Enable the plugin</a></h2>
+<p>Once all files are uploaded to the correct location, go to your
+<em>Admin CP -&gt; Plugins</em> page. The Google SEO Plugin should show up in
+the plugin list. Click <em>Install &amp; Activate</em> to install the plugin.
+The plugin will show a status information with further instructions
+for you to follow. By default, all features of the plugins will be
+disabled at first and can be enabled on the <em>Admin CP -&gt; Configuration</em> page.</p>
+</div>
+</div>
+<div class="section" id="updating">
+<h1><a class="toc-backref" href="#contents">Updating</a></h1>
+<p>The Google SEO plugin can be updated by uploading the new files
+(as described in the Installing section above). Once all the new files
+are in place, go to your Admin CP -&gt; Plugins page and deactivate
+the plugin, then activate it again. Further instructions may be
+given in the plugin status. New settings might be available
+in the Admin CP -&gt; Configuration page.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p>If you are updating from Google SEO Legacy or Google SEO 1.1.13 or older,
+you have to undo any modifications made to inc/functions.php prior to
+updating the plugin. Please obtain the original, unmodified inc/functions.php
+directly from the <a class="reference external" href="http://www.mybb.com/downloads">MyBB downloads page</a> or <a class="reference external" href="http://wiki.mybb.com/index.php/Versions">MyBB Wiki</a>.</p>
+<p class="last">If you were using the Patches plugin to modify inc/functions.php,
+please deactivate / remove the Google SEO related Patches.</p>
+</div>
+</div>
+<div class="section" id="uninstalling">
+<h1><a class="toc-backref" href="#contents">Uninstalling</a></h1>
+<p>If you want to redirect SEO URLs back to MyBB stock URLs,
+do not uninstall but refer to the Redirection section below.</p>
+<p>To uninstall the plugin, go to your <em>Admin CP -&gt; Plugins</em> page and
+click <em>Uninstall</em>. Then remove the plugin's files (listed in the Installing
+section above). Also remove all other modifications you may have made
+to additional files such as htaccess.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">Uninstalling Google SEO removes its URL database. If you were
+using SEO URLs, those URLs will no longer work and old URLs
+won't be redirected even if you reinstall the plugin.</p>
+</div>
+</div>
+<div class="section" id="plugin-status">
+<h1><a class="toc-backref" href="#contents">Plugin Status</a></h1>
+<p>When installed and activated, <em>Google SEO</em> will display a plugin status
+on the <em>Admin CP -&gt; Plugins</em> page. The status gives an overview of which
+of the plugin's features are enabled or disabled. It will also warn you
+about known issues and tell you when you have to make changes, such
+as adding Rewrite Rules or applying or reverting changes to core files.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">Check the plugin status regularly (especially when changing settings)
+to see if everything is the way you want it to be.</p>
+</div>
+</div>
+<div class="section" id="configuration-settings">
+<h1><a class="toc-backref" href="#contents">Configuration &amp; Settings</a></h1>
+<p><em>Google SEO</em> has lots of settings, organized into several setting
+groups. If you go to your <em>Admin CP -&gt; Configuration</em> page, and
+scroll down, you should see the Google SEO Setting groups.
+The following sections will describe the settings available in
+each group. Please also read the descriptions of the settings
+themselves directly in the Admin CP.</p>
+<div class="section" id="google-seo">
+<h2><a class="toc-backref" href="#contents">Google SEO</a></h2>
+<p>This is the main setting group of the plugin. In here you can decide
+whether or not to enable the various feature sections of the plugin.
+Disabling a setting here also disables all other settings of that
+feature, so for example if you disable URL, none of the settings in
+the Google SEO URL setting group below will have any effect.</p>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>Enable Google SEO 404</li>
+<li>Enable Google SEO Meta</li>
+<li>Enable Google SEO Redirect</li>
+<li>Enable Google SEO Sitemap</li>
+<li>Enable Google SEO URL</li>
+</ul>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">Many of the settings below are intended for advanced users only.
+If you do not understand what a setting does, stick to the
+recommended default value.</p>
+</div>
+</div>
+<div class="section" id="google-seo-404">
+<h2><a class="toc-backref" href="#contents">Google SEO 404</a></h2>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>404 widget</li>
+<li>Show 404 errors in Who's Online</li>
+<li>Customize HTTP status codes</li>
+<li>Debug 404 error labels</li>
+</ul>
+</div>
+<div class="section" id="google-seo-meta">
+<h2><a class="toc-backref" href="#contents">Google SEO Meta</a></h2>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>Meta description</li>
+<li>Canonical Page</li>
+<li>Meta for Archive Mode</li>
+<li>Provide page number for forum and thread titles</li>
+<li>Nofollow links</li>
+<li>Noindex forums</li>
+</ul>
+<div class="section" id="page-number-in-forum-and-thread-titles">
+<h3><a class="toc-backref" href="#contents">Page number in forum and thread titles</a></h3>
+<p>By default, MyBB does not include a page number in the title.
+This causes Google to complain about lots of duplicate title
+tags for forums and threads which have many pages.</p>
+<p>Google SEO Meta provides a variable which you can include
+into your <em>forumdisplay</em> and <em>showthread</em> templates. However
+if you want this, you have to edit these templates manually.</p>
+<p>Example &lt;title&gt; tag in the <em>showthread</em> template:</p>
+<pre class="literal-block">
+&lt;title&gt;{$thread['subject']}{$google_seo_page}&lt;/title&gt;
+</pre>
+<p>The variable will only be set for pages &gt; 1, so this change
+would lead to page titles like &quot;Subject&quot; for page 1 and
+&quot;Subject - Page 2&quot; for page 2.</p>
+</div>
+</div>
+<div class="section" id="google-seo-redirect">
+<h2><a class="toc-backref" href="#contents">Google SEO Redirect</a></h2>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>Permission Checks</li>
+<li>Redirect Post Links</li>
+<li>LiteSpeed Bug workaround</li>
+<li>Nginx Bug workaround</li>
+<li>Debug Redirect</li>
+</ul>
+<div class="section" id="redirect-loops">
+<h3><a class="toc-backref" href="#contents">Redirect Loops</a></h3>
+<p>If you experience redirect loops (redirects that never end)
+please enable the <em>Debug Redirect</em> feature and send me the
+debug output. Please note that the debug output may contain
+confidential information (such as login cookies), so please
+don't post it in public, but email / PM me directly.</p>
+<p>If you are using an alternative webserver, you can also
+give the LiteSpeed / Nginx workaround settings a try (even
+if you're not using those webservers) and see if they help.</p>
+<p>Otherwise, disable Redirect until a solution can be found.</p>
+</div>
+<div class="section" id="redirecting-seo-urls-back-to-mybb-stock-urls">
+<h3><a class="toc-backref" href="#contents">Redirecting SEO URLs back to MyBB stock URLs</a></h3>
+<p><em>Google SEO</em> does not force you to keep using its URLs. If you
+want to go back to stock URLs, you can do so. Basically you
+have two options to achieve a SEO URL -&gt; Stock URL redirection:</p>
+<ul>
+<li><p class="first">Empty the SEO URL scheme for a particular URL type</p>
+<p>This is useful if for example you want to go back to stock
+URLs for user profiles only, but not for forums and threads.</p>
+</li>
+<li><p class="first">Revert changes to core files</p>
+<p>This way the Google SEO URL module will be in inactive state.</p>
+</li>
+</ul>
+<p>Do not disable Google SEO URL or Redirect, and do not remove
+the Rewrite Rules from your .htaccess. All of these components
+are required to keep old keyword URLs and subsequent redirect
+working.</p>
+</div>
+</div>
+<div class="section" id="google-seo-sitemap">
+<h2><a class="toc-backref" href="#contents">Google SEO Sitemap</a></h2>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>Sitemap URL scheme</li>
+<li>Forums</li>
+<li>Threads</li>
+<li>Users</li>
+<li>Announcements</li>
+<li>Calendars</li>
+<li>Events</li>
+<li>Additional Pages</li>
+<li>Sitemap Pagination</li>
+</ul>
+<div class="section" id="sitemap-generation">
+<h3><a class="toc-backref" href="#contents">Sitemap Generation</a></h3>
+<p>The sitemap standard (or that what Google, Yahoo, Ask etc. are using)
+is described here:</p>
+<blockquote>
+<a class="reference external" href="http://www.sitemaps.org/protocol.php">http://www.sitemaps.org/protocol.php</a></blockquote>
+<p>The sitemap-index.xml is an Sitemap index file as described there.
+It links to the actual sitemap files (sitemap-threads.xml?page=1).</p>
+<p>Google SEO Sitemaps are created dynamically. When you tell Google about
+your XML Sitemap (in Google Webmaster Tools, or by specifying it in
+your robots.txt file) it will download the index, and then browse through
+the sitemaps listed in this index. So Google goes through your Sitemap
+page by page similar to how a user goes through your forums page by page.</p>
+<p>It's split into pages because creating a sitemap for tens of thousands of
+threads, users and forums all at once would cause too much load.
+Also, sitemaps have a limitation of 50000 items per sitemap.</p>
+<p>The Sitemap is created dynamically in order to give Google and other
+search engines the current up to date status of your forum whenever it
+chooses to access your sitemap. This way Google gets up to date sitemaps
+as early as possible which leads to google accessing your new content it
+found via the sitemap as early as possible which leads to your new content
+getting indexed by Google as early as possible.</p>
+<p>Please note that the Sitemap displays only forums and threads that
+the current user can actually read. So if you see private threads in
+your sitemap, it may be because you're currently logged in as admin,
+and does not mean that Google will see those threads too.</p>
+</div>
+<div class="section" id="submit-sitemap-to-search-engines">
+<h3><a class="toc-backref" href="#contents">Submit Sitemap to Search Engines</a></h3>
+<p>For the Sitemap to be of any use, you have to submit it to Search Engines.
+You can automate this process by adding a Sitemap directive to your
+robots.txt (example robots.txt included in the Google SEO package).
+By default your Sitemap will be called sitemap-index.xml.</p>
+</div>
+</div>
+<div class="section" id="google-seo-url">
+<h2><a class="toc-backref" href="#contents">Google SEO URL</a></h2>
+<p>Settings in this group:</p>
+<ul class="simple">
+<li>Query Limit</li>
+<li>Evaluation Mode</li>
+<li>Use MyBB's Cache system for SEO URLs</li>
+<li>Punctuation characters</li>
+<li>URL separator</li>
+<li>URL uniquifier</li>
+<li>URL uniquifier enforcer</li>
+<li>Character Translation</li>
+<li>lowercase words</li>
+<li>URL length soft limit</li>
+<li>URL length hard limit</li>
+<li>Handle Post Links</li>
+<li>Handle multipage links</li>
+<li>Forum URL scheme</li>
+<li>Thread URL scheme</li>
+<li>Thread Prefixes</li>
+<li>Announcement URL scheme</li>
+<li>User URL scheme</li>
+<li>Calendar URL scheme</li>
+<li>Event URL scheme</li>
+<li>Include parent forum in forum URLs?</li>
+<li>Include parent forum in thread URLs?</li>
+<li>Include parent forum in announcement URLs?</li>
+<li>Include parent calendar in event URLs?</li>
+</ul>
+<div class="section" id="evaluation-mode">
+<h3><a class="toc-backref" href="#contents">Evaluation Mode</a></h3>
+<p>Google SEO URL has two possible modes of operation.</p>
+<p>In <em>Full Mode</em> (Default), every time a SEO URL is requested, it will
+be obtained and returned immediately. In worst case (if the URL is
+not cached), this will require a database query. When querying URLs
+from the database, Google SEO tries to query as many URLs as possible
+in one go, but it can't always predict which URLs will be required
+for the rest of the page, especially when other plugins create links
+too.</p>
+<p>In <em>Lazy Mode</em>, Google SEO returns a place holder instead of the
+SEO URL. Just before the page is sent to the user, it will then
+proceed to replace all placeholders with the SEO URL. This way,
+all URLs that are on the page can be handled in a single query.</p>
+<p>The downside of <em>Lazy Mode</em> is that there's no guarantee that
+a requested URL will be used in the output. It might just as
+well become part of some notification mail or used for other
+purposes. Since this is most likely to happen during POST
+requests, <em>Lazy Mode</em> will only work for GET requests and
+fall back to <em>Full Mode</em> for POST requests.</p>
+<p>If you feel that Google SEO uses too many queries on your board,
+or if your board is just very large and active, or if your
+database just happens to be very slow, <em>Lazy Mode</em> might
+be for you. Otherwise stick to <em>Full Mode</em> as it is much more
+reliable.</p>
+</div>
+<div class="section" id="uniquifier">
+<h3><a class="toc-backref" href="#contents">Uniquifier</a></h3>
+<p>The Google SEO URL Uniquifier is applied to URLs that would otherwise
+not be unique (and thus result in threads that are not accessible).
+Collision testing (for example for two threads with the same title)
+is done only once, therefore the uniquifier must result in a truly
+unique URL that can not possibly collide with anything else.</p>
+<p>A good uniquifier needs to fulfill these two criteria:</p>
+<ol class="arabic simple">
+<li>contain the items unique {id}</li>
+<li>contain punctuation that cannot occur in non-uniquified URLs</li>
+</ol>
+<p>Early versions of Google SEO used {url}-{id} as uniquifier and
+therefore did not fulfill criteria 2. This could lead to collisions
+in rare cases, for example:</p>
+<pre class="literal-block">
+ID: 1, Title: Unique,   URL: Thread-Unique
+ID: 2, Title: Unique 3, URL: Thread-Unique-3
+ID: 3, Title: Unique,   URL: Thread-Unique-3 (same as Thread 2)
+</pre>
+<p>Thread 3 collides with Thread 1 (both are called Unique), so the
+uniquifier is applied. This results in Unique-3. However, there
+already happens to be a thread called Unique-3. Doesn't work.</p>
+<p>With the new uniquifier {url}{separator}{separator}{id},
+the uniquified URL will be Thread-Unique--3. Because the id is
+already unique, and other URLs can't contain -- (title punctuation
+is reduced to one single separator, not two), that makes the URL
+as a whole unique.</p>
+<p>If you use a custom uniquifier, make sure it fulfills the two
+criteria listed above. Be aware that special punctuation characters
+like :&#64;/?&amp; or space can break your URLs.</p>
+</div>
+<div class="section" id="character-translation">
+<h3><a class="toc-backref" href="#contents">Character Translation</a></h3>
+<p>Please note that translation of characters is not required (browsers
+and Google handle them just fine), and it causes additional CPU cost.</p>
+<p>You can do character translation in URLs if you so desire. In the
+textbox of the character translation setting, specify one character
+per line and its replacement, separated by =.</p>
+<p>For example the following would replace German umlauts with their
+most commonly used ASCII counterparts:</p>
+<pre class="literal-block">
+Ä = Ae
+Ö = Oe
+Ü = Ue
+ä = ae
+ö = oe
+ü = ue
+ß = ss
+</pre>
+<p>With this character translation setting, Thread-Übergrößenträger
+would appear as Thread-Uebergroessentraeger instead.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">Google SEO Legacy used a separate translate.php file instead.
+This file is not used anymore. The translations have to be
+specified in the setting.</p>
+</div>
+</div>
+<div class="section" id="url-schemes">
+<h3><a class="toc-backref" href="#contents">URL Schemes</a></h3>
+<p><em>Google SEO</em> uses a simple, static URL scheme by default (Forum-Name,
+Thread-Name, etc.). This is recommended because it tells users and search
+engines exactly what to expect behind an URL. It is possible to customize
+the URL scheme with various settings. However, not every scheme will
+actually work. When customizing URL schemes, you have to be aware of the
+limitations of both this plugin and MyBB.</p>
+<div class="section" id="avoid-scheme-conflicts">
+<h4><a class="toc-backref" href="#contents">Avoid Scheme Conflicts</a></h4>
+<p>Google SEO URL relies on the webserver to rewrite the URLs to the correct
+file. Thread-Subject is rewritten to showthread.php, Forum-Name to
+forumdisplay.php, and so on. For those rewrites to work, every URL must
+have something in it that identifies it as being of a particular type.</p>
+<p>For this reason it's not possible to remove Thread- or Forum- because
+then the rewrite rules would confuse Subject for a forum URL and Name
+with a thread URL. When you have a conflict of any kind in your URL
+scheme, the URLs will stop working and you will also lose the ability
+to redirect these URLs later.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">If a Rewrite Rule matches more than one type of URL, you have a conflict
+and your URLs will stop working either altogether or at least partially.</p>
+</div>
+<p>The default scheme avoids conflicts by using prefixes: Thread-{url},
+Forum-{url}, Announcement-{url}, etc. This way a thread URL can never
+start with Forum- and a forum URL can never start with Thread-, so
+there are no conflicts possible.</p>
+<p>You can change those prefixes to something else as long as you keep
+some kind of unique prefix, for example t-{url} instead of Thread-{url}.</p>
+<p>You can also use postfixes, such as {url}-Thread and {url}-Forum.
+However you can not mix prefix and postfix, as otherwise Thread-Forum
+could be either a thread called forum, or a forum called thread.</p>
+<p>On the other hand, a postfix such as {url}.thread would work even
+if the other URLs use prefixes, because by default the dot character
+can not occur in the {url} itself.</p>
+</div>
+<div class="section" id="dynamic-seo-urls">
+<h4><a class="toc-backref" href="#contents">Dynamic SEO URLs</a></h4>
+<p>If your webserver does not support mod_rewrite, you can put the keyword
+URL in the dynamic part. The default dynamic URL scheme would be like so:</p>
+<pre class="literal-block">
+Forum:         forumdisplay.php?{url}
+Thread:        showthread.php?{url}
+Announcements: announcements.php?{url}
+Users:         member.php?action=profile&amp;{url}
+Calendars:     calendar.php?{url}
+Events:        calendar.php?action=event&amp;{url}
+</pre>
+<p>Please note that {url} must be a stand alone parameter. The following will NOT work:</p>
+<pre class="literal-block">
+?Something-{url}
+?something={url}
+</pre>
+<p>The only exception to that rule are the parameter names that Google SEO
+uses internally for rewrites:</p>
+<pre class="literal-block">
+forumdisplay.php?google_seo_forum={url}
+showthread.php?google_seo_thread={url}
+...
+</pre>
+</div>
+<div class="section" id="virtual-directory-structure">
+<h4><a class="toc-backref" href="#contents">Virtual Directory Structure</a></h4>
+<p>Google SEO supports including the parent forum name in thread URL,
+and allows the use of the directory separator /. With this,
+in theory, you could build a virtual directory structure URL scheme
+along the lines of f-My-Category/f-My-Forum/t-Subject.</p>
+<p>However, due to the issues involved with Virtual Directory Structure,
+this feature will never be directly supported in any way. You can do it
+if you absolutely want to but you will have to adapt your own rewrite
+rules for it (the standard rewrite rules do not look for / in {url}).
+The rewrite rules suggested in the Plugin Status won't work.</p>
+<p>Doing this is NOT recommended for several reasons. First of all it
+makes URLs more expensive and serves nothing but make your URLs
+longer than they need to be.</p>
+<p>MyBB uses relative links everywhere. Introducing a directory structure,
+virtual or not, breaks those links. Some of these issues can be worked
+around, but there's no guarantee that it will work with other things
+such as JavaScript.</p>
+<p>To work around this issue, add a base tag to your <em>headerinclude</em> template:</p>
+<pre class="literal-block">
+&lt;base href=&quot;{$settings['bburl']}/&quot; /&gt;
+</pre>
+<p>Here's an example for a Virtual Directory Structure URL scheme:</p>
+<pre class="literal-block">
+Forum:         f-{url}/
+Thread:        f-{url}
+Announcements: f-{url}
+Users:         u-{url}/
+Calendars:     c-{url}/
+Events:        c-{url}
+Parent Forum:        {parent}/f-{url}
+Parent Thread:       {parent}/t-{url}
+Parent Announcement: {parent}/a-{url}
+Parent Event:        {parent}/e-{url}
+</pre>
+<p>And the Rewrite Rules to go with it:</p>
+<pre class="literal-block">
+# Google SEO URL Forums:
+RewriteRule ^f\-([^./]+)/?$ forumdisplay.php?google_seo_forum=$1 [L,QSA,NC]
+RewriteRule ^f\-([^.]+)/f-([^./]+)/?$ forumdisplay.php?google_seo_forum=$1/f-$2 [L,QSA,NC]
+
+# Google SEO URL Threads:
+RewriteRule ^f\-([^.]+)/t-([^./]+)$ showthread.php?google_seo_thread=$1/t-$2 [L,QSA,NC]
+
+# Google SEO URL Announcements:
+RewriteRule ^f\-([^.]+)/a-([^./]+)$ announcements.php?google_seo_announcement=$1/a-$2 [L,QSA,NC]
+
+# Google SEO URL Users:
+RewriteRule ^u\-([^./]+)/?$ member.php?action=profile&amp;google_seo_user=$1 [L,QSA,NC]
+
+# Google SEO URL Calendars:
+RewriteRule ^c\-([^./]+)/?$ calendar.php?google_seo_calendar=$1 [L,QSA,NC]
+
+# Google SEO URL Events:
+RewriteRule ^c\-([^./]+)/e-([^./]+)$ calendar.php?action=event&amp;google_seo_event=$1/e-$2 [L,QSA,NC]
+</pre>
+</div>
+<div class="section" id="combined-styles">
+<h4><a class="toc-backref" href="#contents">Combined Styles</a></h4>
+<p>It is possible to combine the various URL scheme styles to some degree.
+You can take the standard URL style Thread-{url}, and put the {url}
+in the dynamic part instead using Thread?{url}. To make this work you
+need a rewrite for Thread -&gt; showthread.php.</p>
+<p>With the {url} in the dynamic part of the URL, you can proceed to
+including parent forums in thread URLs, even using directory separators.
+Since / in the dynamic part of the URL is not seen as a real directory,
+you will avoid most of the pitfalls involved with the Virtual Directory Structure.</p>
+<p>Here's an example for a combined URL scheme:</p>
+<pre class="literal-block">
+Forum:         Forum?{url}
+Thread:        Thread?{url}
+Announcements: Announcement?{url}
+Users:         User?{url}/
+Calendars:     Calendar?{url}/
+Events:        Event?{url}
+Parent Forum:        {parent}/{url}
+Parent Thread:       {parent}/{url}
+Parent Announcement: {parent}/{url}
+Parent Event:        {parent}/{url}
+</pre>
+<p>The end result would be an URL like Thread?Category/Forum/Subject.
+Even so it's not recommended because the URL can just get too long.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h1><a class="toc-backref" href="#contents">Troubleshooting</a></h1>
+<div class="section" id="seo-urls-do-not-work">
+<h2><a class="toc-backref" href="#contents">SEO URLs do not work</a></h2>
+<p>If the SEO URLs do not appear (links are not changed), then you have either
+not enabled the URL settings properly, or you did not apply the necessary
+changes to core files. Check your <em>Plugin Status</em>.</p>
+<p>If the SEO URLs appear but give you errors like thread not found, thread
+does not exist, etc., then your <em>Rewrite Rules</em> do not work for some reason.
+Check that you have edited the <em>.htaccess</em> (not htaccess.txt!) correctly.
+Some hosts need a RewriteBase, others do not. If you are using a custom
+SEO URL Scheme, make sure this scheme does not have any conflicts.</p>
+</div>
+<div class="section" id="there-is-no-sitemap-xml-file">
+<h2><a class="toc-backref" href="#contents">There is no sitemap.xml file</a></h2>
+<p>Google SEO's Sitemap is generated dynamically every time it is accessed.
+This means there is no file for it, similar to how there is no file for
+a specific thread. Instead of looking for a file on FTP, use HTTP.
+By default the URL to your sitemap will be yoursite/sitemap-index.xml</p>
+</div>
+<div class="section" id="users-show-up-as-seeing-error-pages-in-who-s-online">
+<h2><a class="toc-backref" href="#contents">Users show up as seeing error pages in Who's Online</a></h2>
+<p>This usually happens when you have a missing image or CSS or JS file
+in your forum. The user visits a thread or forum, the browser tries
+to load the missing image, and the resulting 404 error overrides the
+location in the online list.</p>
+<p>The Google SEO 404 Who's Online setting has an option to include the
+URI in the online status. If you enable this and then hover over the
+error page links in Who's Online, you should be able to see which
+page / URL caused the error and fix it.</p>
+</div>
+</div>
+<div class="section" id="support">
+<h1><a class="toc-backref" href="#contents">Support</a></h1>
+<p>If you need further assistance, the official release thread for this plugin
+can be found in the <a class="reference external" href="http://community.mybb.com/forum-102.html">MyBB Community - Plugin Releases</a> forum.</p>
+<p>Thank you for reading the documentation first! :)</p>
+</div>
+</div>
+</body>
+</html>
