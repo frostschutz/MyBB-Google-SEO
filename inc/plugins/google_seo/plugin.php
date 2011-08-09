@@ -573,7 +573,7 @@ function google_seo_plugin_install()
                               active TINYINT UNSIGNED,
                               idtype TINYINT UNSIGNED NOT NULL,
                               id INT UNSIGNED NOT NULL,
-                              url VARCHAR(1000) NOT NULL,
+                              url VARCHAR(120) NOT NULL,
                               UNIQUE KEY (idtype, url),
                               UNIQUE KEY (active, idtype, id)
                           ) ENGINE=MyISAM{$collation};");
