@@ -2,3 +2,4 @@ Special thanks to:
 - "dared" at community.mybboard.net for translate.php.turkish
 - "Michael S" for his idea to use PHP output buffer to modify Archive mode
 - "bryn" at community.mybboard.net for reporting a security issue
+- "Cayo" / HTTP Status plugin for error label idea
