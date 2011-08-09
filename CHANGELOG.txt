@@ -1,3 +1,32 @@
+2011-08-09: stable release 1.6.0
+
+    * Requires MyBB 1.6.4 or newer
+    * Requires PluginLibrary 4 or newer
+    * Various bugfixes and improvements
+    * 404:
+      + Include 404 URI in Who's Online List
+      + Custom Status Codes for specific error pages
+        (Example: boardclosed yields 503 Service Unavailable)
+    * Meta:
+      + Page number for Forum / Thread titles
+      + Nofollow links for X days
+      + Noindex specific forums
+    * Redirect:
+      + Setting for post link query behaviour
+      + Workaround for Nginx issue
+      + Handle new URL styles
+    * Sitemap:
+      + Don't include redirect forums
+    * URL:
+      + Automatically apply changes to inc/functions.php
+      + Query Limit setting
+      + Lazy Mode as alternative method to evaluate SEO URLs
+      + Cache for index and portal
+      + Character Translation is now a setting (remove translate.php)
+      + Setting for post link query and multipage behaviour
+      + New URL styles (showthread.php?Subject, f-forum/t-thread, ...)
+      + Setting to include parent forum / calendar for forums, threads, announcements, events
+
 2010-04-19: stable release 1.1.13
 
     * compatibility update for MyBB 1.4.12/1.4.13 (several regressions)
