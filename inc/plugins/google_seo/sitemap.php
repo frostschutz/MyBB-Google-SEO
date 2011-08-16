@@ -89,8 +89,7 @@ function google_seo_sitemap($tag, $items)
     {
         // loc
         $output[] = "  <$tag>";
-        $loc = htmlspecialchars($item['loc'], ENT_QUOTES, "UTF-8");
-        $output[] = "    <loc>$bbsite$loc</loc>";
+        $output[] = "    <loc>{$bbsite}{$item['loc']}</loc>";
 
         // lastmod
         // Hack: set earliest possible date to april 1970,
@@ -334,7 +333,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             else
             {
-                $item['loc'] = "misc.php?google_seo_sitemap={$url}&page={$page}";
+                $item['loc'] = "misc.php?google_seo_sitemap={$url}&amp;page={$page}";
             }
 
             // find the last (newest) of the oldest posts
@@ -456,7 +455,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 
             if($loc)
             {
-                $items[] = array('loc' => $loc);
+                $items[] = array('loc' => htmlspecialchars($loc, ENT_QUOTES, "UTF-8"));
             }
         }
 
@@ -488,7 +487,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 
         else
         {
-            $loc = "misc.php?google_seo_sitemap=index&page=1";
+            $loc = "misc.php?google_seo_sitemap=index&amp;page=1";
         }
 
         $items[] = array('loc' => $loc);
