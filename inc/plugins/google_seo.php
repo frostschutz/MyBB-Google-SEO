@@ -127,6 +127,16 @@ if(defined("IN_ADMINCP"))
 /* --- Prerequisites: --- */
 
 /*
+ * Constants. Required by URL and Sitemap.
+ */
+define('GOOGLE_SEO_USER', 1);
+define('GOOGLE_SEO_ANNOUNCEMENT', 2);
+define('GOOGLE_SEO_FORUM', 3);
+define('GOOGLE_SEO_THREAD', 4);
+define('GOOGLE_SEO_EVENT', 5);
+define('GOOGLE_SEO_CALENDAR', 6);
+
+/*
  * Unfortunately global.php sets mb_internal_encoding only after running
  * the global_start hook (or maybe even not at all). We need it set it,
  * so we do it ourselves.

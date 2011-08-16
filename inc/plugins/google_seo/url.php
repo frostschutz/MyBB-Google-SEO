@@ -33,13 +33,6 @@ global $db, $mybb, $settings, $plugins, $cache;
 // could be used to coerce Google SEO into managing URLs of other types.
 // In practice there is no guarantee that this API will stay stable.
 
-define('GOOGLE_SEO_USER', 1);
-define('GOOGLE_SEO_ANNOUNCEMENT', 2);
-define('GOOGLE_SEO_FORUM', 3);
-define('GOOGLE_SEO_THREAD', 4);
-define('GOOGLE_SEO_EVENT', 5);
-define('GOOGLE_SEO_CALENDAR', 6);
-
 $db->google_seo_url = array(
     GOOGLE_SEO_USER => array(
         'table' => TABLE_PREFIX.'users',

@@ -141,9 +141,10 @@ function google_seo_sitemap($tag, $items)
  */
 function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 {
-    global $lang, $db, $mybb, $settings, $google_seo_url_optimize;
+    global $lang, $db, $mybb, $settings;
+    global $google_seo_url_optimize;
 
-    if(!$settings["google_seo_sitemap_$type"])
+    if(!$settings["google_seo_sitemap_{$type}"])
     {
         return;
     }
@@ -229,6 +230,11 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             break;
 
         case "users":
+            if(!$mybb->usergroup['canviewprofiles'])
+            {
+                return;
+            }
+
             $table = 'users';
             $idname = 'uid';
             $datename = 'regdate';
@@ -386,7 +392,16 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         }
 
         // Google SEO URL Optimization:
-        $google_seo_url_optimize[$type][$id] = 0;
+        $type2id = array(
+            'users' => GOOGLE_SEO_USER,
+            'announcements' => GOOGLE_SEO_ANNOUNCEMENT,
+            'forums' => GOOGLE_SEO_FORUM,
+            'threads' => GOOGLE_SEO_THREAD,
+            'events' => GOOGLE_SEO_EVENT,
+            'calendars' => GOOGLE_SEO_CALENDAR,
+            );
+
+        $google_seo_url_optimize[$type2id[$type]][$id] = 0;
     }
 
     if(!sizeof($ids))
@@ -515,7 +530,7 @@ function google_seo_sitemap_hook()
 
     $type = $mybb->input['google_seo_sitemap'];
 
-    if($type != "index" && !$settings["google_seo_sitemap_$type"])
+    if($type != "index" && !$settings["google_seo_sitemap_{$type}"])
     {
         // This type of sitemap is not enabled.
         error($lang->googleseo_sitemap_disabledorinvalid);
