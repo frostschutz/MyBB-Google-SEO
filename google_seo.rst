@@ -6,7 +6,7 @@ End User Manual
 ===============
 
 :Author: Andreas Klauer <Andreas.Klauer@metamorpher.de>
-:Version: 1.6.0 of 2011 Aug 09
+:Version: 1.6.1 of 2011 Aug 16
 :Homepage: http://mods.mybb.com/view/google-seo
 :GitHub:   https://github.com/frostschutz/Google-SEO
 

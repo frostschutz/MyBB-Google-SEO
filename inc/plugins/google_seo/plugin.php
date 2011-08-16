@@ -55,7 +55,7 @@ function google_seo_plugin_info()
         "description"   => "{$donate}{$lang->googleseo_plugin_description}",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.6.0",
+        "version"       => "1.6.1",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "16*",
     );
