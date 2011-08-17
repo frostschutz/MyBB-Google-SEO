@@ -1189,26 +1189,23 @@ function google_seo_url_hook()
 
         case 'calendar.php':
             // Translation.
-            if($mybb->input['action'] == 'event')
+            // Event.
+            $url = google_seo_url_dynamic($mybb->input['google_seo_event']);
+
+            if(strlen($url) && !array_key_exists('eid', $mybb->input))
             {
-                // Event.
-                $url = google_seo_url_dynamic($mybb->input['google_seo_event']);
+                $eid = google_seo_url_id(GOOGLE_SEO_EVENT, $url);
+                $mybb->input['eid'] = $eid;
+                $location = get_current_location();
+                $location = str_replace("google_seo_event={$url}", "eid={$eid}", $location);
+            }
 
-                if(strlen($url) && !array_key_exists('eid', $mybb->input))
-                {
-                    $eid = google_seo_url_id(GOOGLE_SEO_EVENT, $url);
-                    $mybb->input['eid'] = $eid;
-                    $location = get_current_location();
-                    $location = str_replace("google_seo_event={$url}", "eid={$eid}", $location);
-                }
+            // Verification.
+            $eid = (int)$mybb->input['eid'];
 
-                // Verification.
-                $eid = (int)$mybb->input['eid'];
-
-                if($eid)
-                {
-                    google_seo_url_create(GOOGLE_SEO_EVENT, $eid);
-                }
+            if($eid)
+            {
+                google_seo_url_create(GOOGLE_SEO_EVENT, $eid);
             }
 
             else
