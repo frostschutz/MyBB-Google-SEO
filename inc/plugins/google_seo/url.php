@@ -843,6 +843,7 @@ function google_seo_url_cache($type, $id)
                 global $plugins;
                 $plugins->add_hook('pre_output_page', 'google_seo_url_lazy', 1000);
                 ob_start('google_seo_url_lazy');
+                register_shutdown_function(create_function('', 'while(@ob_end_flush());'));
                 $google_seo_url_lazy = array();
             }
 
@@ -956,8 +957,11 @@ function google_seo_url_lazy($message)
     }
 
     // Make it load the URLs.
+    reset($lazy);
     $type = key($lazy);
+    reset($lazy[$type]);
     $id = key($lazy[$type]);
+
     google_seo_url_cache($type, $id);
 
     // Build the replacement foo.
