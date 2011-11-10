@@ -765,10 +765,6 @@ function google_seo_plugin_activate()
                 'title' => "LiteSpeed Bug workaround",
                 'description' => "If your server is running LiteSpeed &lt;= 4.0.10 instead of Apache, and you see redirection loops on member profile / send mail or calendar event / edit event pages, you are suffering from a bug in LiteSpeed's mod_rewrite replacement. Set to YES to work around this bug - Google SEO Redirect will then leave the problematic pages alone. Apache / Nginx / lighttpd users can leave this at NO.",
                 ),
-            'nginx' => array(
-                'title' => "Nginx Bug workaround",
-                'description' => "If your server is running Nginx instead of Apache, and you see redirection loops on URLs that contain UTF-8 or otherwise special characters, you are suffering from a bug in Nginx URI escaping algorithm. Set to YES to work around this bug.",
-                ),
             'debug' => array(
                 'title' => "Debug Redirect",
                 'description' => "If you experience infinite redirection loops due to Google SEO Redirect, please enable this option to obtain more information about what is going wrong with your redirect and then report a bug to the plugin author. The debug information is ugly and therefore shown only to board admins.",

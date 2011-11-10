@@ -52,18 +52,7 @@ function google_seo_redirect_current_url()
         $page_url = "http://".$_SERVER["HTTP_HOST"];
     }
 
-    $page_url .= $_SERVER["REQUEST_URI"];
-
-    if($settings['google_seo_redirect_nginx'])
-    {
-        // Nginx uses lowercase %cc when RFC 3986 recommends upper case.
-        $page_url = preg_replace_callback('/(%..)+/',
-                                          create_function(
-                                              '$matches',
-                                              'return strtoupper($matches[0]);'
-                                              ),
-                                          $page_url);
-    }
+    $page_url .= urldecode($_SERVER["REQUEST_URI"]);
 
     return $page_url;
 }
@@ -227,7 +216,7 @@ function google_seo_redirect_hook()
     // Verify that we are already at the target.
     if($target)
     {
-        $target = $settings['bburl'].'/'.$target;
+        $target = $settings['bburl'].'/'.urldecode($target);
         $current = google_seo_redirect_current_url();
 
         // Not identical (although it may only be the query string).
@@ -369,6 +358,8 @@ function google_seo_redirect_hook()
                 {
                     $querystr[] = urlencode($k)."=".urlencode($v);
                 }
+
+                $location_target = google_seo_encode($location_target);
 
                 if(sizeof($querystr))
                 {
