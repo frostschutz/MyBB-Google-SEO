@@ -569,7 +569,7 @@ function google_seo_sitemap_hook()
  * Extend WOL for users on the Sitemap page.
  *
  */
-function google_seo_sitemap_wol($plugin_array)
+function google_seo_sitemap_wol(&$plugin_array)
 {
     global $lang, $user, $settings;
 
@@ -578,7 +578,6 @@ function google_seo_sitemap_wol($plugin_array)
     {
         $plugin_array['user_activity']['activity'] = 'google_seo_sitemap';
         $location = $plugin_array['user_activity']['location'];
-        $location = str_replace("&amp;amp;", "&amp;", $location); // MyBB 1.4.4 Bug workaround
         $plugin_array['location_name'] = $lang->sprintf($lang->googleseo_sitemap_wol, $location);
     }
 }

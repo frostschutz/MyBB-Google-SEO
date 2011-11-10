@@ -148,7 +148,7 @@ function google_seo_404_status($label)
  *
  * @param string Error message, which may be modified.
  */
-function google_seo_404($error)
+function google_seo_404(&$error)
 {
     global $mybb, $lang, $settings;
     global $google_seo_404_label;
@@ -233,7 +233,7 @@ function google_seo_404_page()
  * Extend WOL for users on the 404 page.
  *
  */
-function google_seo_404_wol($p)
+function google_seo_404_wol(&$p)
 {
     global $lang, $user, $settings;
 
