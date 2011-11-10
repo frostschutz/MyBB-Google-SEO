@@ -259,7 +259,7 @@ function google_seo_meta_posts(&$mypost)
     if($mypost['dateline'] > $google_seo_nofollow)
     {
         $mypost['message'] = google_seo_meta_nofollow($mypost['message']);
-        $mypost['button_www'] = google_seo_meta_nofollow($mypost['www_button']);
+        $mypost['button_www'] = google_seo_meta_nofollow($mypost['button_www']);
         $mypost['signature'] = google_seo_meta_nofollow($mypost['signature']);
     }
 }
@@ -297,7 +297,7 @@ function google_seo_meta_printthread_post()
  */
 function google_seo_meta_user()
 {
-    global $settings, $uid, $memprofile;
+    global $settings, $uid, $memprofile, $signature, $website;
     global $google_seo_nofollow;
 
     // Canonical:
