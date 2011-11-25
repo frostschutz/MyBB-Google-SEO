@@ -1,3 +1,9 @@
+2011-11-25: stable release 1.6.2
+
+    * MyBB 1.6.5 compatibility
+    * make redirect less prone to url encoding issues
+    * fix bug with sitemap and lazy mode
+
 2011-08-16: stable release 1.6.1
 
     * Fix several bugs in Sitemap
