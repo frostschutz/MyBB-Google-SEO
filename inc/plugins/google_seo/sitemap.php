@@ -177,7 +177,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
             if($condition)
             {
-                $condition = "WHERE ".implode(" AND ", $condition);
+                $condition = implode(" AND ", $condition);
             }
 
             // Include pages?
@@ -199,7 +199,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'tid';
             $datename = 'lastpost';
             $getlink = 'get_thread_link';
-            $condition = "WHERE visible>0 AND closed NOT LIKE 'moved|%'";
+            $condition = "visible>0 AND closed NOT LIKE 'moved|%'";
 
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
@@ -239,6 +239,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'uid';
             $datename = 'regdate';
             $getlink = 'get_profile_link';
+            $condition = '1=1';
             break;
 
         case "announcements":
@@ -247,8 +248,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $datename = 'startdate';
             $getlink = 'get_announcement_link';
             $time = TIME_NOW;
-            $condition = "WHERE startdate <= '$time'
-                          AND (enddate >= '$time' OR enddate='0')";
+            $condition = "startdate <= '$time' AND (enddate >= '$time' OR enddate='0')";
 
             // Additional permission check.
             $unviewableforums = get_unviewable_forums(true);
@@ -277,13 +277,14 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $idname = 'cid';
             $datename = 'disporder';
             $getlink = 'get_calendar_link';
+            $condition = '1=1';
 
             // Calendar permission check.
             $unviewablecalendars = google_seo_get_unviewable_calendars();
 
             if($unviewablecalendars)
             {
-                $condition = "WHERE cid NOT IN ($unviewablecalendars)";
+                $condition = "cid NOT IN ($unviewablecalendars)";
             }
 
             break;
@@ -302,7 +303,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             $getlink = 'get_event_link';
 
             // Event specific permission check.
-            $condition = "WHERE visible=1 AND private=0";
+            $condition = "visible=1 AND private=0";
 
             // Calendar permission check.
             $unviewablecalendars = google_seo_get_unviewable_calendars();
@@ -318,48 +319,24 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     if(!$page)
     {
         // Do a pagination index.
-        $query = $db->query("SELECT COUNT(*) as count
-                             FROM ".TABLE_PREFIX."$table
-                             $condition");
-        $count = $db->fetch_field($query, "count");
-        $offset = 0;
+        $query = $db->simple_select($table,
+                                    "MAX({$datename}) AS lastmod, FLOOR({$idname}/{$pagination}.0)+1 AS page",
+                                    "{$condition} GROUP BY FLOOR({$idname}/{$pagination}.0)");
 
-        while($offset < $count)
+        if($scheme)
         {
-            $page++;
-            $item = array();
-            $url = $type;
+            $scheme = google_seo_expand($scheme, array('url' => $type))."?page=";
+        }
 
-            if($scheme)
-            {
-                $scheme = google_seo_expand($scheme, array('url' => $url));
+        else
+        {
+            $scheme = "misc.php?google_seo_sitemap={$url}&amp;page=";
+        }
 
-                $item['loc'] = "{$scheme}?page={$page}";
-            }
-
-            else
-            {
-                $item['loc'] = "misc.php?google_seo_sitemap={$url}&amp;page={$page}";
-            }
-
-            // find the last (newest) of the oldest posts
-            $query = $db->query("SELECT $datename FROM
-                                   (SELECT $datename FROM ".TABLE_PREFIX."$table
-                                    $condition
-                                    ORDER BY $datename ASC
-                                    LIMIT $offset, $pagination) AS foobar
-                                 ORDER BY $datename DESC LIMIT 1");
-
-            $lastmod = $db->fetch_field($query, $datename);
-
-            if($lastmod)
-            {
-                $item["lastmod"] = $lastmod;
-            }
-
-            $items[] = $item;
-
-            $offset += $pagination;
+        while($row = $db->fetch_array($query))
+        {
+            $row['loc'] = "{$scheme}{$row['page']}";
+            $items[] = $row;
         }
 
         // Do not build a sitemap here. Instead return the items.
@@ -368,12 +345,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
     }
 
     // Build the sitemap for this page.
-    $offset = ($page - 1) * $pagination;
+    $min = ($page - 1) * $pagination;
+    $max = $min + $pagination;
 
-    $query = $db->query("SELECT $idname,$datename $pagescount FROM ".TABLE_PREFIX."$table
-                         $condition
-                         ORDER BY $datename ASC
-                         LIMIT $offset, $pagination");
+    $query = $db->simple_select($table, "{$idname},{$datename}{$pagescount}",
+                                "{$condition} AND {$idname} > {$min} AND {$idname} <= {$max}",
+                                array('order_by' => $idname));
 
     while($row = $db->fetch_array($query))
     {
