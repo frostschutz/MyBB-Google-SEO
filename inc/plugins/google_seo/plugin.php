@@ -260,6 +260,75 @@ function google_seo_plugin_status()
         $error[] = $lang->googleseo_plugin_url;
     }
 
+    // URL scheme conflict detection
+    $pattern = $settings['google_seo_url_punctuation'];
+
+    if($pattern)
+    {
+        // Escape the pattern.
+        // (preg_quote breaks UTF-8 and doesn't escape -)
+        $pattern = preg_replace("/[\\\\\\^\\-\\[\\]\\/]/u",
+                                "\\\\\\0",
+                                $pattern);
+    }
+
+    for($a=count($htaccess); $a--; )
+    {
+        if(!$htaccess[$a][1])
+        {
+            continue;
+        }
+
+        for($b=$a; $b--; )
+        {
+            if(!$htaccess[$b][1])
+            {
+                continue;
+            }
+
+            // for any pair a-b:
+
+            $rule_a = explode('?', $htaccess[$a][0]);
+            $rule_a = $rule_a[0];
+            $rule_b = explode('?', $htaccess[$b][0]);
+            $rule_b = $rule_b[0];
+
+            $test_a = google_seo_expand($rule_a, array('url' => ''));
+            $test_b = google_seo_expand($rule_b, array('url' => ''));
+
+            if($pattern)
+            {
+                $test_a = preg_replace("/^[$pattern]+|[$pattern]+$/u",
+                                       "",
+                                       $test_a);
+                $test_b = preg_replace("/^[$pattern]+|[$pattern]+$/u",
+                                       "",
+                                       $test_b);
+            }
+
+            $test_ab = google_seo_expand($rule_a, array('url' => $test_b));
+            $test_ba = google_seo_expand($rule_b, array('url' => $test_a));
+
+            $regexp_a = preg_quote($rule_a, '#');
+            $regexp_a = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $regexp_a);
+            $regexp_a = google_seo_expand($regexp_a, array('url' => '([^./]+)'));
+            $regexp_b = preg_quote($rule_b, '#');
+            $regexp_b = preg_replace('/\\\\{(\\\\\\$|)url\\\\}/', '{url}', $regexp_b);
+            $regexp_b = google_seo_expand($regexp_b, array('url' => '([^./]+)'));
+
+            // Could there be a conflict?
+            if((preg_match("#^{$regexp_a}\$#u", $test_ab) && preg_match("#^{$regexp_b}\$#u", $test_ab))
+               || (preg_match("#^{$regexp_a}\$#u", $test_ba) && preg_match("#^{$regexp_b}\$#u", $test_ba))
+               || (preg_match("#^{$regexp_a}\$#u", $test_ab) && preg_match("#^{$regexp_a}\$#u", $test_ba))
+               || (preg_match("#^{$regexp_b}\$#u", $test_ab) && preg_match("#^{$regexp_b}\$#u", $test_ba)))
+            {
+                $warning[] = $lang->sprintf($lang->googleseo_plugin_htaccess_conflict,
+                                            htmlspecialchars_uni($htaccess[$a][0]),
+                                            htmlspecialchars_uni($htaccess[$b][0]));
+            }
+        }
+    }
+
     // Check htaccess.
     if(count($htaccess) || !$settings['google_seo_404'])
     {

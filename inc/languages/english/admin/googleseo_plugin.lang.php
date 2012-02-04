@@ -13,6 +13,7 @@ $l['googleseo_plugin_error_plural'] = "{1} are disabled.";
 $l['googleseo_plugin_htaccess_404'] = "Google SEO 404";
 $l['googleseo_plugin_htaccess_announcements'] = "Google SEO URL Announcements";
 $l['googleseo_plugin_htaccess_calendars'] = "Google SEO URL Calendars";
+$l['googleseo_plugin_htaccess_conflict'] = "URL scheme conflict between '{1}' and '{2}'.";
 $l['googleseo_plugin_htaccess_events'] = "Google SEO URL Events";
 $l['googleseo_plugin_htaccess_forums'] = 'Google SEO URL Forums';
 $l['googleseo_plugin_htaccess_rewritebase'] = "Some hosts require RewriteBase to make RewriteRules work.";
