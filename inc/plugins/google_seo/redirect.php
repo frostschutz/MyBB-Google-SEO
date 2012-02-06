@@ -52,7 +52,11 @@ function google_seo_redirect_current_url()
         $page_url = "http://".$_SERVER["HTTP_HOST"];
     }
 
-    $page_url .= urldecode($_SERVER["REQUEST_URI"]);
+    $request_uri = explode('?', $_SERVER["REQUEST_URI"], 2);
+    $request_uri[0] = urldecode($request_uri[0]);
+    $request_uri = implode('?', $request_uri);
+
+    $page_url .= $request_uri;
 
     return $page_url;
 }
@@ -255,7 +259,7 @@ function google_seo_redirect_hook()
                 $mybb->strip_slashes_array($query_current);
             }
 
-            $query = array_merge($query_current, $mybb->input);
+            $query = $query_current;
 
             // Kill query string elements that already are part of the URL.
             if(!$query[$target_dynamic])
@@ -302,7 +306,7 @@ function google_seo_redirect_hook()
             }
 
             // Definitely not identical?
-            if($change || $target_parse[0] != $current_parse[0])
+            if($change || $location_target != $location_current)
             {
                 // Check if redirect debugging is enabled.
                 if($settings['google_seo_redirect_debug']
