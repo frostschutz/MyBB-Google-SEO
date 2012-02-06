@@ -1,3 +1,9 @@
+2012-02-06: stable release 1.6.3
+
+    * fix infinite redirect loop case for nginx webserver
+    * optimize sitemap index generation for large boards
+    * plugin status warning for conflicting URL schemes
+
 2011-11-25: stable release 1.6.2
 
     * MyBB 1.6.5 compatibility
