@@ -314,6 +314,9 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
             }
 
             break;
+
+        default:
+            error($lang->googleseo_sitemap_pageinvalid);
     }
 
     if(!$page)
@@ -323,15 +326,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                                     "MAX({$datename}) AS lastmod, FLOOR({$idname}/{$pagination}.0)+1 AS page",
                                     "{$condition} GROUP BY FLOOR({$idname}/{$pagination}.0)");
 
-        if($scheme)
+        if(!$scheme)
         {
-            $scheme = google_seo_expand($scheme, array('url' => $type))."?page=";
+            $scheme = 'misc.php?google_seo_sitemap={url}';
         }
 
-        else
-        {
-            $scheme = "misc.php?google_seo_sitemap={$url}&amp;page=";
-        }
+        $scheme = google_seo_expand($scheme, array('url' => $type))."?page=";
 
         while($row = $db->fetch_array($query))
         {
