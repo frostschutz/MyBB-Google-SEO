@@ -47,8 +47,6 @@ function google_seo_plugin_info()
     // Check for edit action.
     google_seo_plugin_edit();
 
-    $donate = '<div style="float: right"><form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="8V9B4YYMJF862"><img alt="Y U NO" border="0" src="data:image/gif;base64,R0lGODdhSgBYAMIAAP///8zMzJmZmWZmZjMzMwAAAP///////ywAAAAASgBYAAAD/gi1XNoOyAkjnPgxIi8WA7EQQiaJDYeOJiCsgzSMZTs3AXCT2EqghFxGsJmIOC0JcdGLJAGrAlKUQcWULNOyUCIinwFG83kq3LhQpytrXNSqjHBBCBa3yem0NN9Gf9gYcgxvdUx3ZFSCL2qDQ3ZaDFd4gmOIEWdUFG6Ohi1xeBKUh0+ZGp16hGt7SZ+goh1qLaVbaktfZX6em6AaV154pXqxKG87SVGreGc4ZDs1r6FAME8VsU+LCwN0rA0TNy3YBNq85OXm5+jpGQECID8/A+3b6vTkgvDtICFW8/X+Su+49NNyQ9I/egGApOIFQsrAg6CILAw0EcC2GbcgghLx/tAbIiUWZxjU2CJMxiTtnsRzcSVhLpKBXtqTBXKCSZh/Kk4K9SaIxVQzOiKcc7AGCBfy/oz8xwNijRj5anY4OZQkOx0WAc4zA3HAUnTbukw46kloOaLoorq4eDUlSmtp4fIKwG6lz7F0dZ74as7rv6Mv45lVMJiM3Ij5BOT1IsTvh34v6EVOW2JlXh2bXghJyBctuqbnYtwokUOxtqshs4FQnCGEusN4umyi20Ex3dtob6eCfY03mNKkjTr8ya5EU8WEQJcThxA5uxwJFwtpB1XH7Q9U8Xg+R/u5kmfBkbNGQdumbxPnUe6L59aE7pTktxYem9795nUV85X23kOv/gnHaQ20kno/tYcBgLwoZ85VxUkxTnn/QVhSdsf4Nxdr/dn2GFIDJWSOghq9II6GSE1CoSwWqkOCiCSOA8aJJoB4UAADQsGeRbB5uFyKaRlEm218RfMhj+e8IGI/Eq4DYxVE9jWWgkli11eQCM0zEpUIRrTkBwzFsFkIQAolYx1kYLggOz/IVoRh81HQJn42bODVOKuREQY6280ogkGrBdHRnefI9NeIP4mTwww6TTYlTDTKQAJGOQjqDZVvpdNRDT/o9txdnjRJAUzxnPackVhRoyKPZiaRkIiC2cbOYYDGNZMy2DgojjY/qESpYZ6q6hVnyM2pTaoY5LlgfWUq/lHcaqGGYsOWiEBrD2vIcQiOseggWqVFm0EHnarYfpYNd9+tONBEYezqCldptEkajY+mSYei5qk7yUtEqIsEf6Hsk6aBEv0lqEt6NcXpi9FIWqQfC8nRcG48krDnQUGFcgp9UghHx3wOQxTMCdnROMLAZYrQK7jZseurD17pd1tdxGiUrmHq5uVvBSO+CYq2diqsnafl6WhJYUToPLE5RbvAQUe5lhMwOUElM12ZUogzJhFxpRhGY0StNAdqjhQErs5YDBYYF5H5aU3SwNh7rV4zQLInF64dGO6B0r5V0dbYSTGyGY2usSXf/sy8jq0wCIGGFWlE7Pa9iiEzIrE4NHr5qrTJzKjaGnNlnPFyec9a23I+yxI6WMhme/pnJy9H9sI4rRN7BqXPDhPWtude7OvnJAAAOw=="><br><input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!"><img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form></div>';
-
     $info = array(
         "name"          => "Google SEO",
         "website"       => "http://mods.mybb.com/view/google-seo",
@@ -66,7 +64,7 @@ function google_seo_plugin_info()
        is_array($plugins_cache['active']) &&
        $plugins_cache['active']['google_seo'])
     {
-        $info['description'] = $donate.$info['description'].google_seo_plugin_status();
+        $info['description'] = $info['description'].google_seo_plugin_status();
     }
 
     return $info;
