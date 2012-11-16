@@ -335,6 +335,8 @@ function google_seo_plugin_status()
         if($file)
         {
             $file = preg_replace('/^[\s\t]*#.*$/m', '', $file);
+            $file = preg_replace("/\s*\n\s*/m", "\n", $file);
+            $file .= "\n"; // no newline at end of file
         }
 
         foreach($htaccess as $v)
@@ -362,7 +364,7 @@ function google_seo_plugin_status()
                         $rule = "RewriteRule ^{$rule}\$ {$v[1]}?{$v[4]} [L,QSA,NC]";
                     }
 
-                    if(strpos($file, $rule) === false)
+                    if(strpos($file, "{$rule}\n") === false)
                     {
                         $line = "# {$v[3]}:\n{$rule}\n";
                     }
@@ -371,7 +373,7 @@ function google_seo_plugin_status()
 
             else
             {
-                if(strpos($file, $v[0]) === false)
+                if(strpos($file, "{$v[0]}\n") === false)
                 {
                     $line = "# {$v[2]}:\n{$v[0]}\n";
                 }
@@ -386,19 +388,21 @@ function google_seo_plugin_status()
 
         // Special case: search.php workaround must be the first rewrite rule.
         $workaround = 'RewriteRule ^([^&]*)&(.*)$ '.$mybb->settings['bburl'].'/$1?$2 [L,QSA,R=301]';
-        $pos = strpos($file, $workaround);
+        $pos = strpos($file, "{$workaround}\n");
 
         if($rewrite && ($pos === false || $pos != strpos($file, "RewriteRule")))
         {
             array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_search}\n# {$lang->googleseo_plugin_htaccess_search_first}\n{$workaround}\n");
         }
 
-        if($rewrite && (strpos($file, "RewriteBase {$base}") === false || strpos($file, "RewriteBase") > strpos($file, "RewriteRule")))
+        $pos = strpos($file, "RewriteBase {$base}/\n");
+
+        if($rewrite && ($pos === false || $pos > strpos($file, "RewriteRule")))
         {
             array_unshift($lines, "# {$lang->googleseo_plugin_htaccess_rewritebase}\nRewriteBase {$base}/\n");
         }
 
-        if($rewrite && strpos($file, "RewriteEngine on") === false)
+        if($rewrite && strpos($file, "RewriteEngine on\n") === false)
         {
             array_unshift($lines, "RewriteEngine on\n");
         }
