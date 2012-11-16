@@ -6,7 +6,7 @@ End User Manual
 ===============
 
 :Author: Andreas Klauer <Andreas.Klauer@metamorpher.de>
-:Version: 1.6.1 of 2011 Aug 16
+:Version: 1.6.4 of 2012 Nov 17
 :Homepage: http://mods.mybb.com/view/google-seo
 :GitHub:   https://github.com/frostschutz/Google-SEO
 
@@ -33,11 +33,6 @@ __ http://www.google.com/webmasters/docs/search-engine-optimization-starter-guid
 *Google SEO* is free open source software (LGPL). This means that you can
 download the plugin for free, modify it to your liking, and you do not have
 to put any copyright or backlinks on your page.
-
-I spend countless of hours of work in developing and supporting *Google SEO*.
-If you want to give something in return, you may send a donation by means of
-PayPal or Amazon Gift Card (COM/DE/UK/JP) to Andreas.Klauer@metamorpher.de.
-Thanks for your support!
 
 Features
 ~~~~~~~~
@@ -91,7 +86,7 @@ Requirements
 In order to use this plugin, you must meet these requirements:
 
 - MyBB 1.6.4 (older versions of MyBB need the *Google SEO Legacy* plugin)
-- `PluginLibrary <http://mods.mybb.com/view/pluginlibrary>`_ 4
+- `PluginLibrary <http://mods.mybb.com/view/pluginlibrary>`_ 11
 - PHP 5.1.0
 - Apache (alternative webservers may work but are not supported)
 - MySQL (alternative databases are not supported at this time)
@@ -712,6 +707,6 @@ Support
 If you need further assistance, the official release thread for this plugin
 can be found in the `MyBB Community - Plugin Releases`__ forum.
 
-__ http://community.mybb.com/forum-102.html
+__ http://community.mybb.com/thread-101262.html
 
 Thank you for reading the documentation first! :)
