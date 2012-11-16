@@ -3,3 +3,7 @@ Special thanks to:
 - "Michael S" for his idea to use PHP output buffer to modify Archive mode
 - "bryn" at community.mybboard.net for reporting a security issue
 - "Cayo" / HTTP Status plugin for error label idea
+- "MaFeSa" who donated in April 2010,
+- "steve" at dedduck.com who donated in March 2011,
+- "Einars" at GIMPForums.com who donated in August 2011,
+- "Pompano" at rskingdom.com who donated in October 2011,
