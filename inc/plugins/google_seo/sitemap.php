@@ -326,16 +326,12 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
                                     "MAX({$datename}) AS lastmod, FLOOR({$idname}/{$pagination}.0)+1 AS page",
                                     "{$condition} GROUP BY FLOOR({$idname}/{$pagination}.0)");
 
-        if(!$scheme)
-        {
-            $scheme = 'misc.php?google_seo_sitemap={url}';
-        }
-
-        $scheme = google_seo_expand($scheme, array('url' => $type))."?page=";
+        $url = google_seo_expand($scheme, array('url' => $type));
+        $url .= (strpos($url, '?') === false ? '?' : '&amp;').'page=';
 
         while($row = $db->fetch_array($query))
         {
-            $row['loc'] = "{$scheme}{$row['page']}";
+            $row['loc'] = "{$url}{$row['page']}";
             $items[] = $row;
         }
 
@@ -470,19 +466,9 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
 
     if($settings['google_seo_sitemap_additional'])
     {
-        if($scheme)
-        {
-            $scheme = google_seo_expand($scheme, array('url' => 'index'));
-
-            $loc = "{$scheme}?page=1";
-        }
-
-        else
-        {
-            $loc = "misc.php?google_seo_sitemap=index&amp;page=1";
-        }
-
-        $items[] = array('loc' => $loc);
+        $url = google_seo_expand($scheme, array('url' => 'index'));
+        $url .= (strpos($url, '?') === false ? '?' : '&amp;').'page=1';
+        $items[] = array('loc' => $url);
     }
 
     google_seo_sitemap("sitemap", $items);
@@ -517,6 +503,11 @@ function google_seo_sitemap_hook()
     $pagination = (int)$settings['google_seo_sitemap_pagination'];
     $pagination = min(max($pagination, 100), 50000);
     $scheme = $settings['google_seo_sitemap_url'];
+
+    if(!$scheme)
+    {
+        $scheme = 'misc.php?google_seo_sitemap={url}';
+    }
 
     // Set page to something between 0 and 50000.
     $page = (int)$mybb->input['page'];
