@@ -1,3 +1,20 @@
+2012-12-09: stable release 1.6.5
+
+    * regression: permission check wasn't working properly since 1.6.2
+    * sitemap now uses X-Robots-Tag: noindex
+    * showthread page=last redirected to first page instead
+    * plugin status now warns you if all plugins are disabled
+
+2012-11-17: stable release 1.6.4
+
+    * possible SQL error with the sitemap (no injection/security issue)
+    * various issues when not using rewrites for the sitemap
+    * plugin status htaccess warning now detects surplus characters as being 
+      wrong, such as "RewriteBase /mybb/" when it should be "RewriteBase /"
+    * requires PluginLibrary 11 due to some bugs fixed in PluginLibrary 
+      in the meantime
+    * removed the donate button 
+
 2012-02-06: stable release 1.6.3
 
     * fix infinite redirect loop case for nginx webserver
