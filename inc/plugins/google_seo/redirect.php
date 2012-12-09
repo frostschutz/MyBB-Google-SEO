@@ -112,10 +112,14 @@ function google_seo_redirect_hook()
                                           (int)$mybb->input['page'],
                                           (string)$mybb->input['action']);
                 $kill['tid'] = '';
-                $kill['page'] = '';
                 $kill['action'] = '';
                 $kill['google_seo_thread'] = '';
                 $kill['google_seo'] = '';
+
+                if($mybb->input['page'] != 'last')
+                {
+                    $kill['page'] = '';
+                }
             }
 
             break;
