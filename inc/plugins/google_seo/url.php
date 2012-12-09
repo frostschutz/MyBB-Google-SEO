@@ -136,7 +136,7 @@ if($db->google_seo_url[GOOGLE_SEO_CALENDAR]['scheme']
 
 // Query limit. Decreases by 1 for every query.
 
-$db->google_seo_query_limit = intval($settings['google_seo_url_query_limit']);
+$db->google_seo_query_limit = (int)$settings['google_seo_url_query_limit'];
 
 if($db->google_seo_query_limit <= 0)
 {
@@ -446,7 +446,7 @@ function google_seo_url_create($type, $ids)
             if($row['parent'])
             {
                 $parent_type = $db->google_seo_url[$type]['parent_type'];
-                $parent_id = intval($row['parent']);
+                $parent_id = (int)$row['parent'];
 
                 // TODO: Parents costs us an extra query. Cache?
                 $db->google_seo_query_limit--;
@@ -903,8 +903,8 @@ function google_seo_url_cache($type, $id)
         // Process the query results.
         while($row = $db->fetch_array($query))
         {
-            $rowid = intval($row['id']);
-            $rowtype = intval($row['idtype']);
+            $rowid = (int)$row['id'];
+            $rowtype = (int)$row['idtype'];
             $google_seo_url_cache[$rowtype][$rowid] =
                 google_seo_url_finalize($row['url'],
                                         $db->google_seo_url[$rowtype]['scheme']);
@@ -1002,7 +1002,7 @@ function google_seo_url_cache_hook()
         // New cache?
         if(!$google_seo_url_cache['time'])
         {
-            $delta = intval($settings['google_seo_url_cache']);
+            $delta = (int)$settings['google_seo_url_cache'];
 
             if(!$delta)
             {
@@ -1318,8 +1318,8 @@ function google_seo_url_after_merge_hook($arguments)
 {
     global $db;
 
-    $mergetid = intval($arguments['mergetid']);
-    $tid = intval($arguments['tid']);
+    $mergetid = (int)$arguments['mergetid'];
+    $tid = (int)$arguments['tid'];
 
     // Integrate mergetid into tid:
     $type = GOOGLE_SEO_THREAD;

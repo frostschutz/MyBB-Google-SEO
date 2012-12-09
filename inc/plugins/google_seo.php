@@ -194,23 +194,23 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
         // trust the given tid
         if($tid > 0)
         {
-            $tid = intval($tid);
+            $tid = (int)$tid;
         }
 
         // or guess tid
         else if($style['pid'] == $pid && $style['tid'] > 0)
         {
-            $tid = intval($style['tid']);
+            $tid = (int)$style['tid'];
         }
 
         else if($thread['firstpost'] == $pid && $thread['tid'] > 0)
         {
-            $tid = intval($thread['tid']);
+            $tid = (int)$thread['tid'];
         }
 
         else if($post['pid'] == $pid && $post['tid'] > 0)
         {
-            $tid = intval($post['tid']);
+            $tid = (int)$post['tid'];
         }
 
         else if($google_seo_tid[-$pid] !== NULL)
@@ -222,10 +222,10 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
         if($limit > 0
            && ($mode == 'verify' || ($tid <= 0 && $mode != 'ignore')))
         {
-            $pid = intval($pid);
+            $pid = (int)$pid;
             $db->google_seo_query_limit--;
             $query = $db->simple_select('posts', 'tid', "pid={$pid}");
-            $tid = intval($db->fetch_field($query, 'tid'));
+            $tid = (int)$db->fetch_field($query, 'tid');
 
             // positive pid cache for trusted tid
             $google_seo_tid[$pid] = $tid;

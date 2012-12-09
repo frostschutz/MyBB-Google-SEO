@@ -104,7 +104,7 @@ function google_seo_404_status($label)
                 $status = trim($fields[0]);
                 $values = explode(",", $fields[1]);
 
-                if(strpos($status, intval($status).' ') === 0)
+                if(strpos($status, (int)$status.' ') === 0)
                 {
                     foreach($values as $value)
                     {

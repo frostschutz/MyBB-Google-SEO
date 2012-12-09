@@ -49,10 +49,10 @@ function google_seo_get_unviewable_calendars()
 
     foreach($calendars as $cid => $permissions)
     {
-        if($cid == intval($cid)
+        if($cid == (int)$cid
            && $permissions['canviewcalendar'] == 0)
         {
-            $unviewablecalendars[] = intval($cid);
+            $unviewablecalendars[] = (int)$cid;
         }
     }
 
@@ -357,7 +357,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
 
         if($pagescount)
         {
-            $pages[$id] = intval(($row['pagescount']-1) / $perpage) + 1;
+            $pages[$id] = (int)(($row['pagescount']-1) / $perpage) + 1;
         }
 
         else

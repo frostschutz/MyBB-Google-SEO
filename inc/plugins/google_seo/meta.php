@@ -32,7 +32,7 @@ global $settings, $google_seo_nofollow, $google_seo_meta;
 // Nofollow datetime
 if($settings['google_seo_meta_nofollow'])
 {
-    $google_seo_nofollow = floatval($settings['google_seo_meta_nofollow']);
+    $google_seo_nofollow = (float)$settings['google_seo_meta_nofollow'];
 
     if($google_seo_nofollow > 0)
     {
@@ -117,8 +117,10 @@ function google_seo_meta_page($page)
     {
         $google_seo_page = google_seo_expand(
             $settings['google_seo_meta_page'],
-            array('page' => $lang->googleseo_meta_page,
-                  'number' => intval($page))
+            array(
+                'page' => $lang->googleseo_meta_page,
+                'number' => (int)$page,
+                )
             );
     }
 }
@@ -182,7 +184,7 @@ function google_seo_meta_forum()
     }
 
     // Page:
-    google_seo_meta_page(intval($page));
+    google_seo_meta_page((int)$page);
 
     // Noindex:
     google_seo_meta_noindex($fid);
@@ -222,7 +224,7 @@ function google_seo_meta_thread(&$post)
     }
 
     // Page:
-    google_seo_meta_page(intval($page));
+    google_seo_meta_page((int)$page);
 
     // Noindex:
     google_seo_meta_noindex($post['fid']);
