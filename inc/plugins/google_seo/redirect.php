@@ -385,6 +385,9 @@ function google_seo_redirect_hook()
                     $plugins->add_hook("calendar_event_end", "google_seo_redirect_header", 2);
                     $plugins->add_hook("calendar_end", "google_seo_redirect_header", 2);
                     $plugins->add_hook("pre_output_page", "google_seo_redirect_header", 2);
+                    // Except on error.
+                    $plugins->add_hook("error", "google_seo_redirect_remove_hooks", 2);
+                    $plugins->add_hook("no_permission", "google_seo_redirect_remove_hooks", 2);
                 }
 
                 else
@@ -418,6 +421,12 @@ function google_seo_redirect_header()
 
     // Otherwise let the page load normally, but the above
     // call to header will also display a warning message.
+    google_seo_redirect_remove_hooks();
+}
+
+function google_seo_redirect_remove_hooks()
+{
+    global $plugins;
 
     // Remove hooks to prevent getting called again.
     $plugins->remove_hook("forumdisplay_end", "google_seo_redirect_header", "", 2);
@@ -427,6 +436,8 @@ function google_seo_redirect_header()
     $plugins->remove_hook("calendar_event_end", "google_seo_redirect_header", "", 2);
     $plugins->remove_hook("calendar_end", "google_seo_redirect_header", "", 2);
     $plugins->remove_hook("pre_output_page", "google_seo_redirect_header", "", 2);
+    $plugins->remove_hook("error", "google_seo_redirect_remove", "", 2);
+    $plugins->remove_hook("no_permission", "google_seo_redirect_remove", "", 2);
 }
 
 /* --- End of file. --- */
