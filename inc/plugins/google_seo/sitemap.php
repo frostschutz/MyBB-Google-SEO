@@ -125,7 +125,8 @@ function google_seo_sitemap($tag, $items)
         $output[] = "</urlset>";
     }
 
-    @header('Content-type: text/xml; charset=utf-8');
+    @header('Content-Type: text/xml; charset=utf-8');
+    @header('X-Robots-Tag: noindex');
     echo implode("\n", $output);
 }
 
