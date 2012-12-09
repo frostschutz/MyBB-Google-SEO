@@ -98,6 +98,12 @@ function google_seo_plugin_status()
     $base = $settings['bburl'];
     $base = preg_replace('#^[^/]*://[^/]*#', '', $base);
 
+    // Warning about disabled plugins.
+    if(defined("NO_PLUGINS") || $settings['no_plugins'])
+    {
+        $warning[] = $lang->googleseo_plugin_no_plugins;
+    }
+
     // UTF-8 is required:
     if($mybb->config['database']['encoding'] != 'utf8')
     {
