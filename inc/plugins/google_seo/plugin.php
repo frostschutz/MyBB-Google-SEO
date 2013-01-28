@@ -201,7 +201,14 @@ function google_seo_plugin_status()
     // Google SEO URL:
     if($settings['google_seo_url'])
     {
-        $success[] = $lang->googleseo_plugin_url;
+        $urldb = $PL->url_append('index.php',
+                                 array(
+                                     'module' => 'config-plugins',
+                                     'google_seo' => 'database',
+                                     'my_post_key' => $mybb->post_code,
+                                     ));
+
+        $success[] = "<a href=\"{$urldb}\">{$lang->googleseo_plugin_url}</a>";
 
         if($settings['google_seo_url_translate'] &&
            !file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
@@ -550,7 +557,15 @@ function google_seo_plugin_status()
             ."</li>\n";
     }
 
-    return "\n<ul>\n$status</ul>\n";
+    $status = "\n<ul>\n$status</ul>\n";
+
+    // URL Database info:
+    if($urldb)
+    {
+        $status .= google_seo_plugin_database($urldb);
+    }
+
+    return $status;
 }
 
 /* --- Plugin Helpers: --- */
@@ -1336,6 +1351,60 @@ function google_seo_plugin_revert($apply=false)
     $PL or require_once PLUGINLIBRARY;
 
     return $PL->edit_core('google_seo', 'inc/functions.php', array(), $apply);
+}
+
+/* --- URL Database: --- */
+
+/**
+ *  Show database controls.
+ *
+ */
+function google_seo_plugin_database()
+{
+    global $mybb, $db;
+
+    $result = '';
+    $data = array();
+
+    if($mybb->input['my_post_key'] != $mybb->post_code
+       || $mybb->input['google_seo'] != 'database')
+    {
+        return '';
+    }
+
+    // Query Puzzle Pieces.
+    $fields = 'COUNT(id) AS idcount, idtype, active';
+    $from = 'FROM '.TABLE_PREFIX.'google_seo gs';
+    $exists = '('
+        .'   (idtype='.GOOGLE_SEO_USER.' AND EXISTS (SELECT uid FROM '.TABLE_PREFIX.'users u WHERE gs.id=u.uid))'
+        .'OR (idtype='.GOOGLE_SEO_ANNOUNCEMENT.' AND EXISTS (SELECT aid FROM '.TABLE_PREFIX.'announcements a WHERE gs.id=a.aid))'
+        .'OR (idtype='.GOOGLE_SEO_FORUM.' AND EXISTS (SELECT fid FROM '.TABLE_PREFIX.'forums f WHERE gs.id=f.fid))'
+        .'OR (idtype='.GOOGLE_SEO_THREAD.' AND EXISTS (SELECT tid FROM '.TABLE_PREFIX.'threads t WHERE gs.id=t.tid))'
+        .'OR (idtype='.GOOGLE_SEO_EVENT.' AND EXISTS (SELECT eid FROM '.TABLE_PREFIX.'events e WHERE gs.id=e.eid))'
+        .'OR (idtype='.GOOGLE_SEO_CALENDAR.' AND EXISTS (SELECT cid FROM '.TABLE_PREFIX.'calendars c WHERE gs.id=c.cid))'
+        .')';
+    $group = 'GROUP BY idtype,active';
+    $order = 'ORDER BY idtype,active';
+
+    $query = $db->query("SELECT {$fields} {$from} {$group} {$order}");
+
+    while($row = $db->fetch_array($query))
+    {
+        $data[$row['idtype']][$row['active'] ? 'active' : 'redirect'] = $row['idcount'];
+    }
+
+    $query = $db->query("SELECT {$fields} {$from} WHERE NOT {$exists} {$group} {$order}");
+
+    $result .= '<hr>';
+
+    while($row = $db->fetch_array($query))
+    {
+        $data[$row['idtype']][$row['active'] ? 'next_active' : 'next_redirect'] = $row['idcount'];
+    }
+
+    $result = '<pre>'.htmlspecialchars(print_r($data, true)).'</pre>';
+
+    return $result;
 }
 
 /* --- End of file. --- */
