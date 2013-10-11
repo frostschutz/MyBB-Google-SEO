@@ -1361,10 +1361,9 @@ function google_seo_plugin_revert($apply=false)
  */
 function google_seo_plugin_database()
 {
-    global $mybb, $db;
-
-    $result = '';
-    $data = array();
+    global $mybb, $db, $lang, $cache;
+    global $PL;
+    $PL or require_once PLUGINLIBRARY;
 
     if($mybb->input['my_post_key'] != $mybb->post_code
        || $mybb->input['google_seo'] != 'database')
@@ -1374,37 +1373,78 @@ function google_seo_plugin_database()
 
     // Query Puzzle Pieces.
     $fields = 'COUNT(id) AS idcount, idtype, active';
-    $from = 'FROM '.TABLE_PREFIX.'google_seo gs';
+    $table = TABLE_PREFIX.'google_seo';
     $exists = '('
-        .'   (idtype='.GOOGLE_SEO_USER.' AND EXISTS (SELECT uid FROM '.TABLE_PREFIX.'users u WHERE gs.id=u.uid))'
-        .'OR (idtype='.GOOGLE_SEO_ANNOUNCEMENT.' AND EXISTS (SELECT aid FROM '.TABLE_PREFIX.'announcements a WHERE gs.id=a.aid))'
-        .'OR (idtype='.GOOGLE_SEO_FORUM.' AND EXISTS (SELECT fid FROM '.TABLE_PREFIX.'forums f WHERE gs.id=f.fid))'
-        .'OR (idtype='.GOOGLE_SEO_THREAD.' AND EXISTS (SELECT tid FROM '.TABLE_PREFIX.'threads t WHERE gs.id=t.tid))'
-        .'OR (idtype='.GOOGLE_SEO_EVENT.' AND EXISTS (SELECT eid FROM '.TABLE_PREFIX.'events e WHERE gs.id=e.eid))'
-        .'OR (idtype='.GOOGLE_SEO_CALENDAR.' AND EXISTS (SELECT cid FROM '.TABLE_PREFIX.'calendars c WHERE gs.id=c.cid))'
+        .'    (idtype=0 AND id=0 AND active=NULL)' // mystery DB entry.
+        .' OR (idtype='.GOOGLE_SEO_USER.' AND EXISTS (SELECT uid FROM '.TABLE_PREFIX.'users u WHERE '.TABLE_PREFIX.'google_seo.id=u.uid))'
+        .' OR (idtype='.GOOGLE_SEO_ANNOUNCEMENT.' AND EXISTS (SELECT aid FROM '.TABLE_PREFIX.'announcements a WHERE '.TABLE_PREFIX.'google_seo.id=a.aid))'
+        .' OR (idtype='.GOOGLE_SEO_FORUM.' AND EXISTS (SELECT fid FROM '.TABLE_PREFIX.'forums f WHERE '.TABLE_PREFIX.'google_seo.id=f.fid))'
+        .' OR (idtype='.GOOGLE_SEO_THREAD.' AND EXISTS (SELECT tid FROM '.TABLE_PREFIX.'threads t WHERE '.TABLE_PREFIX.'google_seo.id=t.tid))'
+        .' OR (idtype='.GOOGLE_SEO_EVENT.' AND EXISTS (SELECT eid FROM '.TABLE_PREFIX.'events e WHERE '.TABLE_PREFIX.'google_seo.id=e.eid))'
+        .' OR (idtype='.GOOGLE_SEO_CALENDAR.' AND EXISTS (SELECT cid FROM '.TABLE_PREFIX.'calendars c WHERE '.TABLE_PREFIX.'google_seo.id=c.cid))'
         .')';
     $group = 'GROUP BY idtype,active';
     $order = 'ORDER BY idtype,active';
 
-    $query = $db->query("SELECT {$fields} {$from} {$group} {$order}");
+    if($mybb->input['optimize'] == 1)
+    {
+        // Delete unused entries.
+        $db->delete_query('google_seo', "NOT {$exists}");
+        // Optimize table.
+        $db->optimize_table('google_seo');
+        // Cache may contain invalid entries.
+        $cache->update('google_seo_url', array());
+    }
+
+    // Collect numbers.
+    $total = $overhead = 0;
+    $data = array();
+
+    $query = $db->query("SELECT {$fields} FROM {$table} {$group} {$order}");
 
     while($row = $db->fetch_array($query))
     {
-        $data[$row['idtype']][$row['active'] ? 'active' : 'redirect'] = $row['idcount'];
+        if(!$row['idtype'] && !$row['active'] && $row['idcount'] === 1)
+        {
+            // Ignore mystery DB entry.
+            continue;
+        }
+        $total += $row['idcount'];
     }
 
-    $query = $db->query("SELECT {$fields} {$from} WHERE NOT {$exists} {$group} {$order}");
-
-    $result .= '<hr>';
+    $query = $db->query("SELECT {$fields} FROM {$table} WHERE NOT {$exists} {$group} {$order}");
 
     while($row = $db->fetch_array($query))
     {
-        $data[$row['idtype']][$row['active'] ? 'next_active' : 'next_redirect'] = $row['idcount'];
+        $overhead += $row['idcount'];
     }
 
-    $result = '<pre>'.htmlspecialchars(print_r($data, true)).'</pre>';
+    if($overhead == 0)
+    {
+        flash_message(
+            $lang->sprintf($lang->googleseo_plugin_db_success, $total),
+            'success');
+        admin_redirect('index.php?module=config-plugins');
+    }
 
-    return $result;
+    else
+    {
+        $urloptimize = $PL->url_append(
+            'index.php',
+            array(
+                'module' => 'config-plugins',
+                'google_seo' => 'database',
+                'optimize' => 1,
+                'my_post_key' => $mybb->post_code,
+                ));
+
+        flash_message(
+            $lang->sprintf($lang->googleseo_plugin_db_error, $total, $overhead)
+            .'<br />'
+            .$lang->sprintf($lang->googleseo_plugin_db_optimize, $urloptimize),
+            'error');
+        admin_redirect('index.php?module=config-plugins');
+    }
 }
 
 /* --- End of file. --- */
