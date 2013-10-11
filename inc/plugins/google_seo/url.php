@@ -373,7 +373,7 @@ function google_seo_url_create($type, $ids)
     global $db, $settings;
     global $google_seo_url_cache;
 
-    $ids = (array)$ids;
+    $ids = array_map('intval', (array)$ids);
 
     foreach($ids as $id)
     {
@@ -886,7 +886,7 @@ function google_seo_url_cache($type, $id)
             if($value)
             {
                 $condition[] = "(idtype={$key} AND id IN ("
-                    .implode(",", array_keys($value)).
+                    .implode(",", array_map('intval', array_keys($value))).
                     "))";
             }
         }
@@ -1053,7 +1053,7 @@ function google_seo_url_id($type, $url)
         $query = $db->query("SELECT id
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE idtype={$type}
-                             AND url IN ('".implode($urls,"','")."')
+                             AND url IN ('".implode($urls, "','")."')
                              ORDER BY id ASC
                              LIMIT 1");
 
