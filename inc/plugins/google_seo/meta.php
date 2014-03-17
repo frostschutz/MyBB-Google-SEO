@@ -132,7 +132,7 @@ function google_seo_meta_noindex($fid)
 {
     global $settings, $plugins, $google_seo_meta;
 
-    if(strpos(",{$settings['google_seo_meta_noindex_fids']},", ",{$fid},"))
+    if(strpos("0,{$settings['google_seo_meta_noindex_fids']},", ",{$fid},"))
     {
         $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
         $google_seo_meta = "<meta name=\"robots\" content=\"noindex\" />\n{$google_seo_meta}";
