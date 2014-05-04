@@ -198,17 +198,17 @@ function google_seo_tid($pid, $tid=0, $mode='default', $limit=1)
         }
 
         // or guess tid
-        else if($style['pid'] == $pid && $style['tid'] > 0)
+        else if(is_array($style) && $style['pid'] == $pid && $style['tid'] > 0)
         {
             $tid = (int)$style['tid'];
         }
 
-        else if($thread['firstpost'] == $pid && $thread['tid'] > 0)
+        else if(is_array($thread) && $thread['firstpost'] == $pid && $thread['tid'] > 0)
         {
             $tid = (int)$thread['tid'];
         }
 
-        else if($post['pid'] == $pid && $post['tid'] > 0)
+        else if(is_array($post) && $post['pid'] == $pid && $post['tid'] > 0)
         {
             $tid = (int)$post['tid'];
         }
