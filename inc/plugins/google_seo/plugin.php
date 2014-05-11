@@ -1295,10 +1295,7 @@ function google_seo_plugin_apply($apply=false)
                 '}',
                 ),
             );
-    }
 
-    if($settings['google_seo_url_weeks'])
-    {
         // calendards (week)
         $edits[] = array(
             'search' => array('function get_calendar_week_link(', '{'),
