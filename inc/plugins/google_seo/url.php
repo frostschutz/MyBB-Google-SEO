@@ -1530,6 +1530,7 @@ function google_seo_url_calendar_week($cid, $week)
 
         if($url)
         {
+            $week = str_replace('-', 'n', $week);
             $glue = (strpos($url, '?') === false ? '?' : '&amp;');
             $url .= "{$glue}action=weekview&amp;week={$week}";
             return $url;

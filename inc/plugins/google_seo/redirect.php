@@ -195,7 +195,7 @@ function google_seo_redirect_hook()
                 if($mybb->input['action'] == "weekview")
                 {
                     $target = get_calendar_week_link((int)$mybb->input['calendar'],
-                                                     (int)$mybb->input['week']);
+                                                     (int)str_replace('n', '-', $mybb->input['week']));
                     $kill['calendar'] = '';
                     $kill['week'] = '';
                     $kill['action'] = '';
