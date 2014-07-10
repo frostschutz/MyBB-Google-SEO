@@ -1073,6 +1073,22 @@ function google_seo_plugin_activate()
             ),
         false // true to generate language file
         );
+
+    $PL->settings(
+        "google_seo_tweak",
+        "Google SEO Tweaks",
+        "(Advanced Users) Tweaks that change Google SEO's default behaviour.",
+        array(
+            'index_fid' => array(
+                'title' => "Use specific forum as index page",
+                'description' => "<i>This feature was requested and sponsored by http://kritterbox.com/.</i><br />Make a specific forum your index page (empty URL). Enter the forum ID to enable, leave empty or set to 0 to disable. You can find the forum ID by clicking 'New Thread' and looking at the URL bar (newthread.php?fid=<b>123</b>).",
+                'optionscode' => "text",
+                'value' => '0',
+                ),
+            ),
+        false // true to generate language file
+        );
+
 }
 
 /**

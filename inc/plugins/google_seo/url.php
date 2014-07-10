@@ -1381,6 +1381,11 @@ function google_seo_url_forum($fid, $page=0)
 
         if($url && $page && $page != 1)
         {
+            // forum as index tweak
+            if($fid == $settings['google_seo_tweak_index_fid'])
+            {
+                $url = ""; // only works for ?page due to href=""
+            }
             $glue = (strpos($url, '?') === false ? '?' : '&amp;');
             $url .= "{$glue}page={$page}";
         }

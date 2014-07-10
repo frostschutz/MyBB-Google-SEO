@@ -79,10 +79,28 @@ function google_seo_redirect_hook()
     switch(THIS_SCRIPT)
     {
         case 'forumdisplay.php':
-            if((int)$mybb->input['fid'])
+            $fid = (int)$mybb->input['fid'];
+            $page = (int)$mybb->input['page'];
+
+            if($fid)
             {
-                $target = get_forum_link((int)$mybb->input['fid'],
-                                         (int)$mybb->input['page']);
+                // forum as index tweak
+                if($fid == $settings['google_seo_tweak_index_fid'])
+                {
+                    $target = "";
+
+                    if($page > 1)
+                    {
+                        $target = "?page={$page}";
+                    }
+                }
+
+                // regular
+                else
+                {
+                    $target = get_forum_link($fid, $page);
+                }
+
                 $kill['fid'] = '';
                 $kill['page'] = '';
                 $kill['google_seo_forum'] = '';
@@ -222,7 +240,7 @@ function google_seo_redirect_hook()
     }
 
     // Verify that we are already at the target.
-    if($target)
+    if(isset($target))
     {
         $target = $settings['bburl'].'/'.urldecode($target);
         $current = google_seo_redirect_current_url();

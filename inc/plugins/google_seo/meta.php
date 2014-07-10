@@ -98,11 +98,8 @@ function google_seo_meta_canonical($link)
 {
     global $settings, $plugins, $google_seo_meta;
 
-    if($link)
-    {
-        $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
-        $google_seo_meta = "<link rel=\"canonical\" href=\"{$settings['bburl']}/$link\" />\n{$google_seo_meta}";
-    }
+    $plugins->add_hook('pre_output_page', 'google_seo_meta_output');
+    $google_seo_meta = "<link rel=\"canonical\" href=\"{$settings['bburl']}/$link\" />\n{$google_seo_meta}";
 }
 
 /**
@@ -166,15 +163,27 @@ function google_seo_meta_forum()
     // Canonical:
     if($settings['google_seo_meta_canonical'] && $fid > 0)
     {
-        if($page > 1)
+        if($fid == $settings['google_seo_tweak_index_fid'])
         {
-            google_seo_meta_canonical(get_forum_link($fid, $page));
+            $link = "";
+
+            if($page > 1)
+            {
+                $link = "?page={$page}";
+            }
+        }
+
+        else if($page > 1)
+        {
+            $link = get_forum_link($fid, $page);
         }
 
         else
         {
-            google_seo_meta_canonical(get_forum_link($fid));
+            $link = get_forum_link($fid);
         }
+
+        google_seo_meta_canonical($link);
     }
 
     // Description:
