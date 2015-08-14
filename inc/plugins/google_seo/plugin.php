@@ -56,6 +56,7 @@ function google_seo_plugin_info()
         "version"       => "1.6.8",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
         "compatibility" => "16*,18*",
+        "codename"      => "google_seo",
     );
 
     // Provide some additional status information, if the plugin is enabled.
