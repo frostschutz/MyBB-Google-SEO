@@ -516,14 +516,14 @@ function google_seo_plugin_status()
             $e = $lang->sprintf($lang->googleseo_plugin_error, $list);
         }
 
-        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/error.gif)\">"
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/error.png)\">"
             .$e
             ." {$configure}</li>\n";
     }
 
     foreach($warning as $w)
     {
-        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/warning.gif)\">"
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/warning.png)\">"
             .$w
             ."</li>\n";
     }
@@ -542,7 +542,7 @@ function google_seo_plugin_status()
             $s = $lang->sprintf($lang->googleseo_plugin_success, $list);
         }
 
-        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.gif)\">"
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/success.png)\">"
             .$s
             ." {$configure}</li>\n";
     }
@@ -553,7 +553,7 @@ function google_seo_plugin_status()
 
         $e = $lang->sprintf($lang->googleseo_plugin_edit, $list);
 
-        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/custom.gif)\">"
+        $status .= "  <li style=\"list-style-image: url(styles/default/images/icons/custom.png)\">"
             .$e
             ."</li>\n";
     }
