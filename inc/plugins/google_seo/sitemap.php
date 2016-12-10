@@ -325,7 +325,7 @@ function google_seo_sitemap_gen($scheme, $type, $page, $pagination)
         // Do a pagination index.
         $query = $db->simple_select($table,
                                     "MAX({$datename}) AS lastmod, FLOOR({$idname}/{$pagination}.0)+1 AS page",
-                                    "{$condition} GROUP BY FLOOR({$idname}/{$pagination}.0)");
+                                    "{$condition} GROUP BY page");
 
         $url = google_seo_expand($scheme, array('url' => $type));
         $url .= (strpos($url, '?') === false ? '?' : '&amp;').'page=';
