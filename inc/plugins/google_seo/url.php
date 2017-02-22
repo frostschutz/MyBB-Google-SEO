@@ -167,6 +167,7 @@ if($settings['google_seo_url_cache'])
 /* --- Hooks: --- */
 
 $plugins->add_hook("moderation_do_merge", "google_seo_url_merge_hook", 1);
+$plugins->add_hook("moderation_do_multimoveposts", "google_seo_url_merge_hook", 1);
 $plugins->add_hook("class_moderation_merge_threads", "google_seo_url_after_merge_hook");
 
 // Originally a global_start hook, it's called too late for session location
