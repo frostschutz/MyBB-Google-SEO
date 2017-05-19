@@ -42,7 +42,7 @@ function google_seo_redirect_current_url()
     global $settings;
 
     // Determine the current page URL.
-    if($_SERVER['HTTPS'] != "off" && ($_SERVER['HTTPS'] || $_SERVER['SERVER_PORT'] == 443))
+    if(strpos($settings[bburl], 'https') !== false)
     {
         $page_url = "https://".$_SERVER["HTTP_HOST"];
     }
