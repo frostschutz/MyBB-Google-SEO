@@ -68,7 +68,7 @@ Options -MultiViews +FollowSymlinks -Indexes
 	RewriteRule ^Event-([^./]+)$ calendar.php?action=event&google_seo_event=$1 [L,QSA,NC]
 
 	# Google SEO 404:
-	ErrorDocument 404 /MyBB/misc.php?google_seo_error=404
+	ErrorDocument 404 /misc.php?google_seo_error=404
 
 	# Default MyBB Rewrite Rules:
 	RewriteRule ^forum-([0-9]+)\.html$ forumdisplay.php?fid=$1 [L,QSA]
