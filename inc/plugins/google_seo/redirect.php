@@ -74,6 +74,13 @@ function google_seo_redirect_hook()
         // Never touch posts.
         return;
     }
+    
+    $rewritten = $mybb->get_input('rewritten', MyBB::INPUT_INT);
+    if ($rewritten)
+    {
+        // The URLs were already rewritten by the front-end webserver
+        return;
+    }
 
     // Build the target URL we should be at:
     switch(THIS_SCRIPT)
