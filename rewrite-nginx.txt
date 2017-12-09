@@ -32,11 +32,4 @@ Here is an example of what nginx rules for Google SEO look like:
 
   # Google SEO URL Events:
   rewrite ^/MyBB/((?i)Event-([^./]+))$ /MyBB/calendar.php?action=event&google_seo_event=$2;
-  
-  # In the event the server is using both NGINX and Apache,
-  # the URLs should have `rewritten` set to `1`.
-  
-  # If you're just copying and pasting, uncomment the lines below
-  # if ($is_args) {
-  #     set $args "$args&rewritten=1";
-  # }
+
