@@ -1197,6 +1197,23 @@ function google_seo_plugin_apply($apply=false)
                 '}',
                 ),
             );
+        
+        // build_profile_link
+        $edits[] = array(
+            'search' => array('return "<a href=\\"{$mybb->settings[\'bburl\']}/".get_profile_link($uid)."\\"{$target}{$onclick}>{$username}</a>";'),
+            'before' => array(
+                'if(function_exists("google_seo_url_profile"))',
+                '{',
+                '    $link = google_seo_url_profile($uid);',
+                '',
+                '    if ($link)',
+                '    {',
+                '        return "<a href=\"{$link}\"{$target}{$onclick}>{$username}</a>";',
+                '    }',
+                '}',
+            ),
+        );
+
     }
 
     if($settings['google_seo_url_announcements'])
