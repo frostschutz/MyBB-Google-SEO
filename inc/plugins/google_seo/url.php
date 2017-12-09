@@ -925,7 +925,7 @@ function google_seo_url_cache($type, $id)
     }
 
     // Return the cached entry for the originally requested type and id.
-    return $google_seo_url_cache[$type][$id];
+    return $settings['bburl'] . '/' . $google_seo_url_cache[$type][$id];
 }
 
 /*
