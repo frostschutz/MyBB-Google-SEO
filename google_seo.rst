@@ -6,9 +6,8 @@ End User Manual
 ===============
 
 :Author: Andreas Klauer <Andreas.Klauer@metamorpher.de>
-:Version: 1.6.6 of 2013 Oct 12
-:Homepage: http://mods.mybb.com/view/google-seo
-:GitHub:   https://github.com/frostschutz/Google-SEO
+:Version: 1.8.2 of 2018 Feb 4
+:Homepage: https://github.com/frostschutz/MyBB-Google-SEO
 
 .. contents::
   :backlinks: top
@@ -22,13 +21,13 @@ After a long public beta phase the plugin finally reached stable status in
 March 2009. A new, revised edition for MyBB 1.6.4 and newer was released
 in August 2011.
 
-__ http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf
+__ https://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf
 
 The goal of this plugin is to implement Search Engine Optimization (SEO)
 in MyBB according to the guidelines presented in `Google's SEO starter guide`__
 to make MyBB more friendly to both users and search engines.
 
-__ http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf
+__ https://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf
 
 *Google SEO* is free open source software (LGPL). This means that you can
 download the plugin for free, modify it to your liking, and you do not have
@@ -275,6 +274,7 @@ Google SEO Redirect
 
 Settings in this group:
 
+- HTTP <-> HTTPS
 - Permission Checks
 - Redirect Post Links
 - LiteSpeed Bug workaround
@@ -707,6 +707,6 @@ Support
 If you need further assistance, the official release thread for this plugin
 can be found in the `MyBB Community - Plugin Releases`__ forum.
 
-__ http://community.mybb.com/thread-101262.html
+__ https://community.mybb.com/thread-202483.html
 
 Thank you for reading the documentation first! :)
