@@ -41,16 +41,30 @@ function google_seo_redirect_current_url()
 {
     global $settings;
 
-    // Determine the current page URL.
-    if($_SERVER['HTTPS'] != "off" && ($_SERVER['HTTPS'] || $_SERVER['SERVER_PORT'] == 443))
-    {
-        $page_url = "https://".$_SERVER["HTTP_HOST"];
+    // Determine http or https protocol. (Default whatever the bburl states.)
+    $page_url = parse_url($settings['bburl'], PHP_URL_SCHEME);
+
+    // Option 1: use HTTPS header
+    if($settings['google_seo_redirect_https'] == 'HTTPS') {
+        $page_url = "http";
+
+        if($_SERVER['HTTPS'] != "off" && ($_SERVER['HTTPS'] || $_SERVER['SERVER_PORT'] == 443))
+        {
+            $page_url = "https";
+        }
     }
 
-    else
-    {
-        $page_url = "http://".$_SERVER["HTTP_HOST"];
+    // Option 2: use FORWARDED_PROTO header (only if set, else ignore)
+    else if($settings['google_seo_redirect_https'] == 'HTTP_X_FORWARDED_PROTO') {
+        if($_SERVER['HTTP_X_FORWARDED_PROTO']) {
+            $page_url = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+        }
     }
+
+    $page_url .= '://';
+
+    // Determine the current page URL.
+    $page_url .= $_SERVER["HTTP_HOST"];
 
     $request_uri = explode('?', $_SERVER["REQUEST_URI"], 2);
     $request_uri[0] = urldecode($request_uri[0]);
