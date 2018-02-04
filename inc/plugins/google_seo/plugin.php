@@ -49,13 +49,13 @@ function google_seo_plugin_info()
 
     $info = array(
         "name"          => "Google SEO",
-        "website"       => "http://mods.mybb.com/view/google-seo",
+        "website"       => "https://github.com/frostschutz/MyBB-Google-SEO",
         "description"   => "{$lang->googleseo_plugin_description}",
         "author"        => "Andreas Klauer",
         "authorsite"    => "mailto:Andreas.Klauer@metamorpher.de",
-        "version"       => "1.8.1",
+        "version"       => "1.8.2",
         "guid"          => "8d12371391e1c95392dd567617e40f7f",
-        "compatibility" => "18*",
+        "compatibility" => "*",
         "codename"      => "google_seo",
     );
 
