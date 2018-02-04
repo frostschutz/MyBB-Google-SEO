@@ -845,6 +845,12 @@ function google_seo_plugin_activate()
         "Google SEO Redirect",
         "(Advanced Users) Redirection settings for the Google Search Engine Optimization plugin.",
         array(
+            'https' => array(
+                'title' => "HTTP <-> HTTPS Redirection",
+                'description' => "By default, this is disabled since HTTP <-> HTTPS redirection should be handled globally by your webserver, and it is not trivial to reliably do so in PHP as HTTPS may be provided via various proxy settings.",
+                'optionscode' => "radio\ndefault=Default (off)\nHTTPS=On (based on server HTTPS and PORT)\nHTTP_X_FORWARDED_PROTO=On (based on proxy HTTP_X_FORWARDED_PROTO)",
+                'value' => 'default',
+                ),
             'permission' => array(
                 'title' => "Permission Checks",
                 'description' => "Should Redirect let permission checks run first? Enabling this option will prevent Redirect from redirecting URLs for items that the user is not allowed to access anyway. This is probably only necessary if you're also using SEO URLs and you're concerned about users getting redirected to the SEO URL of a forum / thread they're not allowed to read, which would give away the subject in the SEO URL.",
