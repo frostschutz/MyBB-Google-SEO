@@ -1,6 +1,6 @@
-=======================================================
- Google Search Engine Optimization Plugin for MyBB 1.6
-=======================================================
+==================================================
+ Google Search Engine Optimization Plugin for MyBB
+==================================================
 
 End User Manual
 ===============
@@ -84,7 +84,7 @@ Requirements
 
 In order to use this plugin, you must meet these requirements:
 
-- MyBB 1.6.4 (older versions of MyBB need the *Google SEO Legacy* plugin)
+- MyBB (older versions of MyBB need the *Google SEO 1.6* or *Legacy* plugin)
 - `PluginLibrary <http://mods.mybb.com/view/pluginlibrary>`_ 11
 - PHP 5.1.0
 - Apache (alternative webservers may work but are not supported)
