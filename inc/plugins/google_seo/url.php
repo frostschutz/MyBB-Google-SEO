@@ -156,7 +156,7 @@ if($settings['google_seo_url_cache'])
         $google_seo_url_cache = $data;
     }
 
-    if(strpos($settings['google_seo_url_cache'], THIS_SCRIPT) !== false)
+    if(in_array(THIS_SCRIPT, explode(",", $settings['google_seo_url_cache'])))
     {
         $plugins->add_hook("post_output_page", "google_seo_url_cache_hook", 100);
     }

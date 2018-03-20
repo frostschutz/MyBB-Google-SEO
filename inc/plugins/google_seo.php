@@ -25,6 +25,12 @@ if(!defined("IN_MYBB"))
          Please make sure IN_MYBB is defined.");
 }
 
+// Workaround for missing THIS_SCRIPT
+if(!defined("THIS_SCRIPT"))
+{
+    define("THIS_SCRIPT", "");
+}
+
 /* --- Admin CP: --- */
 
 /**
