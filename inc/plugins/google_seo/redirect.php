@@ -389,6 +389,8 @@ function google_seo_redirect_hook()
                 }
 
                 // Redirect but retain query.
+                $querystr = array();
+
                 if($target_dynamic)
                 {
                     $querystr[] = google_seo_encode($target_dynamic);
@@ -401,7 +403,7 @@ function google_seo_redirect_hook()
 
                 $location_target = google_seo_encode($location_target);
 
-                if(sizeof($querystr))
+                if(count($querystr))
                 {
                     $location_target .= "?" . implode("&", $querystr);
                 }
