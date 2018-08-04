@@ -85,6 +85,7 @@ function google_seo_plugin_status()
     $success = array();
     $warning = array();
     $error = array();
+    $edits = array();
     $htaccess = array();
     $lines = array();
 
