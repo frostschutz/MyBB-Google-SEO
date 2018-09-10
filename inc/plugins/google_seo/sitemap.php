@@ -459,7 +459,7 @@ function google_seo_sitemap_index($scheme, $page, $pagination)
     {
         $gen = google_seo_sitemap_gen($scheme, $type, $page, $pagination);
 
-        if(sizeof($gen))
+        if($gen)
         {
             $items = array_merge($items, $gen);
         }
