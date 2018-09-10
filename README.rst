@@ -6,7 +6,7 @@ End User Manual
 ===============
 
 :Author: Andreas Klauer <Andreas.Klauer@metamorpher.de>
-:Version: 1.8.2 of 2018 Feb 4
+:Version: 1.8.3 of 2018 Sep 10
 :Homepage: https://github.com/frostschutz/MyBB-Google-SEO
 
 .. contents::
