@@ -88,6 +88,8 @@ function google_seo_sitemap($tag, $items)
     foreach($items as $item)
     {
         // loc
+        $item['loc'] = str_replace('index.php', '', $item['loc']);
+        
         $output[] = "  <$tag>";
         $output[] = "    <loc>{$bbsite}{$item['loc']}</loc>";
 
