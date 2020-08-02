@@ -427,7 +427,7 @@ function google_seo_plugin_status()
         {
             $warning[] = $lang->googleseo_plugin_warn_htaccess
                 ."<pre dir=\"ltr\" style=\"background-color: #ffffff; margin: 2px; padding: 2px;\">"
-                .htmlspecialchars(implode($lines, "\n"))
+                .htmlspecialchars(implode("\n", $lines))
                 ."</pre>";
         }
 
