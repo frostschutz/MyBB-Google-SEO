@@ -1054,7 +1054,7 @@ function google_seo_url_id($type, $url)
         $query = $db->query("SELECT id
                              FROM ".TABLE_PREFIX."google_seo
                              WHERE idtype={$type}
-                             AND url IN ('".implode($urls, "','")."')
+                             AND url IN ('".implode("','", $urls)."')
                              ORDER BY id ASC
                              LIMIT 1");
 
