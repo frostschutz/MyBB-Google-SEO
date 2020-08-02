@@ -1120,7 +1120,7 @@ function google_seo_plugin_edit()
     global $mybb, $lang;
 
     // Check for core file edit action
-    if($mybb->input['my_post_key'] == $mybb->post_code)
+    if(verify_post_check($mybb->get_input('my_post_key')))
     {
         if($mybb->input['google_seo'] == 'apply')
         {
@@ -1386,8 +1386,8 @@ function google_seo_plugin_database()
     global $PL;
     $PL or require_once PLUGINLIBRARY;
 
-    if($mybb->input['my_post_key'] != $mybb->post_code
-       || $mybb->input['google_seo'] != 'database')
+    if($mybb->get_input('google_seo') !== 'database'
+       || !verify_post_check($mybb->get_input('my_post_key')))
     {
         return '';
     }
