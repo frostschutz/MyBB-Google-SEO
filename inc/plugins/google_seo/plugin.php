@@ -107,8 +107,7 @@ function google_seo_plugin_status()
     }
 
     // UTF-8 is required:
-    if($mybb->config['database']['encoding'] != 'utf8'
-       && $mybb->config['database']['encoding'] != 'utf8mb4')
+    if($mybb->config['database']['encoding'] != 'utf8mb4')
     {
         $warning[] = $lang->sprintf($lang->googleseo_plugin_warn_encoding,
                                     $mybb->config['database']['encoding']);
