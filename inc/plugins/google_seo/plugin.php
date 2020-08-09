@@ -773,7 +773,7 @@ function google_seo_plugin_activate()
         array(
             'widget' => array(
                 'title' => "404 widget",
-                'description' => "Add the Google 404 widget for 404/403 error pages.<br /><i>This widget is no longer supported by Google so this setting defaults to 'Off'.</i>",
+                'description' => "Add the Google 404 widget for 404/403 error pages.<br /><i>This widget is no longer supported by Google</i> so this setting defaults to NO. Set to YES to enable anyway.",
                 'value' => 0,
                 ),
             'wol_show' => array(
