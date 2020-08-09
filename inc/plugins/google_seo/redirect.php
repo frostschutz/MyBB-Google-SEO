@@ -398,7 +398,13 @@ function google_seo_redirect_hook()
 
                 foreach($query as $k=>$v)
                 {
-                    $querystr[] = urlencode($k)."=".urlencode($v);
+                    if(is_array($v)) {
+                        foreach($v as $arrk=>$arrv) {
+                            $querystr[] = urlencode($k)."[".urlencode($arrk)."]=".urlencode($arrv);
+                        }
+                    } else {
+                        $querystr[] = urlencode($k)."=".urlencode($v);
+                    }
                 }
 
                 $location_target = google_seo_encode($location_target);
