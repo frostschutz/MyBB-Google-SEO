@@ -774,8 +774,8 @@ function google_seo_plugin_activate()
         array(
             'widget' => array(
                 'title' => "404 widget",
-                'description' => "Add the Google 404 widget for 404/403 error pages.",
-                'value' => 1,
+                'description' => "Add the Google 404 widget for 404/403 error pages.<br /><i>This widget is no longer supported by Google so this setting defaults to 'Off'.</i>",
+                'value' => 0,
                 ),
             'wol_show' => array(
                 'title' => "Show 404 errors in Who's Online",
