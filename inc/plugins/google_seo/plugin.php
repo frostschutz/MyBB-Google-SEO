@@ -755,7 +755,7 @@ function google_seo_plugin_activate()
                 ),
             'sitemap' => array(
                 'title' => "Enable Google SEO Sitemap",
-                'description' => "This module provides <a href=\"http://sitemaps.org/\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in the Google SEO Sitemap settings group.",
+                'description' => "This module provides <a href=\"https://www.sitemaps.org\">XML Sitemap</a> for your forum. This makes it easier for Google to discover pages on your site. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.<br /><br />Set to YES to enable Google SEO Sitemap. Setting this to NO also disables all other settings in the Google SEO Sitemap settings group.",
                 ),
             'url' => array(
                 'title' => "Enable Google SEO URL",
