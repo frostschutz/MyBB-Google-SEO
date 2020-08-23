@@ -143,9 +143,19 @@ function google_seo_meta_nofollow($text)
 {
     if(is_string($text))
     {
-        $text = str_replace('<a ',
-                            '<a rel="nofollow" ',
-                            $text);
+        $text = preg_replace_callback(
+            "#<a [^>]*>#",
+            function($matches) {
+                $count = 0;
+                $result = $matches[0];
+                $result = str_replace(' rel="', ' rel="nofollow ', $result, $count);
+                if(!$count) {
+                    $result = str_replace('<a ', '<a rel="nofollow" ', $result);
+                }
+                return $result;
+            },
+            $text
+        );
     }
 
     return $text;
