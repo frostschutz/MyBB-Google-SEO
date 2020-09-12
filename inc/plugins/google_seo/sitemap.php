@@ -552,4 +552,3 @@ function google_seo_sitemap_wol(&$plugin_array)
 }
 
 /* --- End of file. --- */
-?>

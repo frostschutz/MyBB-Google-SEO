@@ -465,4 +465,3 @@ function google_seo_meta_output($string)
 }
 
 /* --- End of file. --- */
-?>

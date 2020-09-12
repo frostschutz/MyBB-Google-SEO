@@ -1610,4 +1610,3 @@ function google_seo_url_multipage($url)
 }
 
 /* --- End of file. --- */
-?>

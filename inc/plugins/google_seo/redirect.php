@@ -485,4 +485,3 @@ function google_seo_redirect_remove_hooks()
 }
 
 /* --- End of file. --- */
-?>

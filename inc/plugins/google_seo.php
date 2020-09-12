@@ -319,4 +319,3 @@ foreach(array('404', 'meta', 'redirect', 'sitemap', 'url') as $module)
 }
 
 /* --- End of file. --- */
-?>

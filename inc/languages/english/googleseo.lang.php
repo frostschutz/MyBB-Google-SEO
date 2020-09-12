@@ -8,5 +8,3 @@ $l['googleseo_sitemap_disabledorinvalid'] = "Sitemap disabled or invalid.";
 $l['googleseo_sitemap_emptyorinvalid'] = "Sitemap empty or invalid page.";
 $l['googleseo_sitemap_pageinvalid'] = "Sitemap page invalid.";
 $l['googleseo_sitemap_wol'] = "Browsing the <a href=\"{1}\">XML Sitemap</a>";
-
-?>

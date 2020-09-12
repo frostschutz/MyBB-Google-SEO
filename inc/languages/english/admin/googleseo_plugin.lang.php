@@ -53,5 +53,3 @@ $l['googleseo_plugin_warn_setting'] = "The Google SEO setting group appears to b
 $l['googleseo_plugin_warn_url_apply'] = "URL is passive. Apply changes to core files to activate.";
 $l['googleseo_plugin_warn_url_redirect'] = "Redirect is enabled and URL is passive. Redirecting SEO URLs back to MyBB's default URLs.";
 $l['googleseo_plugin_warn_url_revert'] = "Please enable URL or revert changes to core files.";
-
-?>

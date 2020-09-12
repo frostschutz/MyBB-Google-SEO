@@ -248,4 +248,3 @@ function google_seo_404_wol(&$p)
 }
 
 /* --- End of file. --- */
-?>

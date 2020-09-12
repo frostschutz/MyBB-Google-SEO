@@ -1467,4 +1467,3 @@ function google_seo_plugin_database()
 }
 
 /* --- End of file. --- */
-?>
