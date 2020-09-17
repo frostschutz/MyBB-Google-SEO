@@ -7,7 +7,7 @@ $l['googleseo_plugin_configure'] = "(<a href=\"{1}\" target=\"_blank\">Configure
 $l['googleseo_plugin_db_error'] = "The Google SEO URL database contains {1} entries, {2} of which are no longer required and may be deleted.";
 $l['googleseo_plugin_db_optimize'] = "<a href=\"{1}\">Click here to optimize the Google SEO URL database.</a>";
 $l['googleseo_plugin_db_success'] = "The Google SEO URL database contains {1} entries and is fully optimized.";
-$l['googleseo_plugin_description'] = "Google Search Engine Optimization as described in the official <a href=\"http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
+$l['googleseo_plugin_description'] = "Google Search Engine Optimization as described in the official <a href=\"https://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf\">Google's SEO starter guide</a>. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_edit'] = "Click to {1} changes to core files.";
 $l['googleseo_plugin_edit_apply'] = "Apply";
 $l['googleseo_plugin_edit_revert'] = "Revert";
