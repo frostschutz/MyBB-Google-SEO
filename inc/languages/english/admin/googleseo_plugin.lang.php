@@ -45,7 +45,7 @@ $l['googleseo_plugin_uninstall_confirm'] = "Click here to uninstall Google SEO."
 $l['googleseo_plugin_url'] = "URL";
 $l['googleseo_plugin_url_warn_functions'] = "Modifications to inc/functions.php are required for URL support. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
 $l['googleseo_plugin_url_warn_translate'] = "inc/plugins/google_seo/translate.php is required for URL translation. Please see the <a href=\"../inc/plugins/google_seo.html\">documentation</a> for details.";
-$l['googleseo_plugin_warn_encoding'] = "Your database encoding is '{1}', should be 'utf8mb4'. Please update your MyBB to use UTF-8 everywhere.";
+$l['googleseo_plugin_warn_encoding'] = "Your database encoding is '{1}', should be 'utf8mb4'. (<a href=\"index.php?module=tools-system_health&action=utf8_conversion\">ACP » Tools » UTF-8 Conversion</a>)";
 $l['googleseo_plugin_warn_errordocument'] = "Please enable 404 or remove or comment the google_seo_error=404 directive from .htaccess.";
 $l['googleseo_plugin_warn_htaccess'] = "Add to .htaccess:";
 $l['googleseo_plugin_warn_mbstring'] = "Your host does not seem to support mbstring. This may cause problems with UTF-8.";
