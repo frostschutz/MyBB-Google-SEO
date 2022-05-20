@@ -288,7 +288,7 @@ function google_seo_redirect_hook()
             parse_str(htmlspecialchars_decode($target_parse[1]), $query_target);
             parse_str($current_parse[1], $query_current);
 
-            if(@get_magic_quotes_gpc())
+            if(function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
             {
                 // Dear PHP, I don't need magic, thank you very much.
                 $mybb->strip_slashes_array($query_target);
