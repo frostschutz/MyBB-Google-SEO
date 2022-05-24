@@ -97,6 +97,11 @@ if($settings['google_seo_url_mode'] == 'lazy'
 
 if($settings['google_seo_url_threadprefix'])
 {
+    if(!isset($db->google_seo_url[GOOGLE_SEO_THREAD]['extra']))
+    {
+        $db->google_seo_url[GOOGLE_SEO_THREAD]['extra'] = '';
+    }
+
     $db->google_seo_url[GOOGLE_SEO_THREAD]['extra'] .= ',prefix';
 }
 
@@ -393,6 +398,12 @@ function google_seo_url_create($type, $ids)
     {
         // Query the item title as base for our URL.
         $db->google_seo_query_limit--;
+
+        if(!isset($data['extra']))
+        {
+            $data['extra'] = '';
+        }
+
         $titles = $db->query("SELECT {$data['name']},{$data['id']}{$data['extra']}
                               FROM {$data['table']}
                               WHERE {$data['id']} IN ("
@@ -410,11 +421,11 @@ function google_seo_url_create($type, $ids)
             }
 
             // Thread Prefixes
-            if($row['prefix'])
+            if(isset($row['prefix']))
             {
                 $prefix = build_prefixes($row['prefix']);
 
-                if($prefix['prefix'])
+                if(isset($prefix['prefix']))
                 {
                     $url = google_seo_expand(
                         $settings['google_seo_url_threadprefix'],
@@ -444,7 +455,7 @@ function google_seo_url_create($type, $ids)
             }
 
             // Parents
-            if($row['parent'])
+            if(isset($row['parent']))
             {
                 $parent_type = $db->google_seo_url[$type]['parent_type'];
                 $parent_id = (int)$row['parent'];
@@ -1102,7 +1113,7 @@ function google_seo_url_hook()
     {
         case 'forumdisplay.php':
             // Translation.
-            $url = google_seo_url_dynamic($mybb->input['google_seo_forum']);
+            $url = google_seo_url_dynamic($mybb->get_input('google_seo_forum'));
 
             if(strlen($url) && !array_key_exists('fid', $mybb->input))
             {
@@ -1114,7 +1125,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $fid = (int)$mybb->input['fid'];
+            $fid = (int)$mybb->get_input('fid');
 
             if($fid)
             {
@@ -1125,7 +1136,7 @@ function google_seo_url_hook()
 
         case 'showthread.php':
             // Translation.
-            $url = google_seo_url_dynamic($mybb->input['google_seo_thread']);
+            $url = google_seo_url_dynamic($mybb->get_input('google_seo_thread'));
 
             if(strlen($url) && !array_key_exists('tid', $mybb->input))
             {
@@ -1137,20 +1148,20 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $tid = (int)$mybb->input['tid'];
+            $tid = $mybb->get_input('tid');
 
             if($tid)
             {
                 google_seo_url_create(GOOGLE_SEO_THREAD, $tid);
             }
 
-            $pid = $mybb->input['pid'];
+            $pid = (int)$mybb->get_input('pid');
 
             break;
 
         case 'announcements.php':
             // Translation.
-            $url = google_seo_url_dynamic($mybb->input['google_seo_announcement']);
+            $url = google_seo_url_dynamic($mybb->get_input('google_seo_announcement'));
 
             if(strlen($url) && !array_key_exists('aid', $mybb->input))
             {
@@ -1161,7 +1172,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $aid = (int)$mybb->input['aid'];
+            $aid = (int)$mybb->get_input('aid');
 
             if($aid)
             {
@@ -1172,7 +1183,7 @@ function google_seo_url_hook()
 
         case 'member.php':
             // Translation.
-            $url = google_seo_url_dynamic($mybb->input['google_seo_user']);
+            $url = google_seo_url_dynamic($mybb->get_input('google_seo_user'));
 
             if(strlen($url) && !array_key_exists('uid', $mybb->input))
             {
@@ -1183,9 +1194,9 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $uid = (int)$mybb->input['uid'];
+            $uid = (int)$mybb->get_input('uid');
 
-            if($uid && $mybb->input['action'] == 'profile')
+            if($uid && $mybb->get_input('action') == 'profile')
             {
                 google_seo_url_create(GOOGLE_SEO_USER, $uid);
             }
@@ -1195,7 +1206,7 @@ function google_seo_url_hook()
         case 'calendar.php':
             // Translation.
             // Event.
-            $url = google_seo_url_dynamic($mybb->input['google_seo_event']);
+            $url = google_seo_url_dynamic($mybb->get_input('google_seo_event'));
 
             if(strlen($url) && !array_key_exists('eid', $mybb->input))
             {
@@ -1206,7 +1217,7 @@ function google_seo_url_hook()
             }
 
             // Verification.
-            $eid = (int)$mybb->input['eid'];
+            $eid = (int)$mybb->get_input('eid');
 
             if($eid)
             {
@@ -1216,7 +1227,7 @@ function google_seo_url_hook()
             else
             {
                 // Calendar.
-                $url = google_seo_url_dynamic($mybb->input['google_seo_calendar']);
+                $url = google_seo_url_dynamic($mybb->get_input('google_seo_calendar'));
 
                 if(strlen($url) && !array_key_exists('calendar', $mybb->input))
                 {
@@ -1236,7 +1247,7 @@ function google_seo_url_hook()
                 }
 
                 // Verification.
-                $cid = (int)$mybb->input['calendar'];
+                $cid = (int)$mybb->get_input('calendar');
 
                 if($cid)
                 {
@@ -1247,7 +1258,7 @@ function google_seo_url_hook()
             break;
     }
 
-    if($location)
+    if(!empty($location))
     {
         $location = substr($location, 0, 150);
 
@@ -1279,7 +1290,7 @@ function google_seo_url_merge_hook()
     }
 
     // Fetch the (presumably) Google SEO URL:
-    $url = $mybb->input['threadurl'];
+    $url = $mybb->get_input('threadurl');
 
     // $url can be either 'http://host/Thread-foobar' or just 'foobar'.
 

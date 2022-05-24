@@ -258,7 +258,15 @@ function google_seo_dynamic($url)
     // This is complicated because of ?page&page=2, page being the thread title.
 
     $query = explode('?', $url);
-    $query = $query[1];
+
+    if(isset($query[1]))
+    {
+        $query = $query[1];
+    }
+    else
+    {
+        $query = false;
+    }
 
     if($query)
     {

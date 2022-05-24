@@ -63,7 +63,7 @@ function google_seo_plugin_info()
     if(google_seo_plugin_is_installed() &&
        is_array($plugins_cache) &&
        is_array($plugins_cache['active']) &&
-       $plugins_cache['active']['google_seo'])
+       isset($plugins_cache['active']['google_seo']))
     {
         $info['description'] = $info['description'].google_seo_plugin_status();
     }
@@ -212,6 +212,7 @@ function google_seo_plugin_status()
         $success[] = "<a href=\"{$urldb}\">{$lang->googleseo_plugin_url}</a>";
 
         if($settings['google_seo_url_translate'] &&
+        if(!empty($settings['google_seo_url_translate']) &&
            !file_exists(MYBB_ROOT."inc/plugins/google_seo/translate.php"))
         {
             $warning[] = $lang->googleseo_plugin_url_warn_translate;
@@ -371,6 +372,12 @@ function google_seo_plugin_status()
                     {
                         $url = "([^./]+)";
                         $rule = google_seo_expand($rule, array('url' => $url));
+
+                        if(!isset($v[4]))
+                        {
+                            $v[4] = '';
+                        }
+    
                         $rule = "RewriteRule ^{$rule}\$ {$v[1]}?{$v[4]}{$v[2]}=\$1 [L,QSA,NC]";
                     }
 
@@ -394,7 +401,7 @@ function google_seo_plugin_status()
                 }
             }
 
-            if($line)
+            if(isset($line))
             {
                 $lines[] = $line;
                 $line = '';
@@ -486,6 +493,8 @@ function google_seo_plugin_status()
     $query = $db->simple_select("settinggroups", "gid", "name='google_seo'");
     $gid = $db->fetch_field($query, 'gid');
 
+    $configure = '';
+
     if($gid)
     {
         $configure = $PL->url_append('index.php', array(
@@ -500,6 +509,8 @@ function google_seo_plugin_status()
     {
         $warning[] = $lang->googleseo_plugin_warn_setting;
     }
+
+    $status = '';
 
     // Build a list with success, warnings, errors:
     if(count($error))
