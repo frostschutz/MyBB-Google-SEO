@@ -39,36 +39,42 @@ $db->google_seo_url = array(
         'id' => 'uid',
         'name' => 'username',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_users']),
+        'extra' => '',
         ),
     GOOGLE_SEO_ANNOUNCEMENT => array(
         'table' => TABLE_PREFIX.'announcements',
         'id' => 'aid',
         'name' => 'subject',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_announcements']),
+        'extra' => '',
         ),
     GOOGLE_SEO_FORUM => array(
         'table' => TABLE_PREFIX.'forums',
         'id' => 'fid',
         'name' => 'name',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_forums']),
+        'extra' => '',
         ),
     GOOGLE_SEO_THREAD => array(
         'table' => TABLE_PREFIX.'threads',
         'id' => 'tid',
         'name' => 'subject',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_threads']),
+        'extra' => '',
         ),
     GOOGLE_SEO_EVENT => array(
         'table' => TABLE_PREFIX.'events',
         'id' => 'eid',
         'name' => 'name',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_events']),
+        'extra' => '',
         ),
     GOOGLE_SEO_CALENDAR => array(
         'table' => TABLE_PREFIX.'calendars',
         'id' => 'cid',
         'name' => 'name',
         'scheme' => str_replace('&', '&amp;', $settings['google_seo_url_calendars']),
+        'extra' => '',
         ),
     );
 
