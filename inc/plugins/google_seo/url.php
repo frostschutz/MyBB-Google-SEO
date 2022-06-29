@@ -1253,7 +1253,7 @@ function google_seo_url_hook()
             break;
     }
 
-    if($location)
+    if(isset($location))
     {
         $location = substr($location, 0, 150);
 
