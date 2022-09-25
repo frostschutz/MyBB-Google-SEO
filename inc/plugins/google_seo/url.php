@@ -1115,8 +1115,8 @@ function google_seo_url_hook()
                 $fid = google_seo_url_id(GOOGLE_SEO_FORUM, $url);
                 $mybb->input['fid'] = $fid;
                 $location = get_current_location();
-                $location = str_replace("google_seo_forum={$url}",
-                                        "fid={$fid}", $location);
+                $start = strpos($location, "google_seo_forum=");
+                $location = substr_replace($location, "fid={$fid}", $start);
             }
 
             // Verification.
@@ -1138,8 +1138,8 @@ function google_seo_url_hook()
                 $tid = google_seo_url_id(GOOGLE_SEO_THREAD, $url);
                 $mybb->input['tid'] = $tid;
                 $location = get_current_location();
-                $location = str_replace("google_seo_thread={$url}",
-                                        "tid={$tid}", $location);
+                $start = strpos($location, "google_seo_thread=");
+                $location = substr_replace($location, "tid={$tid}", $start);
             }
 
             // Verification.
@@ -1163,7 +1163,8 @@ function google_seo_url_hook()
                 $aid = google_seo_url_id(GOOGLE_SEO_ANNOUNCEMENT, $url);
                 $mybb->input['aid'] = $aid;
                 $location = get_current_location();
-                $location = str_replace("google_seo_announcement={$url}", "aid={$aid}", $location);
+                $start = strpos($location, "google_seo_announcement=");
+                $location = substr_replace($location, "aid={$aid}", $start);
             }
 
             // Verification.
